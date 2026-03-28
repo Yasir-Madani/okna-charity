@@ -168,7 +168,7 @@ export default function FamilyPage() {
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl">
       <div className="bg-green-600 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">أسرة - {house?.name}</h1>
+       <h1 className="text-xl font-bold">{house?.name} ← {family?.name}</h1>
         <button
           onClick={() => router.push(`/dashboard/houses/${family?.house_id}`)}
           className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"

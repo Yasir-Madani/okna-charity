@@ -39,7 +39,7 @@ export default function HousePage() {
       .from('families')
       .select(`*, individuals(id)`)
       .eq('house_id', id)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: true })
 
     if (familiesData) setFamilies(familiesData)
     setLoading(false)
@@ -66,12 +66,14 @@ export default function HousePage() {
     e.preventDefault()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    const { data } = await supabase.from('families').insert({
+    await supabase.from('families').insert({
       house_id: id,
       name: familyName,
       created_by: user.id
-    }).select().single()
-    if (data) router.push(`/dashboard/families/${data.id}`)
+    })
+    setFamilyName('')
+    setShowFamilyForm(false)
+    fetchHouse()
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">جاري التحميل...</div>
@@ -190,14 +192,14 @@ export default function HousePage() {
           <p className="text-center text-gray-500 mt-8">لا توجد أسر بعد</p>
         ) : (
           <div className="space-y-2">
-            {families.map((family, index) => (
+            {families.map((family) => (
               <div
                 key={family.id}
                 className="bg-white p-4 rounded-lg shadow flex justify-between items-center cursor-pointer hover:bg-gray-50"
                 onClick={() => router.push(`/dashboard/families/${family.id}`)}
               >
                 <div>
-                  <p className="font-bold">{family.name || `أسرة ${index + 1}`}</p>
+                  <p className="font-bold">{family.name}</p>
                   <p className="text-gray-500 text-sm">
                     {family.individuals?.length || 0} فرد
                   </p>
