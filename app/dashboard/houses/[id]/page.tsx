@@ -8,6 +8,8 @@ export default function HousePage() {
   const [families, setFamilies] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showEdit, setShowEdit] = useState(false)
+  const [showFamilyForm, setShowFamilyForm] = useState(false)
+  const [familyName, setFamilyName] = useState('')
   const [form, setForm] = useState({ name: '', sector: '', notes: '' })
   const router = useRouter()
   const { id } = useParams()
@@ -60,11 +62,13 @@ export default function HousePage() {
     router.push('/dashboard')
   }
 
-  const handleAddFamily = async () => {
+  const handleAddFamily = async (e: React.FormEvent) => {
+    e.preventDefault()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     const { data } = await supabase.from('families').insert({
       house_id: id,
+      name: familyName,
       created_by: user.id
     }).select().single()
     if (data) router.push(`/dashboard/families/${data.id}`)
@@ -156,12 +160,31 @@ export default function HousePage() {
         <div className="flex justify-between items-center mb-3">
           <h2 className="font-bold text-gray-700">الأسر ({families.length})</h2>
           <button
-            onClick={handleAddFamily}
+            onClick={() => setShowFamilyForm(!showFamilyForm)}
             className="bg-green-600 text-white px-3 py-1 rounded text-sm cursor-pointer"
           >
             + إضافة أسرة
           </button>
         </div>
+
+        {showFamilyForm && (
+          <form onSubmit={handleAddFamily} className="bg-white p-4 rounded-lg shadow mb-4">
+            <div className="mb-3">
+              <label className="text-sm text-gray-600">اسم الأسرة *</label>
+              <input
+                required
+                value={familyName}
+                onChange={e => setFamilyName(e.target.value)}
+                placeholder="مثال: أسرة علي محمدين"
+                className="w-full border rounded p-2 text-right text-sm mt-1"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button type="submit" className="flex-1 bg-green-600 text-white py-2 rounded text-sm cursor-pointer">حفظ</button>
+              <button type="button" onClick={() => setShowFamilyForm(false)} className="flex-1 bg-gray-200 py-2 rounded text-sm cursor-pointer">إلغاء</button>
+            </div>
+          </form>
+        )}
 
         {families.length === 0 ? (
           <p className="text-center text-gray-500 mt-8">لا توجد أسر بعد</p>
@@ -174,7 +197,7 @@ export default function HousePage() {
                 onClick={() => router.push(`/dashboard/families/${family.id}`)}
               >
                 <div>
-                  <p className="font-bold">أسرة {index + 1}</p>
+                  <p className="font-bold">{family.name || `أسرة ${index + 1}`}</p>
                   <p className="text-gray-500 text-sm">
                     {family.individuals?.length || 0} فرد
                   </p>
