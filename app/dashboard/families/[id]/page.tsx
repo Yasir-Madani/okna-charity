@@ -1,0 +1,356 @@
+'use client'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../../lib/supabase'
+import { useRouter, useParams } from 'next/navigation'
+import { getAgeCategory, checkBreastfeeding } from '../../../lib/helpers'
+
+export default function FamilyPage() {
+  const [family, setFamily] = useState<any>(null)
+  const [house, setHouse] = useState<any>(null)
+  const [individuals, setIndividuals] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingIndividual, setEditingIndividual] = useState<any>(null)
+  const [diseases, setDiseases] = useState<any[]>([])
+  const [disabilities, setDisabilities] = useState<any[]>([])
+  const [selectedDiseases, setSelectedDiseases] = useState<string[]>([])
+  const [medications, setMedications] = useState<Record<string, string>>({})
+  const [selectedDisabilities, setSelectedDisabilities] = useState<string[]>([])
+  const router = useRouter()
+  const { id } = useParams()
+
+  const [form, setForm] = useState({
+    full_name: '',
+    national_id: '',
+    bank_account: '',
+    gender: 'ذكر',
+    birth_date: '',
+    relationship: '',
+    notes: ''
+  })
+
+  useEffect(() => { checkUser() }, [])
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { router.push('/'); return }
+    fetchData()
+  }
+
+  const fetchData = async () => {
+    const { data: familyData } = await supabase
+      .from('families').select('*, houses(*)').eq('id', id).single()
+    if (!familyData) { router.push('/dashboard'); return }
+    setFamily(familyData)
+    setHouse(familyData.houses)
+
+    const { data: inds } = await supabase
+      .from('individuals')
+      .select(`*, individual_diseases(*, diseases(*)), individual_disabilities(*, disabilities(*))`)
+      .eq('family_id', id)
+      .order('created_at', { ascending: true })
+    if (inds) setIndividuals(inds)
+
+    const { data: dis } = await supabase.from('diseases').select('*').order('name')
+    if (dis) setDiseases(dis)
+
+    const { data: disab } = await supabase.from('disabilities').select('*')
+    if (disab) setDisabilities(disab)
+
+    setLoading(false)
+  }
+
+  const resetForm = () => {
+    setForm({ full_name: '', national_id: '', bank_account: '', gender: 'ذكر', birth_date: '', relationship: '', notes: '' })
+    setSelectedDiseases([])
+    setMedications({})
+    setSelectedDisabilities([])
+    setEditingIndividual(null)
+    setShowForm(false)
+  }
+
+  const handleEdit = (ind: any) => {
+    setForm({
+      full_name: ind.full_name || '',
+      national_id: ind.national_id || '',
+      bank_account: ind.bank_account || '',
+      gender: ind.gender || 'ذكر',
+      birth_date: ind.birth_date || '',
+      relationship: ind.relationship || '',
+      notes: ind.notes || ''
+    })
+    const dIds = ind.individual_diseases?.map((d: any) => d.disease_id) || []
+    setSelectedDiseases(dIds)
+    const meds: Record<string, string> = {}
+    ind.individual_diseases?.forEach((d: any) => { meds[d.disease_id] = d.medication || '' })
+    setMedications(meds)
+    setSelectedDisabilities(ind.individual_disabilities?.map((d: any) => d.disability_id) || [])
+    setEditingIndividual(ind)
+    setShowForm(true)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const allMembers = [...individuals, { birth_date: form.birth_date }]
+    const breastfeeding = checkBreastfeeding(form.relationship, form.gender, allMembers)
+
+    const payload = {
+      family_id: id,
+      full_name: form.full_name,
+      national_id: form.national_id || null,
+      bank_account: form.bank_account || null,
+      gender: form.gender,
+      birth_date: form.birth_date || null,
+      relationship: form.relationship || null,
+      breastfeeding: breastfeeding || null,
+      notes: form.notes || null,
+      created_by: user.id
+    }
+
+    let indId = editingIndividual?.id
+
+    if (editingIndividual) {
+      await supabase.from('individuals').update(payload).eq('id', indId)
+      await supabase.from('individual_diseases').delete().eq('individual_id', indId)
+      await supabase.from('individual_disabilities').delete().eq('individual_id', indId)
+    } else {
+      const { data: newInd } = await supabase.from('individuals').insert(payload).select().single()
+      indId = newInd?.id
+    }
+
+    if (selectedDiseases.length > 0) {
+      await supabase.from('individual_diseases').insert(
+        selectedDiseases.map(dId => ({ individual_id: indId, disease_id: dId, medication: medications[dId] || null }))
+      )
+    }
+
+    if (selectedDisabilities.length > 0) {
+      await supabase.from('individual_disabilities').insert(
+        selectedDisabilities.map(dId => ({ individual_id: indId, disability_id: dId }))
+      )
+    }
+
+    resetForm()
+    fetchData()
+  }
+
+  const handleDelete = async (indId: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا الفرد؟')) return
+    await supabase.from('individuals').delete().eq('id', indId)
+    fetchData()
+  }
+
+  const handleDeleteFamily = async () => {
+    if (!confirm('هل أنت متأكد من حذف هذه الأسرة؟')) return
+    await supabase.from('families').delete().eq('id', id)
+    router.push(`/dashboard/houses/${family.house_id}`)
+  }
+
+  const toggleDisease = (dId: string) => {
+    setSelectedDiseases(prev =>
+      prev.includes(dId) ? prev.filter(x => x !== dId) : [...prev, dId]
+    )
+  }
+
+  const toggleDisability = (dId: string) => {
+    setSelectedDisabilities(prev =>
+      prev.includes(dId) ? prev.filter(x => x !== dId) : [...prev, dId]
+    )
+  }
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center">جاري التحميل...</div>
+
+  const familyIndex = family?.id
+
+  return (
+    <div className="min-h-screen bg-gray-100" dir="rtl">
+      <div className="bg-green-600 text-white p-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold">أسرة - {house?.name}</h1>
+        <button
+          onClick={() => router.push(`/dashboard/houses/${family?.house_id}`)}
+          className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
+        >
+          رجوع
+        </button>
+      </div>
+
+      <div className="p-4 max-w-3xl mx-auto">
+        <div className="bg-white p-4 rounded-lg shadow mb-4 flex justify-between items-center">
+          <div>
+            <p className="text-sm text-gray-500">المنزل: <span className="font-bold text-gray-700">{house?.name}</span></p>
+            <p className="text-sm text-gray-500">المحور: <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">{house?.sector}</span></p>
+            <p className="text-sm text-gray-500 mt-1">عدد الأفراد: <span className="font-bold">{individuals.length}</span></p>
+          </div>
+          <button
+            onClick={handleDeleteFamily}
+            className="text-red-500 text-sm underline cursor-pointer"
+          >
+            حذف الأسرة
+          </button>
+        </div>
+
+        <button
+          onClick={() => { resetForm(); setShowForm(!showForm) }}
+          className="w-full bg-green-600 text-white py-3 rounded-lg font-bold mb-4 cursor-pointer"
+        >
+          + إضافة فرد
+        </button>
+
+        {showForm && (
+          <div className="bg-white p-4 rounded-lg shadow mb-4">
+            <h2 className="font-bold text-lg mb-4">{editingIndividual ? 'تعديل الفرد' : 'إضافة فرد جديد'}</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <label className="text-sm text-gray-600">الاسم الكامل *</label>
+                  <input required value={form.full_name}
+                    onChange={e => setForm({ ...form, full_name: e.target.value })}
+                    className="w-full border rounded p-2 text-right text-sm" />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">الرقم الوطني</label>
+                  <input value={form.national_id}
+                    onChange={e => setForm({ ...form, national_id: e.target.value })}
+                    className="w-full border rounded p-2 text-right text-sm" />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">رقم الحساب البنكي</label>
+                  <input value={form.bank_account}
+                    onChange={e => setForm({ ...form, bank_account: e.target.value })}
+                    className="w-full border rounded p-2 text-right text-sm" />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">الجنس *</label>
+                  <select value={form.gender}
+                    onChange={e => setForm({ ...form, gender: e.target.value })}
+                    className="w-full border rounded p-2 text-right text-sm cursor-pointer">
+                    <option value="ذكر">ذكر</option>
+                    <option value="أنثى">أنثى</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">تاريخ الميلاد</label>
+                  <input type="date" value={form.birth_date}
+                    onChange={e => setForm({ ...form, birth_date: e.target.value })}
+                    className="w-full border rounded p-2 text-sm" />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">صلة القرابة</label>
+                  <input value={form.relationship}
+                    onChange={e => setForm({ ...form, relationship: e.target.value })}
+                    placeholder="رب أسرة / زوجة / ابن..."
+                    className="w-full border rounded p-2 text-right text-sm" />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="text-sm font-bold text-gray-700 block mb-2">الأمراض المزمنة</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {diseases.map(d => (
+                    <div key={d.id}>
+                      <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="checkbox" checked={selectedDiseases.includes(d.id)}
+                          onChange={() => toggleDisease(d.id)} />
+                        {d.name}
+                      </label>
+                      {selectedDiseases.includes(d.id) && (
+                        <input
+                          placeholder="الدواء (اختياري)"
+                          value={medications[d.id] || ''}
+                          onChange={e => setMedications({ ...medications, [d.id]: e.target.value })}
+                          className="w-full border rounded p-1 text-right text-xs mt-1"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="text-sm font-bold text-gray-700 block mb-2">الإعاقة</label>
+                <div className="flex gap-4 flex-wrap">
+                  {disabilities.map(d => (
+                    <label key={d.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input type="checkbox" checked={selectedDisabilities.includes(d.id)}
+                        onChange={() => toggleDisability(d.id)} />
+                      {d.type}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="text-sm text-gray-600">ملاحظات</label>
+                <textarea value={form.notes}
+                  onChange={e => setForm({ ...form, notes: e.target.value })}
+                  className="w-full border rounded p-2 text-right text-sm" rows={2} />
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <button type="submit" className="flex-1 bg-green-600 text-white py-2 rounded font-bold cursor-pointer">حفظ</button>
+                <button type="button" onClick={resetForm} className="flex-1 bg-gray-200 py-2 rounded cursor-pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {individuals.length === 0 ? (
+          <p className="text-center text-gray-500 mt-8">لا يوجد أفراد بعد</p>
+        ) : (
+          <div className="space-y-3">
+            {individuals.map(ind => (
+              <div key={ind.id} className="bg-white p-4 rounded-lg shadow">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-lg">{ind.full_name}</h3>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">{ind.gender}</span>
+                      {ind.birth_date && (
+                        <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full text-xs">
+                          {getAgeCategory(ind.birth_date)} - {new Date().getFullYear() - new Date(ind.birth_date).getFullYear()} سنة
+                        </span>
+                      )}
+                      {ind.relationship && (
+                        <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">{ind.relationship}</span>
+                      )}
+                      {ind.breastfeeding && (
+                        <span className="bg-pink-100 text-pink-800 px-2 py-0.5 rounded-full text-xs">{ind.breastfeeding}</span>
+                      )}
+                    </div>
+                    {ind.national_id && <p className="text-gray-500 text-xs mt-1">رقم وطني: {ind.national_id}</p>}
+                    {ind.individual_diseases?.length > 0 && (
+                      <div className="mt-2">
+                        {ind.individual_diseases.map((d: any) => (
+                          <span key={d.id} className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs ml-1">
+                            {d.diseases?.name}{d.medication ? ` - ${d.medication}` : ''}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {ind.individual_disabilities?.length > 0 && (
+                      <div className="mt-1">
+                        {ind.individual_disabilities.map((d: any) => (
+                          <span key={d.id} className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full text-xs ml-1">
+                            إعاقة {d.disabilities?.type}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {ind.notes && <p className="text-gray-500 text-xs mt-1">{ind.notes}</p>}
+                  </div>
+                  <div className="flex flex-col gap-1 items-end">
+                    <button onClick={() => handleEdit(ind)} className="text-blue-600 text-sm underline cursor-pointer">تعديل</button>
+                    <button onClick={() => handleDelete(ind.id)} className="text-red-500 text-sm underline cursor-pointer">حذف</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
