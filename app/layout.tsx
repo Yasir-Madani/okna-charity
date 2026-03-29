@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Tajawal } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+// إعداد خط Tajawal
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"], // دعم الحروف العربية واللاتينية
+  weight: ["200", "300", "400", "500", "700", "800", "900"], // يمكنك ترك الأوزان التي تحتاجها فقط لتسريع التحميل
+  variable: "--font-tajawal",
 });
 
 export const metadata: Metadata = {
@@ -24,10 +21,12 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="ar" // تغيير اللغة إلى العربية
+      dir="rtl" // إضافة اتجاه النص من اليمين لليسار
+      className={`${tajawal.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      {/* استخدمنا المتغير هنا، أو يمكنك إضافة font-sans إذا قمت بإعداده في Tailwind */}
+      <body className={`min-h-full flex flex-col font-sans`}>{children}</body>
     </html>
   );
 }
