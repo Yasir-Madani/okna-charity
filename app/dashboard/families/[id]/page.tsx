@@ -349,9 +349,14 @@ export default function FamilyPage() {
                       ))}
                     </div>
                   )}
-
-
-                <div className="relative flex gap-2">
+                  <div className="relative flex gap-2">
+  <button
+    type="button"
+    onClick={addCustomDisease}
+    className="bg-green-600 text-white px-3 rounded text-sm cursor-pointer flex-shrink-0"
+  >
+    +
+  </button>
   <input
     ref={diseaseInputRef}
     value={diseaseInput}
@@ -360,14 +365,6 @@ export default function FamilyPage() {
     placeholder="اكتب اسم المرض..."
     className="flex-1 border rounded p-2 text-right text-sm"
   />
-  <button
-    type="button"
-    onClick={addCustomDisease}
-    className="bg-green-600 text-white px-4 rounded text-sm cursor-pointer flex-shrink-0 font-bold"
-  >
-    +
-  </button>
-   
                     {showSuggestions && diseaseSuggestions.length > 0 && (
                       <div className="absolute top-full right-0 left-0 bg-white border rounded-lg shadow-lg z-10 mt-1">
                         {diseaseSuggestions.map(d => (
