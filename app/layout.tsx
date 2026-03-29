@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { Tajawal } from "next/font/google";
+import { Cairo } from "next/font/google";
 import "./globals.css";
 
-// إعداد خط Tajawal
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"], // دعم الحروف العربية واللاتينية
-  weight: ["200", "300", "400", "500", "700", "800", "900"], // يمكنك ترك الأوزان التي تحتاجها فقط لتسريع التحميل
-  variable: "--font-tajawal",
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700"], // اختياري حسب حاجتك
 });
 
 export const metadata: Metadata = {
@@ -20,13 +18,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ar" // تغيير اللغة إلى العربية
-      dir="rtl" // إضافة اتجاه النص من اليمين لليسار
-      className={`${tajawal.variable} h-full antialiased`}
-    >
-      {/* استخدمنا المتغير هنا، أو يمكنك إضافة font-sans إذا قمت بإعداده في Tailwind */}
-      <body className={`min-h-full flex flex-col font-sans`}>{children}</body>
+    <html lang="ar">
+      <body className={`${cairo.className} antialiased min-h-full flex flex-col`}>
+        {children}
+      </body>
     </html>
   );
 }
