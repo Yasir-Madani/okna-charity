@@ -423,7 +423,9 @@ export default function FamilyPage() {
             {individuals.map(ind => (
               <div key={ind.id} className="bg-white p-4 rounded-lg shadow">
                 <div className="flex justify-between items-start">
-                  
+                  <div>
+  <h3 className="font-bold text-lg">{ind.full_name}</h3>
+</div>
 
 
 
