@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { Tajawal } from "next/font/google";
 import "./globals.css";
 
-const cairo = Cairo({
+const tajawal = Tajawal({
   subsets: ["arabic", "latin"],
-  weight: ["400", "500", "700"], // اختياري حسب حاجتك
+  weight: ["400", "500", "700"], // حسب الحاجة
 });
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar">
-      <body className={`${cairo.className} antialiased min-h-full flex flex-col`}>
+      <body className={`${tajawal.className} antialiased min-h-full flex flex-col`}>
         {children}
       </body>
     </html>
