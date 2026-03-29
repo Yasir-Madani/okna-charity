@@ -249,7 +249,7 @@ export default function FamilyPage() {
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl">
       <div className="bg-green-600 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">{house?.name} ← {family?.name}</h1>
+        <h1 className="text-xl font-bold">أسرة {family?.name} ← منزل {house?.name}</h1>
         <button
           onClick={() => router.push(`/dashboard/houses/${family?.house_id}`)}
           className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
@@ -261,7 +261,11 @@ export default function FamilyPage() {
       <div className="p-4 max-w-3xl mx-auto">
         <div className="bg-white p-4 rounded-lg shadow mb-4 flex justify-between items-center">
           <div>
-            <p className="text-sm text-gray-500">المنزل: <span className="font-bold text-gray-700">{house?.name}</span></p>
+            
+
+            {/* <p className="text-sm text-gray-500">
+  المنزل: <span className="font-bold text-gray-700">{house?.name}</span>
+</p> */}
             <p className="text-sm text-gray-500">المحور: <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">{house?.sector}</span></p>
             <p className="text-sm text-gray-500 mt-1">عدد الأفراد: <span className="font-bold">{individuals.length}</span></p>
           </div>

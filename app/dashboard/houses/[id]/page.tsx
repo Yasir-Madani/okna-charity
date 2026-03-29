@@ -81,7 +81,7 @@ export default function HousePage() {
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl">
       <div className="bg-green-600 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">{house?.name}</h1>
+       <h1 className="text-xl font-bold">منزل {house?.name}</h1>
         <button
           onClick={() => router.push('/dashboard')}
           className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
@@ -105,13 +105,13 @@ export default function HousePage() {
                 onClick={() => setShowEdit(!showEdit)}
                 className="text-blue-600 text-sm underline cursor-pointer"
               >
-               تعديل الأسرة
+              تعديل المنزل
               </button>
               <button
                 onClick={handleDeleteHouse}
                 className="text-red-500 text-sm underline cursor-pointer"
               >
-               حذف الأسرة
+               حذف المنزل
               </button>
             </div>
           </div>
