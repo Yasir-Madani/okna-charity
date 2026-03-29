@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useRouter, useParams } from 'next/navigation'
 import { getAgeCategory, checkBreastfeeding } from '../../../lib/helpers'
@@ -13,9 +13,16 @@ export default function FamilyPage() {
   const [editingIndividual, setEditingIndividual] = useState<any>(null)
   const [diseases, setDiseases] = useState<any[]>([])
   const [disabilities, setDisabilities] = useState<any[]>([])
-  const [selectedDiseases, setSelectedDiseases] = useState<string[]>([])
-  const [medications, setMedications] = useState<Record<string, string>>({})
+
+  const [selectedDiseases, setSelectedDiseases] = useState<{ id?: string; name: string; medication: string }[]>([])
+  const [diseaseInput, setDiseaseInput] = useState('')
+  const [diseaseSuggestions, setDiseaseSuggestions] = useState<any[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const diseaseInputRef = useRef<HTMLInputElement>(null)
+
   const [selectedDisabilities, setSelectedDisabilities] = useState<string[]>([])
+  const [otherDisability, setOtherDisability] = useState('')
+
   const router = useRouter()
   const { id } = useParams()
 
@@ -63,10 +70,68 @@ export default function FamilyPage() {
   const resetForm = () => {
     setForm({ full_name: '', national_id: '', bank_account: '', gender: 'ذكر', birth_date: '', relationship: '', notes: '' })
     setSelectedDiseases([])
-    setMedications({})
+    setDiseaseInput('')
     setSelectedDisabilities([])
+    setOtherDisability('')
     setEditingIndividual(null)
     setShowForm(false)
+  }
+
+  const handleDiseaseInput = (val: string) => {
+    setDiseaseInput(val)
+    if (val.trim().length > 0) {
+      const filtered = diseases.filter(d =>
+        d.name.includes(val) && !selectedDiseases.find(s => s.name === d.name)
+      )
+      setDiseaseSuggestions(filtered)
+      setShowSuggestions(true)
+    } else {
+      setShowSuggestions(false)
+    }
+  }
+
+  const addDiseaseFromSuggestion = (disease: any) => {
+    if (!selectedDiseases.find(s => s.name === disease.name)) {
+      setSelectedDiseases([...selectedDiseases, { id: disease.id, name: disease.name, medication: '' }])
+    }
+    setDiseaseInput('')
+    setShowSuggestions(false)
+    diseaseInputRef.current?.focus()
+  }
+
+  const addCustomDisease = async () => {
+    const name = diseaseInput.trim()
+    if (!name || selectedDiseases.find(s => s.name === name)) {
+      setDiseaseInput('')
+      setShowSuggestions(false)
+      return
+    }
+    const existing = diseases.find(d => d.name === name)
+    if (existing) {
+      addDiseaseFromSuggestion(existing)
+    } else {
+      const { data: newDisease } = await supabase.from('diseases').insert({ name }).select().single()
+      if (newDisease) {
+        setDiseases([...diseases, newDisease])
+        setSelectedDiseases([...selectedDiseases, { id: newDisease.id, name, medication: '' }])
+      }
+    }
+    setDiseaseInput('')
+    setShowSuggestions(false)
+  }
+
+  const removeDisease = (name: string) => {
+    setSelectedDiseases(selectedDiseases.filter(d => d.name !== name))
+  }
+
+  const updateMedication = (name: string, medication: string) => {
+    setSelectedDiseases(selectedDiseases.map(d => d.name === name ? { ...d, medication } : d))
+  }
+
+  const toggleDisability = (type: string) => {
+    setSelectedDisabilities(prev =>
+      prev.includes(type) ? prev.filter(x => x !== type) : [...prev, type]
+    )
   }
 
   const handleEdit = (ind: any) => {
@@ -79,12 +144,23 @@ export default function FamilyPage() {
       relationship: ind.relationship || '',
       notes: ind.notes || ''
     })
-    const dIds = ind.individual_diseases?.map((d: any) => d.disease_id) || []
-    setSelectedDiseases(dIds)
-    const meds: Record<string, string> = {}
-    ind.individual_diseases?.forEach((d: any) => { meds[d.disease_id] = d.medication || '' })
-    setMedications(meds)
-    setSelectedDisabilities(ind.individual_disabilities?.map((d: any) => d.disability_id) || [])
+    const ds = ind.individual_diseases?.map((d: any) => ({
+      id: d.disease_id,
+      name: d.diseases?.name || d.custom_disease || '',
+      medication: d.medication || ''
+    })) || []
+    setSelectedDiseases(ds)
+
+    const disabTypes = ind.individual_disabilities?.map((d: any) => d.disabilities?.type || d.custom_disability || '') || []
+    const standardTypes = ['بصرية', 'سمعية', 'حركية', 'عقلية']
+    const standard = disabTypes.filter((t: string) => standardTypes.includes(t))
+    const custom = disabTypes.find((t: string) => !standardTypes.includes(t)) || ''
+    setSelectedDisabilities(standard)
+    if (custom) {
+      setSelectedDisabilities([...standard, 'أخرى'])
+      setOtherDisability(custom)
+    }
+
     setEditingIndividual(ind)
     setShowForm(true)
   }
@@ -123,13 +199,30 @@ export default function FamilyPage() {
 
     if (selectedDiseases.length > 0) {
       await supabase.from('individual_diseases').insert(
-        selectedDiseases.map(dId => ({ individual_id: indId, disease_id: dId, medication: medications[dId] || null }))
+        selectedDiseases.map(d => ({
+          individual_id: indId,
+          disease_id: d.id || null,
+          custom_disease: d.id ? null : d.name,
+          medication: d.medication || null
+        }))
       )
     }
 
-    if (selectedDisabilities.length > 0) {
+    const finalDisabilities = selectedDisabilities.includes('أخرى')
+      ? [...selectedDisabilities.filter(d => d !== 'أخرى'), otherDisability].filter(Boolean)
+      : selectedDisabilities
+
+    if (finalDisabilities.length > 0) {
+      const standardTypes = ['بصرية', 'سمعية', 'حركية', 'عقلية']
       await supabase.from('individual_disabilities').insert(
-        selectedDisabilities.map(dId => ({ individual_id: indId, disability_id: dId }))
+        finalDisabilities.map(type => {
+          const existing = disabilities.find(d => d.type === type)
+          return {
+            individual_id: indId,
+            disability_id: existing?.id || null,
+            custom_disability: existing ? null : type
+          }
+        })
       )
     }
 
@@ -149,26 +242,14 @@ export default function FamilyPage() {
     router.push(`/dashboard/houses/${family.house_id}`)
   }
 
-  const toggleDisease = (dId: string) => {
-    setSelectedDiseases(prev =>
-      prev.includes(dId) ? prev.filter(x => x !== dId) : [...prev, dId]
-    )
-  }
-
-  const toggleDisability = (dId: string) => {
-    setSelectedDisabilities(prev =>
-      prev.includes(dId) ? prev.filter(x => x !== dId) : [...prev, dId]
-    )
-  }
-
   if (loading) return <div className="min-h-screen flex items-center justify-center">جاري التحميل...</div>
 
-  const familyIndex = family?.id
+  const standardDisabilityTypes = ['بصرية', 'سمعية', 'حركية', 'عقلية']
 
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl">
       <div className="bg-green-600 text-white p-4 flex justify-between items-center">
-       <h1 className="text-xl font-bold">{house?.name} ← {family?.name}</h1>
+        <h1 className="text-xl font-bold">{house?.name} ← {family?.name}</h1>
         <button
           onClick={() => router.push(`/dashboard/houses/${family?.house_id}`)}
           className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
@@ -184,12 +265,7 @@ export default function FamilyPage() {
             <p className="text-sm text-gray-500">المحور: <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">{house?.sector}</span></p>
             <p className="text-sm text-gray-500 mt-1">عدد الأفراد: <span className="font-bold">{individuals.length}</span></p>
           </div>
-          <button
-            onClick={handleDeleteFamily}
-            className="text-red-500 text-sm underline cursor-pointer"
-          >
-            حذف الأسرة
-          </button>
+          <button onClick={handleDeleteFamily} className="text-red-500 text-sm underline cursor-pointer">حذف الأسرة</button>
         </div>
 
         <button
@@ -248,37 +324,80 @@ export default function FamilyPage() {
 
               <div className="mt-4">
                 <label className="text-sm font-bold text-gray-700 block mb-2">الأمراض المزمنة</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {diseases.map(d => (
-                    <div key={d.id}>
-                      <label className="flex items-center gap-2 cursor-pointer text-sm">
-                        <input type="checkbox" checked={selectedDiseases.includes(d.id)}
-                          onChange={() => toggleDisease(d.id)} />
-                        {d.name}
-                      </label>
-                      {selectedDiseases.includes(d.id) && (
-                        <input
-                          placeholder="الدواء (اختياري)"
-                          value={medications[d.id] || ''}
-                          onChange={e => setMedications({ ...medications, [d.id]: e.target.value })}
-                          className="w-full border rounded p-1 text-right text-xs mt-1"
-                        />
-                      )}
+                <div className="border rounded-lg p-3">
+                  {selectedDiseases.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {selectedDiseases.map(d => (
+                        <div key={d.name} className="bg-red-50 border border-red-200 rounded-lg p-2 text-sm">
+                          <div className="flex items-center gap-1 mb-1">
+                            <span className="text-red-800 font-bold">{d.name}</span>
+                            <button type="button" onClick={() => removeDisease(d.name)}
+                              className="text-red-400 hover:text-red-600 cursor-pointer text-xs mr-1">✕</button>
+                          </div>
+                          <input
+                            value={d.medication}
+                            onChange={e => updateMedication(d.name, e.target.value)}
+                            placeholder="الدواء (اختياري)"
+                            className="w-full border border-red-200 rounded p-1 text-xs text-right bg-white"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                  <div className="relative">
+                    <input
+                      ref={diseaseInputRef}
+                      value={diseaseInput}
+                      onChange={e => handleDiseaseInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomDisease() } }}
+                      placeholder="اكتب اسم المرض واضغط Enter للإضافة..."
+                      className="w-full border rounded p-2 text-right text-sm"
+                    />
+                    {showSuggestions && diseaseSuggestions.length > 0 && (
+                      <div className="absolute top-full right-0 left-0 bg-white border rounded-lg shadow-lg z-10 mt-1">
+                        {diseaseSuggestions.map(d => (
+                          <button key={d.id} type="button"
+                            onClick={() => addDiseaseFromSuggestion(d)}
+                            className="w-full text-right px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer border-b last:border-0">
+                            {d.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">اكتب واختر من الاقتراحات أو اضغط Enter لإضافة مرض جديد</p>
                 </div>
               </div>
 
               <div className="mt-4">
                 <label className="text-sm font-bold text-gray-700 block mb-2">الإعاقة</label>
-                <div className="flex gap-4 flex-wrap">
-                  {disabilities.map(d => (
-                    <label key={d.id} className="flex items-center gap-2 cursor-pointer text-sm">
-                      <input type="checkbox" checked={selectedDisabilities.includes(d.id)}
-                        onChange={() => toggleDisability(d.id)} />
-                      {d.type}
+                <div className="border rounded-lg p-3">
+                  <div className="flex flex-wrap gap-3">
+                    {standardDisabilityTypes.map(type => (
+                      <label key={type} className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="checkbox"
+                          checked={selectedDisabilities.includes(type)}
+                          onChange={() => toggleDisability(type)}
+                          className="cursor-pointer" />
+                        {type}
+                      </label>
+                    ))}
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input type="checkbox"
+                        checked={selectedDisabilities.includes('أخرى')}
+                        onChange={() => toggleDisability('أخرى')}
+                        className="cursor-pointer" />
+                      أخرى
                     </label>
-                  ))}
+                  </div>
+                  {selectedDisabilities.includes('أخرى') && (
+                    <input
+                      value={otherDisability}
+                      onChange={e => setOtherDisability(e.target.value)}
+                      placeholder="حدد نوع الإعاقة..."
+                      className="mt-2 w-full border rounded p-2 text-right text-sm"
+                    />
+                  )}
                 </div>
               </div>
 
@@ -322,19 +441,19 @@ export default function FamilyPage() {
                     </div>
                     {ind.national_id && <p className="text-gray-500 text-xs mt-1">رقم وطني: {ind.national_id}</p>}
                     {ind.individual_diseases?.length > 0 && (
-                      <div className="mt-2">
+                      <div className="mt-2 flex flex-wrap gap-1">
                         {ind.individual_diseases.map((d: any) => (
-                          <span key={d.id} className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs ml-1">
-                            {d.diseases?.name}{d.medication ? ` - ${d.medication}` : ''}
+                          <span key={d.id} className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs">
+                            {d.diseases?.name || d.custom_disease}{d.medication ? ` - ${d.medication}` : ''}
                           </span>
                         ))}
                       </div>
                     )}
                     {ind.individual_disabilities?.length > 0 && (
-                      <div className="mt-1">
+                      <div className="mt-1 flex flex-wrap gap-1">
                         {ind.individual_disabilities.map((d: any) => (
-                          <span key={d.id} className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full text-xs ml-1">
-                            إعاقة {d.disabilities?.type}
+                          <span key={d.id} className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full text-xs">
+                            إعاقة {d.disabilities?.type || d.custom_disability}
                           </span>
                         ))}
                       </div>
