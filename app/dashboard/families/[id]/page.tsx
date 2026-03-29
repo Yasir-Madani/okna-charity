@@ -426,11 +426,6 @@ export default function FamilyPage() {
                   <div>
   <h3 className="font-bold text-lg">{ind.full_name}</h3>
 </div>
-
-
-
-        
-
                   <div className="flex flex-col gap-1 items-end">
                     <button onClick={() => handleEdit(ind)} className="text-blue-600 text-sm underline cursor-pointer">تعديل</button>
                     <button onClick={() => handleDelete(ind.id)} className="text-red-500 text-sm underline cursor-pointer">حذف</button>

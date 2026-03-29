@@ -105,13 +105,13 @@ export default function HousePage() {
                 onClick={() => setShowEdit(!showEdit)}
                 className="text-blue-600 text-sm underline cursor-pointer"
               >
-                تعديل
+               تعديل الأسرة
               </button>
               <button
                 onClick={handleDeleteHouse}
                 className="text-red-500 text-sm underline cursor-pointer"
               >
-                حذف
+               حذف الأسرة
               </button>
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function HousePage() {
                 onClick={() => router.push(`/dashboard/families/${family.id}`)}
               >
                 <div>
-                  <p className="font-bold">{family.name}</p>
+                  <p className="font-bold">أسرة {family.name}</p>
                   <p className="text-gray-500 text-sm">
                     {family.individuals?.length || 0} فرد
                   </p>
