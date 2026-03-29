@@ -423,43 +423,12 @@ export default function FamilyPage() {
             {individuals.map(ind => (
               <div key={ind.id} className="bg-white p-4 rounded-lg shadow">
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold text-lg">{ind.full_name}</h3>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">{ind.gender}</span>
-                      {ind.birth_date && (
-                        <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full text-xs">
-                          {getAgeCategory(ind.birth_date)} - {new Date().getFullYear() - new Date(ind.birth_date).getFullYear()} سنة
-                        </span>
-                      )}
-                      {ind.relationship && (
-                        <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">{ind.relationship}</span>
-                      )}
-                      {ind.breastfeeding && (
-                        <span className="bg-pink-100 text-pink-800 px-2 py-0.5 rounded-full text-xs">{ind.breastfeeding}</span>
-                      )}
-                    </div>
-                    {ind.national_id && <p className="text-gray-500 text-xs mt-1">رقم وطني: {ind.national_id}</p>}
-                    {ind.individual_diseases?.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {ind.individual_diseases.map((d: any) => (
-                          <span key={d.id} className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs">
-                            {d.diseases?.name || d.custom_disease}{d.medication ? ` - ${d.medication}` : ''}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {ind.individual_disabilities?.length > 0 && (
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {ind.individual_disabilities.map((d: any) => (
-                          <span key={d.id} className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full text-xs">
-                            إعاقة {d.disabilities?.type || d.custom_disability}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {ind.notes && <p className="text-gray-500 text-xs mt-1">{ind.notes}</p>}
-                  </div>
+                  
+
+
+
+        
+
                   <div className="flex flex-col gap-1 items-end">
                     <button onClick={() => handleEdit(ind)} className="text-blue-600 text-sm underline cursor-pointer">تعديل</button>
                     <button onClick={() => handleDelete(ind.id)} className="text-red-500 text-sm underline cursor-pointer">حذف</button>
