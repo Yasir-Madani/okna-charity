@@ -108,8 +108,7 @@ export default function PublicDashboard() {
                 <span className="text-3xl">📊</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-wide">نظام الإحصاء السكاني</h1>
-                <p className="text-blue-200 text-sm mt-0.5">لوحة معلومات عامة — جمعية العكنة الخيرية</p>
+                <h1 className="text-2xl font-bold tracking-wide">جمعية نهضة العكنة</h1>
               </div>
             </div>
             <button
