@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   title: "جمعية العكنة الخيرية",
   description: "نظام الإحصاء السكاني - جمعية العكنة الخيرية",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
   },
 };
 
