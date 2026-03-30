@@ -30,7 +30,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold text-center mb-2 text-gray-800">
           جمعية العكنة الخيرية
         </h1>
-        <p className="text-center text-gray-500 text-sm mb-8">نظام الإحصاء السكاني</p>
+        <p className="text-center text-gray-500 text-sm mb-8">نظام الإحصاء السكاني والاشتراكات</p>
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label className="block text-gray-700 mb-2">البريد الإلكتروني</label>

@@ -10,7 +10,7 @@ const cairo = Cairo({
 
 export const metadata: Metadata = {
   title: "جمعية نهضة العكنة",
-  description: "نظام الإحصاء السكاني والاشتراكات- ",
+  description: "نظام الإحصاء السكاني والاشتراكات",
   icons: {
     icon: "/logo.jpg",
     apple: "/logo.jpg",
