@@ -9,8 +9,8 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "جمعية العكنة الخيرية",
-  description: "نظام الإحصاء السكاني - جمعية العكنة الخيرية",
+  title: "جمعية نهضة العكنة",
+  description: "نظام الإحصاء السكاني والاشتراكات- ",
   icons: {
     icon: "/logo.jpg",
     apple: "/logo.jpg",

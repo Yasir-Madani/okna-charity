@@ -80,8 +80,8 @@ export default function LoginPage() {
           </button>
         </form>
         <div className="text-center mt-6 text-xs text-gray-400">
-          <p>جمعية العكنة الخيرية</p>
-          <p>© 2025 | جميع الحقوق محفوظة</p>
+          <p>جمعية نهضة العكنة</p>
+          <p>© 2026 | جميع الحقوق محفوظة</p>
         </div>
       </div>
     </div>
