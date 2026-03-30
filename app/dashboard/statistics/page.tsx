@@ -88,35 +88,94 @@ export default function StatisticsPage() {
     XLSX.writeFile(wb, 'إحصاء_جمعية_العكنة.xlsx')
   }
 
-  const exportPDF = () => {
-    const doc = new jsPDF({ orientation: 'landscape' })
-    doc.setFont('helvetica')
-    doc.text('Statistics - Akna Charity', 14, 15)
-    doc.text(`Total: ${filtered.length}`, 14, 22)
-    autoTable(doc, {
-      startY: 28,
-      head: [['Name', 'Gender', 'Age', 'Category', 'House', 'Sector', 'Diseases', 'Disabilities', 'Notes']],
-      body: filtered.map(ind => [
-        ind.full_name,
-        ind.gender,
-        ind.birth_date ? getAge(ind.birth_date).toString() : '-',
-        ind.birth_date ? getAgeCategory(ind.birth_date) : '-',
-        ind.families?.houses?.name || '-',
-        ind.families?.houses?.sector || '-',
-        ind.individual_diseases?.map((d: any) => d.diseases?.name || d.custom_disease).join(', ') || '-',
-        ind.individual_disabilities?.map((d: any) => d.disabilities?.type || d.custom_disability).join(', ') || '-',
-        ind.notes || '-'
-      ]),
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [22, 163, 74] }
-    })
-    doc.save('akna_charity_statistics.pdf')
-  }
+
+
+  
+
+const exportPDF = () => {
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) return
+
+  const html = `
+    <!DOCTYPE html>
+    <html dir="rtl" lang="ar">
+    <head>
+      <meta charset="UTF-8">
+      <title>إحصاء_جمعية_العكنة</title>
+      <style>
+        body { font-family: Arial, sans-serif; direction: rtl; padding: 20px; font-size: 12px; }
+        h2 { color: #166534; }
+        p { color: #555; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: #166534; color: white; padding: 8px; text-align: right; font-size: 11px; }
+        td { padding: 6px 8px; border-bottom: 1px solid #e5e7eb; text-align: right; font-size: 11px; }
+        tr:nth-child(even) td { background-color: #f9fafb; }
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: 10px; margin: 1px; }
+        .disease { background: #fee2e2; color: #991b1b; }
+        .disability { background: #ffedd5; color: #9a3412; }
+        @media print { button { display: none; } }
+      </style>
+    </head>
+    <body>
+      <h2>إحصاء جمعية العكنة الخيرية</h2>
+      <p>إجمالي النتائج: ${filtered.length} فرد</p>
+      <table>
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>الجنس</th>
+            <th>العمر</th>
+            <th>الفئة</th>
+            <th>صلة القرابة</th>
+            <th>الأسرة</th>
+            <th>المنزل</th>
+            <th>المحور</th>
+            <th>الأمراض</th>
+            <th>الإعاقات</th>
+            <th>الرقم الوطني</th>
+            <th>ملاحظات</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(ind => `
+            <tr>
+              <td>${ind.full_name}</td>
+              <td>${ind.gender}</td>
+              <td>${ind.birth_date ? getAge(ind.birth_date) : '-'}</td>
+              <td>${ind.birth_date ? getAgeCategory(ind.birth_date) : '-'}</td>
+              <td>${ind.relationship || '-'}</td>
+              <td>${ind.families?.name || '-'}</td>
+              <td>${ind.families?.houses?.name || '-'}</td>
+              <td>${ind.families?.houses?.sector || '-'}</td>
+              <td>${ind.individual_diseases?.map((d: any) =>
+                `<span class="badge disease">${d.diseases?.name || d.custom_disease}</span>`
+              ).join('') || '-'}</td>
+              <td>${ind.individual_disabilities?.map((d: any) =>
+                `<span class="badge disability">${d.disabilities?.type || d.custom_disability}</span>`
+              ).join('') || '-'}</td>
+              <td>${ind.national_id || '-'}</td>
+              <td>${ind.notes || '-'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <script>window.onload = () => { window.print(); }</script>
+    </body>
+    </html>
+  `
+
+  printWindow.document.write(html)
+  printWindow.document.close()
+}
+
+
 
   const resetFilters = () => {
     setFilters({ sector: '', gender: '', ageCategory: '', hasDisease: '', hasDisability: '', isWidow: false })
   }
 
+
+  
   const ageCounts = {
     رضيع: individuals.filter(i => i.birth_date && getAgeCategory(i.birth_date) === 'رضيع').length,
     طفل: individuals.filter(i => i.birth_date && getAgeCategory(i.birth_date) === 'طفل').length,
