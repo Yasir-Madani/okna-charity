@@ -105,7 +105,7 @@ export default function PublicDashboard() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <div className="bg-white bg-opacity-20 rounded-xl p-3">
-                <span className="text-3xl">📊</span>
+                
               </div>
               <div>
                 <h1 className="text-2xl font-bold tracking-wide">جمعية نهضة العكنة</h1>
