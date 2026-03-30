@@ -1,16 +1,13 @@
-@import "tailwindcss";
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --font-sans: 'Tajawal', sans-serif; /* أضفنا الخط هنا */
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono); /* إذا كنت تستخدم mono أيضًا */
+  --font-sans: 'Tajawal', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,9 +17,8 @@
   }
 }
 
-/* تطبيق الخط على كل عناصر الصفحة */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans); /* ← استخدمنا المتغير الآن */
+  font-family: var(--font-sans);
 }
