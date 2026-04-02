@@ -19,18 +19,20 @@ export default function NewsPage() {
   useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
+  // الحصول على المستخدم الحالي
+  const { data: { user } } = await supabase.auth.getUser()
 
-    const { data: { session } } = await supabase.auth.getSession()
-setIsAdmin(!!session)
+  setIsAdmin(!!user) // إذا كان هناك مستخدم => true، وإلا false
 
+  // جلب الأخبار
+  const { data } = await supabase
+    .from('news')
+    .select('*')
+    .order('news_date', { ascending: false })
 
-    const { data } = await supabase
-      .from('news')
-      .select('*')
-      .order('news_date', { ascending: false })
-    if (data) setNews(data)
-    setLoading(false)
-  }
+  if (data) setNews(data)
+  setLoading(false)
+}
 
   const resetForm = () => {
     setForm({ title: '', content: '', news_date: new Date().toISOString().split('T')[0] })
