@@ -19,8 +19,11 @@ export default function NewsPage() {
   useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) setIsAdmin(true)
+
+    const { data: { session } } = await supabase.auth.getSession()
+setIsAdmin(!!session)
+
+
     const { data } = await supabase
       .from('news')
       .select('*')
@@ -106,11 +109,16 @@ export default function NewsPage() {
       <div className="max-w-lg mx-auto px-4 py-6">
 
         {isAdmin && (
-          <button onClick={() => { resetForm(); setShowForm(!showForm) }}
-            className="w-full bg-gradient-to-l from-teal-700 to-teal-600 text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-bold mb-4 shadow-lg shadow-teal-200 cursor-pointer hover:scale-[1.01] transition-all">
-            + إضافة خبر جديد
-          </button>
-        )}
+  <>
+    <p className="text-gray-400 text-sm mb-4 text-center">
+      يمكنك مشاهدة الأخبار فقط — سجل الدخول لإضافة أو تعديل الأخبار
+    </p>
+    <button onClick={() => { resetForm(); setShowForm(!showForm) }}
+      className="w-full bg-gradient-to-l from-teal-700 to-teal-600 text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-bold mb-4 shadow-lg shadow-teal-200 cursor-pointer hover:scale-[1.01] transition-all">
+      + إضافة خبر جديد
+    </button>
+  </>
+)}
 
         {showForm && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4">
