@@ -19,11 +19,8 @@ export default function NewsPage() {
   useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
-
     const { data: { user } } = await supabase.auth.getUser()
     if (user) setIsAdmin(true)
-
-      
     const { data } = await supabase
       .from('news')
       .select('*')
