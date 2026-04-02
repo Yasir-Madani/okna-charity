@@ -61,7 +61,7 @@ export default function HomePage() {
   </div>
   <div className="max-w-lg mx-auto px-4 pb-10 text-center">
 
-    
+
          {/* <div className="w-20 h-20 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
              <img src="/logo.png" alt="logo" className="w-14 h-14 object-contain" /> 
           </div>*/}
@@ -87,7 +87,7 @@ export default function HomePage() {
         ))}
 
         <button
-          onClick={() => router.push('/')}
+          onClick={() => router.push('/login')}
           className="w-full bg-white border-2 border-gray-200 text-gray-600 rounded-2xl p-4 flex items-center gap-4 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 cursor-pointer mt-2"
         >
           <span className="text-3xl">🔐</span>
