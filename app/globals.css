@@ -26,3 +26,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans); /* ← استخدمنا المتغير الآن */
 }
+
+@media (prefers-color-scheme: dark) {
+  input,
+  textarea,
+  select {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+}
