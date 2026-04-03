@@ -104,7 +104,7 @@ export default function PublicDashboard() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <div className="bg-white bg-opacity-20 rounded-xl p-3">
+              <div className="bg-blue bg-opacity-20 rounded-xl p-3">
                 
               </div>
               
