@@ -128,7 +128,7 @@ export default function PublicDashboard() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-white-600 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-gray-500">جاري تحميل البيانات...</p>
           </div>
         ) : (
