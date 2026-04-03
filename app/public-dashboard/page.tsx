@@ -119,18 +119,9 @@ export default function PublicDashboard() {
           </div>
         </div>
 
-        <div className="bg-blue-800 bg-opacity-40 border-t border-blue-500 border-opacity-30">
-          <div className="max-w-7xl mx-auto px-4 py-3">
-            <div className="flex gap-2 items-center flex-wrap">
-             
-              {Object.entries(stats.sectors).map(([sector, count]) => (
-                <span key={sector} className="bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full border border-white border-opacity-30">
-                  {sector}: {count} فرد
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
+        
+
+
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
