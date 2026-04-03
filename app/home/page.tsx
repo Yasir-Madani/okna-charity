@@ -1,8 +1,25 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
 
 export default function HomePage() {
   const router = useRouter()
+
+  const [username, setUsername] = useState('')
+
+  useEffect(() => {
+    getUser()
+  }, [])
+
+  const getUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user) {
+      const name = user.email?.split('@')[0]
+      setUsername(name || '')
+    }
+  }
 
   const buttons = [
     {
@@ -53,13 +70,20 @@ export default function HomePage() {
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
       <div className="bg-gradient-to-l from-blue-900 via-blue-800 to-blue-700 text-white">
-  
-  <div className="max-w-lg mx-auto px-4 pb-10 text-center">
+        
+        {/* 👇 اسم المستخدم أعلى اليمين */}
+        <div className="max-w-lg mx-auto px-4 pt-4 flex justify-end">
+          <div className="text-sm bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+            {username ? `👤 ${username}` : '👤 زائر'}
+          </div>
+        </div>
 
+        <div className="max-w-lg mx-auto px-4 pb-10 text-center">
 
-         {/* <div className="w-20 h-20 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-             <img src="/logo.png" alt="logo" className="w-14 h-14 object-contain" /> 
-          </div>*/}
+          {/* <div className="w-20 h-20 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <img src="/logo.png" alt="logo" className="w-14 h-14 object-contain" /> 
+           </div>*/}
+
           <h1 className="text-2xl font-bold mb-1">جمعية العكنة الخيرية</h1>
           <p className="text-blue-200 text-sm">بوابة المعلومات والخدمات</p>
         </div>
