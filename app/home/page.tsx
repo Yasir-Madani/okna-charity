@@ -73,7 +73,7 @@ export default function HomePage() {
         
         {/* 👇 اسم المستخدم أعلى اليمين */}
         <div className="max-w-lg mx-auto px-4 pt-4 flex justify-end">
-          <div className="text-sm bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+          <div className="text-black bg-white bg-opacity-20 px-3 py-1 rounded-lg">
             {username ? `👤 ${username}` : '👤 زائر'}
           </div>
         </div>
