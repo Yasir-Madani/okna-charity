@@ -101,22 +101,31 @@ export default function PublicDashboard() {
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
       <div className="bg-gradient-to-l from-blue-800 via-blue-700 to-blue-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📊</span>
-            <div>
-              <h1 className="text-lg font-bold">إحصائيات السكان</h1>
-              <p className="text-blue-200 text-xs">جمعية العكنة الخيرية</p>
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="bg-white bg-opacity-20 rounded-xl p-3">
+                
+              </div>
+              
             </div>
+            
+
+<button onClick={() => router.push('/home')}
+            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
+             رجوع
+
+</button>
           </div>
-          <button onClick={() => router.push('/home')}
-            className="bg-white bg-opacity-20 text-white px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all border border-white border-opacity-30">
-            → رجوع
-          </button>
         </div>
+
+        
+
+
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -124,10 +133,16 @@ export default function PublicDashboard() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-8 w-1 bg-blue-600 rounded-full"></div>
+              
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
               {cards.map((card, i) => (
                 <div key={i}
-                  className={`${card.bg} rounded-2xl p-5 border border-opacity-30 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5`}>
+                  className={`${card.bg} rounded-2xl p-5 border border-opacity-30 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5`}
+                  style={{ borderColor: 'currentColor' }}>
                   <div className="flex justify-between items-start mb-3">
                     <span className="text-2xl">{card.icon}</span>
                     <div className={`w-2 h-2 rounded-full bg-gradient-to-br ${card.color}`}></div>
@@ -151,7 +166,9 @@ export default function PublicDashboard() {
                     <p className="text-3xl font-bold mb-1">{count}</p>
                     <p className="text-sm font-medium">محور {sector}</p>
                     <p className="text-xs opacity-70 mt-1">
-                      {stats.totalIndividuals > 0 ? Math.round((count / stats.totalIndividuals) * 100) : 0}%
+                      {stats.totalIndividuals > 0
+                        ? Math.round((count / stats.totalIndividuals) * 100)
+                        : 0}%
                     </p>
                   </div>
                 ))}
@@ -194,6 +211,7 @@ export default function PublicDashboard() {
 
       <footer className="text-center py-6 mt-4 border-t border-gray-200">
         <p className="text-gray-400 text-sm">© 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة</p>
+        <p className="text-gray-300 text-xs mt-1">نظام الإحصاء السكاني — بيانات عامة</p>
       </footer>
     </div>
   )
