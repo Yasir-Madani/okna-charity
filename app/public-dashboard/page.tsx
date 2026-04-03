@@ -107,23 +107,22 @@ export default function PublicDashboard() {
               <div className="bg-white bg-opacity-20 rounded-xl p-3">
                 
               </div>
-              <div>
-                <h1 className="text-2xl font-bold tracking-wide">جمعية نهضة العكنة</h1>
-              </div>
+              
             </div>
-            <button
-              onClick={() => router.push('/')}
-              className="bg-white text-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50 transition-all shadow cursor-pointer"
-            >
-              دخول الإداريين
-            </button>
+            
+
+<button onClick={() => router.push('/home')}
+            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
+             رجوع
+
+</button>
           </div>
         </div>
 
         <div className="bg-blue-800 bg-opacity-40 border-t border-blue-500 border-opacity-30">
           <div className="max-w-7xl mx-auto px-4 py-3">
             <div className="flex gap-2 items-center flex-wrap">
-              <span className="text-blue-200 text-xs">التوزيع حسب المحور:</span>
+             
               {Object.entries(stats.sectors).map(([sector, count]) => (
                 <span key={sector} className="bg-white bg-opacity-20 text-white text-xs px-3 py-1 rounded-full border border-white border-opacity-30">
                   {sector}: {count} فرد
@@ -145,8 +144,7 @@ export default function PublicDashboard() {
           <>
             <div className="flex items-center gap-3 mb-6">
               <div className="h-8 w-1 bg-blue-600 rounded-full"></div>
-              <h2 className="text-lg font-bold text-gray-700">نظرة عامة على البيانات</h2>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">بيانات عامة — لا تتضمن معلومات شخصية</span>
+              
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">

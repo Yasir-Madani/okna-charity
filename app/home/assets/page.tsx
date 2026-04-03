@@ -78,8 +78,8 @@ export default function AssetsPage() {
       <div className="bg-gradient-to-l from-orange-700 via-orange-600 to-orange-500 text-white">
         <div className="max-w-lg mx-auto px-4 py-6 flex items-center justify-between">
           <button onClick={() => router.push('/home')}
-            className="bg-white bg-opacity-20 text-white px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
-            → رجوع
+            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
+             رجوع
           </button>
           <h1 className="text-lg font-bold">ممتلكات الجمعية</h1>
           <div className="w-16"></div>

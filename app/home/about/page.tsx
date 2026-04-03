@@ -55,7 +55,7 @@ export default function AboutPage() {
         <div className="max-w-lg mx-auto px-4 py-6 flex items-center justify-between">
           <button onClick={() => router.push('/home')}
             className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
-            → رجوع
+             رجوع
           </button>
           <h1 className="text-lg font-bold">عن الجمعية</h1>
           <div className="w-16"></div>
