@@ -53,14 +53,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl">
-      <button
-      onClick={() => router.push('/')}
-      className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
-    >
-      الرئيسية
-    </button>
+      <div className="bg-green-600 text-white p-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold">جمعية العكنة الخيرية</h1>
+        <div className="flex gap-3">
 
 
+
+ <button
+  onClick={() => router.push('/')}
+  className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
+>
+الرئيسية</button>
           <button
   onClick={() => router.push('/dashboard/statistics')}
   className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
