@@ -10,6 +10,7 @@ export default function AssetsPage() {
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState({ name: '', quantity: '', notes: '' })
+  const [duplicateError, setDuplicateError] = useState('')
   const router = useRouter()
 
   useEffect(() => { fetchData() }, [])
@@ -26,23 +27,39 @@ export default function AssetsPage() {
     setForm({ name: '', quantity: '', notes: '' })
     setEditing(null)
     setShowForm(false)
+    setDuplicateError('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+
+    const { data: existing } = await supabase
+      .from('assets')
+      .select('id')
+      .ilike('name', form.name.trim())
+      .neq('id', editing?.id ?? '00000000-0000-0000-0000-000000000000')
+      .single()
+
+    if (existing) {
+      setDuplicateError(`"${form.name.trim()}" موجود مسبقاً في قائمة الممتلكات`)
+      return
+    }
+
     const payload = {
-      name: form.name,
+      name: form.name.trim(),
       quantity: Number(form.quantity),
       notes: form.notes || null,
       created_by: user.id
     }
+
     if (editing) {
       await supabase.from('assets').update(payload).eq('id', editing.id)
     } else {
       await supabase.from('assets').insert(payload)
     }
+
     resetForm()
     fetchData()
   }
@@ -51,6 +68,7 @@ export default function AssetsPage() {
     setForm({ name: asset.name, quantity: asset.quantity.toString(), notes: asset.notes || '' })
     setEditing(asset)
     setShowForm(true)
+    setDuplicateError('')
   }
 
   const handleDelete = async (id: string, name: string) => {
@@ -102,9 +120,14 @@ export default function AssetsPage() {
               <div className="mb-3">
                 <label className="text-sm text-gray-600 block mb-1">اسم الممتلك *</label>
                 <input required value={form.name}
-                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  onChange={e => { setForm({ ...form, name: e.target.value }); setDuplicateError('') }}
                   placeholder="مثال: كراسي"
-                  className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                  className={`w-full border rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`} />
+                {duplicateError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    ⚠️ {duplicateError}
+                  </p>
+                )}
               </div>
               <div className="mb-3">
                 <label className="text-sm text-gray-600 block mb-1">العدد *</label>
