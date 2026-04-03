@@ -1,61 +1,28 @@
-/* ===== إعدادات عامة ===== */
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-sans: 'Tajawal', sans-serif; /* أضفنا الخط هنا */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono); /* إذا كنت تستخدم mono أيضًا */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* تطبيق الخط على كل عناصر الصفحة */
 body {
-  margin: 0;
-  padding: 0;
-  font-family: Cairo, sans-serif;
-  background-color: #ffffff;
-  color: #111111;
-}
-
-/* ===== تنسيق الحقول ===== */
-input,
-textarea,
-select {
-  color: #111111 !important;
-  -webkit-text-fill-color: #111111 !important;
-  background-color: #ffffff;
-  border: 1px solid #d1d5db;
-  padding: 8px;
-  border-radius: 6px;
-  outline: none;
-  font-size: 14px;
-}
-
-/* عند التركيز */
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 1px #2563eb;
-}
-
-/* ===== placeholder ===== */
-input::placeholder,
-textarea::placeholder {
-  color: #9ca3af !important;
-  -webkit-text-fill-color: #9ca3af !important;
-}
-
-/* ===== إصلاح autofill (Chrome) ===== */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  -webkit-text-fill-color: #111111 !important;
-  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-/* ===== تحسين الأزرار (اختياري) ===== */
-button {
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #1d4ed8;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans); /* ← استخدمنا المتغير الآن */
 }
