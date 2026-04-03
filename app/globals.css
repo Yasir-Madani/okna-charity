@@ -1,37 +1,27 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light; /* هذا السطر يمنع المتصفح من تطبيق الوضع الليلي */
   --background: #ffffff;
   --foreground: #171717;
-  --font-sans: 'Tajawal', sans-serif; /* أضفنا الخط هنا */
+  --font-sans: 'Tajawal', sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono); /* إذا كنت تستخدم mono أيضًا */
+  --font-mono: var(--font-mono); 
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-/* تطبيق الخط على كل عناصر الصفحة */
+/* تطبيق الخط واللون على كل عناصر الصفحة */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans); /* ← استخدمنا المتغير الآن */
+  font-family: var(--font-sans);
 }
 
-/* ===== إصلاح لون النص داخل الحقول فقط ===== */
-
-/* ===== حل ذكي بدون كسر التصميم ===== */
-
-/* ===== إصلاح شامل لكل الحقول + Dark Mode + Autofill ===== */
+/* ===== إصلاح لون النص داخل الحقول ===== */
 
 /* كل الحقول */
 input,
@@ -58,14 +48,4 @@ select:-webkit-autofill {
   -webkit-text-fill-color: inherit !important;
   -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
   transition: background-color 5000s ease-in-out 0s;
-}
-
-/* Dark Mode إضافي */
-@media (prefers-color-scheme: dark) {
-  input:-webkit-autofill,
-  textarea:-webkit-autofill,
-  select:-webkit-autofill {
-    -webkit-text-fill-color: #ffffff !important;
-    -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
-  }
 }
