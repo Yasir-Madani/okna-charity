@@ -48,6 +48,9 @@ export default function HomePage() {
   ]
 
   return (
+
+<div className="pt-10">
+
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
       style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -64,7 +67,7 @@ export default function HomePage() {
           <p className="text-blue-200 text-sm">بوابة المعلومات والخدمات</p>
         </div>
       </div>
-
+</div>
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {buttons.map((btn, i) => (
           <button
