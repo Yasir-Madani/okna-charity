@@ -14,47 +14,59 @@ export default function NewsPage() {
     content: '',
     news_date: new Date().toISOString().split('T')[0]
   })
+  const [duplicateError, setDuplicateError] = useState('')
   const router = useRouter()
 
   useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
-  // الحصول على المستخدم الحالي
-  const { data: { user } } = await supabase.auth.getUser()
-
-  setIsAdmin(!!user) // إذا كان هناك مستخدم => true، وإلا false
-
-  // جلب الأخبار
-  const { data } = await supabase
-    .from('news')
-    .select('*')
-    .order('news_date', { ascending: false })
-
-  if (data) setNews(data)
-  setLoading(false)
-}
+    const { data: { user } } = await supabase.auth.getUser()
+    setIsAdmin(!!user)
+    const { data } = await supabase
+      .from('news')
+      .select('*')
+      .order('news_date', { ascending: false })
+    if (data) setNews(data)
+    setLoading(false)
+  }
 
   const resetForm = () => {
     setForm({ title: '', content: '', news_date: new Date().toISOString().split('T')[0] })
     setEditing(null)
     setShowForm(false)
+    setDuplicateError('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+
+    const { data: existing } = await supabase
+      .from('news')
+      .select('id')
+      .ilike('title', form.title.trim())
+      .neq('id', editing?.id ?? '00000000-0000-0000-0000-000000000000')
+      .single()
+
+    if (existing) {
+      setDuplicateError(`"${form.title.trim()}" موجود مسبقاً في قائمة الأخبار`)
+      return
+    }
+
     const payload = {
-      title: form.title,
+      title: form.title.trim(),
       content: form.content,
       news_date: form.news_date,
       created_by: user.id
     }
+
     if (editing) {
       await supabase.from('news').update(payload).eq('id', editing.id)
     } else {
       await supabase.from('news').insert(payload)
     }
+
     resetForm()
     fetchData()
   }
@@ -67,6 +79,7 @@ export default function NewsPage() {
     })
     setEditing(item)
     setShowForm(true)
+    setDuplicateError('')
   }
 
   const handleDelete = async (id: string, title: string) => {
@@ -111,16 +124,16 @@ export default function NewsPage() {
       <div className="max-w-lg mx-auto px-4 py-6">
 
         {isAdmin && (
-  <>
-    <p className="text-gray-400 text-sm mb-4 text-center">
-      يمكنك مشاهدة الأخبار فقط — سجل الدخول لإضافة أو تعديل الأخبار
-    </p>
-    <button onClick={() => { resetForm(); setShowForm(!showForm) }}
-      className="w-full bg-gradient-to-l from-teal-700 to-teal-600 text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-bold mb-4 shadow-lg shadow-teal-200 cursor-pointer hover:scale-[1.01] transition-all">
-      + إضافة خبر جديد
-    </button>
-  </>
-)}
+          <>
+            <p className="text-gray-400 text-sm mb-4 text-center">
+              يمكنك مشاهدة الأخبار فقط — سجل الدخول لإضافة أو تعديل الأخبار
+            </p>
+            <button onClick={() => { resetForm(); setShowForm(!showForm) }}
+              className="w-full bg-gradient-to-l from-teal-700 to-teal-600 text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-bold mb-4 shadow-lg shadow-teal-200 cursor-pointer hover:scale-[1.01] transition-all">
+              + إضافة خبر جديد
+            </button>
+          </>
+        )}
 
         {showForm && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4">
@@ -129,9 +142,14 @@ export default function NewsPage() {
               <div className="mb-3">
                 <label className="text-sm text-gray-600 block mb-1">عنوان الخبر *</label>
                 <input required value={form.title}
-                  onChange={e => setForm({ ...form, title: e.target.value })}
+                  onChange={e => { setForm({ ...form, title: e.target.value }); setDuplicateError('') }}
                   placeholder="اكتب عنوان الخبر..."
-                  className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+                  className={`w-full border rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`} />
+                {duplicateError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    ⚠️ {duplicateError}
+                  </p>
+                )}
               </div>
               <div className="mb-3">
                 <label className="text-sm text-gray-600 block mb-1">تاريخ الخبر *</label>

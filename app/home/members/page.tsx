@@ -10,6 +10,7 @@ export default function MembersPage() {
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState({ full_name: '', role: '', phone: '', sort_order: '0' })
+  const [duplicateError, setDuplicateError] = useState('')
   const router = useRouter()
 
   useEffect(() => { fetchData() }, [])
@@ -26,24 +27,40 @@ export default function MembersPage() {
     setForm({ full_name: '', role: '', phone: '', sort_order: '0' })
     setEditing(null)
     setShowForm(false)
+    setDuplicateError('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+
+    const { data: existing } = await supabase
+      .from('members')
+      .select('id')
+      .ilike('full_name', form.full_name.trim())
+      .neq('id', editing?.id ?? '00000000-0000-0000-0000-000000000000')
+      .single()
+
+    if (existing) {
+      setDuplicateError(`"${form.full_name.trim()}" موجود مسبقاً في قائمة الأعضاء`)
+      return
+    }
+
     const payload = {
-      full_name: form.full_name,
+      full_name: form.full_name.trim(),
       role: form.role,
       phone: form.phone || null,
       sort_order: Number(form.sort_order),
       created_by: user.id
     }
+
     if (editing) {
       await supabase.from('members').update(payload).eq('id', editing.id)
     } else {
       await supabase.from('members').insert(payload)
     }
+
     resetForm()
     fetchData()
   }
@@ -57,6 +74,7 @@ export default function MembersPage() {
     })
     setEditing(member)
     setShowForm(true)
+    setDuplicateError('')
   }
 
   const handleDelete = async (id: string, name: string) => {
@@ -119,8 +137,13 @@ export default function MembersPage() {
               <div className="mb-3">
                 <label className="text-sm text-gray-600 block mb-1">الاسم الكامل *</label>
                 <input required value={form.full_name}
-                  onChange={e => setForm({ ...form, full_name: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                  onChange={e => { setForm({ ...form, full_name: e.target.value }); setDuplicateError('') }}
+                  className={`w-full border rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`} />
+                {duplicateError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    ⚠️ {duplicateError}
+                  </p>
+                )}
               </div>
               <div className="mb-3">
                 <label className="text-sm text-gray-600 block mb-1">المنصب / الوظيفة *</label>
