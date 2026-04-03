@@ -27,11 +27,27 @@ body {
   font-family: var(--font-sans); /* ← استخدمنا المتغير الآن */
 }
 
-@media (prefers-color-scheme: dark) {
-  input,
-  textarea,
-  select {
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important;
-  }
+/* ===== إصلاح لون النص داخل الحقول فقط ===== */
+
+input,
+textarea,
+select {
+  color: #111111 !important;
+  -webkit-text-fill-color: #111111 !important;
+}
+
+/* placeholder */
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important;
+  -webkit-text-fill-color: #9ca3af !important;
+}
+
+/* autofill (Chrome) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #111111 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
