@@ -10,7 +10,7 @@ export default function HousePage() {
   const [showEdit, setShowEdit] = useState(false)
   const [showFamilyForm, setShowFamilyForm] = useState(false)
   const [familyName, setFamilyName] = useState('')
-  const [form, setForm] = useState({ name: '', sector: '', notes: '' })
+  const [form, setForm] = useState({ house_number:'', name: '', sector: '', notes: '' })
   const router = useRouter()
   const { id } = useParams()
 
@@ -33,7 +33,12 @@ export default function HousePage() {
 
     if (!houseData) { router.push('/dashboard'); return }
     setHouse(houseData)
-    setForm({ name: houseData.name, sector: houseData.sector, notes: houseData.notes || '' })
+    setForm({ 
+      house_number: houseData.number || '', // رقم المنزل
+      name: houseData.name, 
+      sector: houseData.sector, 
+      notes: houseData.notes || '' 
+    })
 
     const { data: familiesData } = await supabase
       .from('families')
@@ -50,7 +55,8 @@ export default function HousePage() {
     await supabase.from('houses').update({
       name: form.name,
       sector: form.sector,
-      notes: form.notes || null
+      notes: form.notes || null,
+      number: form.house_number // حفظ رقم المنزل المعدل
     }).eq('id', id)
     setShowEdit(false)
     fetchHouse()
@@ -81,7 +87,7 @@ export default function HousePage() {
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl">
       <div className="bg-green-600 text-white p-4 flex justify-between items-center">
-       <h1 className="text-xl font-bold">منزل {house?.name}</h1>
+        <h1 className="text-xl font-bold">منزل {house?.name} - رقم {house?.number}</h1>
         <button
           onClick={() => router.push('/dashboard')}
           className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
@@ -105,13 +111,13 @@ export default function HousePage() {
                 onClick={() => setShowEdit(!showEdit)}
                 className="text-blue-600 text-sm underline cursor-pointer"
               >
-              تعديل المنزل
+                تعديل المنزل
               </button>
               <button
                 onClick={handleDeleteHouse}
                 className="text-red-500 text-sm underline cursor-pointer"
               >
-               حذف المنزل
+                حذف المنزل
               </button>
             </div>
           </div>
@@ -119,6 +125,15 @@ export default function HousePage() {
           {showEdit && (
             <form onSubmit={handleEditHouse} className="mt-4 border-t pt-4">
               <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="text-sm text-gray-600">رقم المنزل</label>
+                  <input
+                    required
+                    value={form.house_number}
+                    onChange={e => setForm({ ...form, house_number: e.target.value })}
+                    className="w-full border rounded p-2 text-right text-sm"
+                  />
+                </div>
                 <div>
                   <label className="text-sm text-gray-600">اسم المنزل</label>
                   <input
@@ -128,19 +143,19 @@ export default function HousePage() {
                     className="w-full border rounded p-2 text-right text-sm"
                   />
                 </div>
-                <div>
-                  <label className="text-sm text-gray-600">المحور</label>
-                  <select
-                    value={form.sector}
-                    onChange={e => setForm({ ...form, sector: e.target.value })}
-                    className="w-full border rounded p-2 text-right text-sm cursor-pointer"
-                  >
-                    <option value="شرق">شرق</option>
-                    <option value="شمال">شمال</option>
-                    <option value="وسط">وسط</option>
-                    <option value="الدوراشاب">الدوراشاب</option>
-                  </select>
-                </div>
+              </div>
+              <div className="mb-3">
+                <label className="text-sm text-gray-600">المحور</label>
+                <select
+                  value={form.sector}
+                  onChange={e => setForm({ ...form, sector: e.target.value })}
+                  className="w-full border rounded p-2 text-right text-sm cursor-pointer"
+                >
+                  <option value="شرق">شرق</option>
+                  <option value="شمال">شمال</option>
+                  <option value="وسط">وسط</option>
+                  <option value="الدوراشاب">الدوراشاب</option>
+                </select>
               </div>
               <div className="mb-3">
                 <label className="text-sm text-gray-600">ملاحظات</label>
