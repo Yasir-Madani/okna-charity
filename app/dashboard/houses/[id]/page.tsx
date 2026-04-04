@@ -10,6 +10,7 @@ export default function HousePage() {
   const [showEdit, setShowEdit] = useState(false)
   const [showFamilyForm, setShowFamilyForm] = useState(false)
   const [familyName, setFamilyName] = useState('')
+  const [familyError, setFamilyError] = useState('') // ← رسالة الخطأ
   const [form, setForm] = useState({ name: '', sector: '', notes: '' })
   const router = useRouter()
   const { id } = useParams()
@@ -34,7 +35,6 @@ export default function HousePage() {
     if (!houseData) { router.push('/dashboard'); return }
 
     setHouse(houseData)
-    // تعيين البيانات الحالية للنموذج (بدون رقم المنزل)
     setForm({ 
       name: houseData.name, 
       sector: houseData.sector, 
@@ -53,8 +53,6 @@ export default function HousePage() {
 
   const handleEditHouse = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    // تحديث بيانات المنزل (بدون تعديل رقم المنزل)
     await supabase.from('houses').update({
       name: form.name,
       sector: form.sector,
@@ -73,14 +71,30 @@ export default function HousePage() {
 
   const handleAddFamily = async (e: React.FormEvent) => {
     e.preventDefault()
+    setFamilyError('')
+
+    // التحقق من وجود الأسرة مسبقاً في نفس المنزل
+    const trimmedName = familyName.trim()
+    const alreadyExists = families.some(
+      (f) => f.name.trim().toLowerCase() === trimmedName.toLowerCase()
+    )
+
+    if (alreadyExists) {
+      setFamilyError(`⚠️ أسرة "${trimmedName}" موجودة مسبقاً في هذا المنزل!`)
+      return
+    }
+
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+
     await supabase.from('families').insert({
       house_id: id,
-      name: familyName,
+      name: trimmedName,
       created_by: user.id
     })
+
     setFamilyName('')
+    setFamilyError('')
     setShowFamilyForm(false)
     fetchHouse()
   }
@@ -174,7 +188,10 @@ export default function HousePage() {
         <div className="flex justify-between items-center mb-3">
           <h2 className="font-bold text-gray-700">الأسر ({families.length})</h2>
           <button
-            onClick={() => setShowFamilyForm(!showFamilyForm)}
+            onClick={() => {
+              setShowFamilyForm(!showFamilyForm)
+              setFamilyError('') // مسح الخطأ عند فتح/إغلاق النموذج
+            }}
             className="bg-green-600 text-white px-3 py-1 rounded text-sm cursor-pointer"
           >
             + إضافة أسرة
@@ -188,14 +205,35 @@ export default function HousePage() {
               <input
                 required
                 value={familyName}
-                onChange={e => setFamilyName(e.target.value)}
+                onChange={e => {
+                  setFamilyName(e.target.value)
+                  setFamilyError('') // مسح الخطأ عند الكتابة
+                }}
                 placeholder="مثال: أسرة علي محمدين"
-                className="w-full border rounded p-2 text-right text-sm mt-1"
+                className={`w-full border rounded p-2 text-right text-sm mt-1 ${
+                  familyError ? 'border-red-500 bg-red-50' : ''
+                }`}
               />
+              {/* رسالة الخطأ */}
+              {familyError && (
+                <p className="text-red-600 text-sm mt-2 bg-red-50 border border-red-200 rounded p-2">
+                  {familyError}
+                </p>
+              )}
             </div>
             <div className="flex gap-2">
               <button type="submit" className="flex-1 bg-green-600 text-white py-2 rounded text-sm cursor-pointer">حفظ</button>
-              <button type="button" onClick={() => setShowFamilyForm(false)} className="flex-1 bg-gray-200 py-2 rounded text-sm cursor-pointer">إلغاء</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowFamilyForm(false)
+                  setFamilyError('')
+                  setFamilyName('')
+                }}
+                className="flex-1 bg-gray-200 py-2 rounded text-sm cursor-pointer"
+              >
+                إلغاء
+              </button>
             </div>
           </form>
         )}
