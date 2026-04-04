@@ -7,6 +7,7 @@ export default function HomePage() {
   const router = useRouter()
 
   const [username, setUsername] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
     getUser()
@@ -18,7 +19,15 @@ export default function HomePage() {
     if (user) {
       const name = user.email?.split('@')[0]
       setUsername(name || '')
+      setIsLoggedIn(true)
     }
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setIsLoggedIn(false)
+    setUsername('')
+    router.push('/login')
   }
 
   const buttons = [
@@ -71,19 +80,34 @@ export default function HomePage() {
 
       <div className="bg-gradient-to-l from-blue-900 via-blue-800 to-blue-700 text-white">
         
-        {/* 👇 اسم المستخدم أعلى اليمين */}
-        <div className="max-w-lg mx-auto px-4 pt-4 flex justify-end">
-          <div className="text-black bg-white bg-opacity-20 px-3 py-1 rounded-lg">
-            {username ? `👤 ${username}` : '👤 زائر'}
+        <div className="max-w-lg mx-auto px-4 pt-4 flex justify-between items-center">
+          {/* اسم المستخدم */}
+          <div className="text-black bg-white bg-opacity-20 px-3 py-1 rounded-lg text-white">
+            {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
           </div>
+
+          {/* أزرار Dashboard و Logout للمستخدم المصرح له فقط */}
+          {isLoggedIn && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="flex items-center gap-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md"
+              >
+                <span>🖥️</span>
+                <span>لوحة التحكم</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-md"
+              >
+                <span>🚪</span>
+                <span>خروج</span>
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="max-w-lg mx-auto px-4 pb-10 text-center">
-
-          {/* <div className="w-20 h-20 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <img src="/logo.png" alt="logo" className="w-14 h-14 object-contain" /> 
-           </div>*/}
-
+        <div className="max-w-lg mx-auto px-4 pb-10 text-center mt-4">
           <h1 className="text-2xl font-bold mb-1">جمعية العكنة الخيرية</h1>
           <p className="text-blue-200 text-sm">بوابة المعلومات والخدمات</p>
         </div>
