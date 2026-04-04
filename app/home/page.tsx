@@ -82,7 +82,7 @@ export default function HomePage() {
         
         <div className="max-w-lg mx-auto px-4 pt-4 flex justify-between items-center">
           {/* اسم المستخدم */}
-          <div className="bg-blue-700 px-3 py-1 rounded-lg text-white font-bold">
+          <div className="bg-blue-700 px-3 py-1 rounded-lg text-white font-bold border-white border-opacity-40">
             {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
           </div>
 
