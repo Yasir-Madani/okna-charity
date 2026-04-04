@@ -32,10 +32,8 @@ export default function Dashboard() {
         )
       `)
       .order('created_at', { ascending: false })
-    if (data) {
-  console.log(data) // 👈 مهم
-  setHouses(data)
-}
+    if (data) setHouses(data as any)
+    setLoading(false)
   }
 
   const handleLogout = async () => {
@@ -164,7 +162,9 @@ export default function Dashboard() {
                   <tr key={house.id} className="border-t hover:bg-gray-50">
 
                     {/* ✅ تمت الإضافة هنا */}
-                    <td className="p-3 font-bold">{house.house_number}</td>
+                    <td className="p-3 font-bold">
+  {house.house_number?.toString() || '-'}
+</td>
 
                     <td className="p-3 font-bold">{house.name}</td>
 
