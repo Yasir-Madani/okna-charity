@@ -27,7 +27,7 @@ export default function HomePage() {
     await supabase.auth.signOut()
     setIsLoggedIn(false)
     setUsername('')
-    router.push('/login')
+    router.push('/home')
   }
 
   const buttons = [
@@ -82,7 +82,7 @@ export default function HomePage() {
         
         <div className="max-w-lg mx-auto px-4 pt-4 flex justify-between items-center">
           {/* اسم المستخدم */}
-          <div className="text-black bg-white bg-opacity-20 px-3 py-1 rounded-lg text-white">
+          <div className="bg-blue-700 px-3 py-1 rounded-lg text-white font-bold">
             {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
           </div>
 
@@ -91,7 +91,7 @@ export default function HomePage() {
             <div className="flex gap-2">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-1 bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-30 transition-all duration-200 hover:scale-105 active:scale-95 shadow-md"
+               className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40 ..."
               >
                 <span>🖥️</span>
                 <span>لوحة التحكم</span>
