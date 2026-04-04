@@ -32,9 +32,11 @@ export default function HousePage() {
       .single()
 
     if (!houseData) { router.push('/dashboard'); return }
+
     setHouse(houseData)
+    // عرض رقم المنزل الحالي تلقائيًا في نموذج التعديل
     setForm({ 
-      house_number: houseData.number || '', // رقم المنزل
+      house_number: houseData.number || '', 
       name: houseData.name, 
       sector: houseData.sector, 
       notes: houseData.notes || '' 
@@ -52,12 +54,28 @@ export default function HousePage() {
 
   const handleEditHouse = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // التحقق من تكرار رقم المنزل قبل التعديل
+    const { data: existingHouse } = await supabase
+      .from('houses')
+      .select('id')
+      .eq('number', form.house_number)
+      .neq('id', id) // استثناء المنزل الحالي
+      .single()
+
+    if (existingHouse) {
+      alert('هذا الرقم موجود مسبقًا لمنزل آخر. الرجاء اختيار رقم مختلف.')
+      return
+    }
+
+    // تحديث بيانات المنزل
     await supabase.from('houses').update({
       name: form.name,
       sector: form.sector,
       notes: form.notes || null,
-      number: form.house_number // حفظ رقم المنزل المعدل
+      number: form.house_number
     }).eq('id', id)
+
     setShowEdit(false)
     fetchHouse()
   }
@@ -144,6 +162,7 @@ export default function HousePage() {
                   />
                 </div>
               </div>
+
               <div className="mb-3">
                 <label className="text-sm text-gray-600">المحور</label>
                 <select
@@ -157,6 +176,7 @@ export default function HousePage() {
                   <option value="الدوراشاب">الدوراشاب</option>
                 </select>
               </div>
+
               <div className="mb-3">
                 <label className="text-sm text-gray-600">ملاحظات</label>
                 <textarea
@@ -166,6 +186,7 @@ export default function HousePage() {
                   rows={2}
                 />
               </div>
+
               <div className="flex gap-2">
                 <button type="submit" className="flex-1 bg-green-600 text-white py-2 rounded text-sm cursor-pointer">حفظ</button>
                 <button type="button" onClick={() => setShowEdit(false)} className="flex-1 bg-gray-200 py-2 rounded text-sm cursor-pointer">إلغاء</button>
