@@ -99,7 +99,7 @@ export default function NewHouse() {
                   setError('')
                 }}
                 placeholder="مثال: 12 أو A5 أو 3ب"
-                className="w-full border rounded-lg p-3 text-right bg-red-200"
+                className="w-full border rounded-lg p-3 text-right"
               />
             </div>
 
