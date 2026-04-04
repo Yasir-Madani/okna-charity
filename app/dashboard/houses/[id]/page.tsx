@@ -10,7 +10,7 @@ export default function HousePage() {
   const [showEdit, setShowEdit] = useState(false)
   const [showFamilyForm, setShowFamilyForm] = useState(false)
   const [familyName, setFamilyName] = useState('')
-  const [form, setForm] = useState({ house_number:'', name: '', sector: '', notes: '' })
+  const [form, setForm] = useState({ name: '', sector: '', notes: '' })
   const router = useRouter()
   const { id } = useParams()
 
@@ -34,9 +34,8 @@ export default function HousePage() {
     if (!houseData) { router.push('/dashboard'); return }
 
     setHouse(houseData)
-    // عرض رقم المنزل الحالي تلقائيًا في نموذج التعديل
+    // تعيين البيانات الحالية للنموذج (بدون رقم المنزل)
     setForm({ 
-      house_number: houseData.number || '', 
       name: houseData.name, 
       sector: houseData.sector, 
       notes: houseData.notes || '' 
@@ -55,25 +54,11 @@ export default function HousePage() {
   const handleEditHouse = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // التحقق من تكرار رقم المنزل قبل التعديل
-    const { data: existingHouse } = await supabase
-      .from('houses')
-      .select('id')
-      .eq('number', form.house_number)
-      .neq('id', id) // استثناء المنزل الحالي
-      .single()
-
-    if (existingHouse) {
-      alert('هذا الرقم موجود مسبقًا لمنزل آخر. الرجاء اختيار رقم مختلف.')
-      return
-    }
-
-    // تحديث بيانات المنزل
+    // تحديث بيانات المنزل (بدون تعديل رقم المنزل)
     await supabase.from('houses').update({
       name: form.name,
       sector: form.sector,
-      notes: form.notes || null,
-      number: form.house_number
+      notes: form.notes || null
     }).eq('id', id)
 
     setShowEdit(false)
@@ -142,16 +127,7 @@ export default function HousePage() {
 
           {showEdit && (
             <form onSubmit={handleEditHouse} className="mt-4 border-t pt-4">
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label className="text-sm text-gray-600">رقم المنزل</label>
-                  <input
-                    required
-                    value={form.house_number}
-                    onChange={e => setForm({ ...form, house_number: e.target.value })}
-                    className="w-full border rounded p-2 text-right text-sm"
-                  />
-                </div>
+              <div className="grid grid-cols-1 gap-3 mb-3">
                 <div>
                   <label className="text-sm text-gray-600">اسم المنزل</label>
                   <input
