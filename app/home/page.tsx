@@ -130,7 +130,7 @@ export default function HomePage() {
         ))}
 
         <button
-          onClick={() => router.push('/login')}
+          onClick={() => router.push(isLoggedIn ? '/dashboard' : '/login')}
           className="w-full bg-white border-2 border-gray-200 text-gray-600 rounded-2xl p-4 flex items-center gap-4 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 cursor-pointer mt-2"
         >
           <span className="text-3xl">🔐</span>
