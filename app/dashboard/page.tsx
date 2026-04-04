@@ -31,7 +31,8 @@ export default function Dashboard() {
           individuals (id)
         )
       `)
-      .order('created_at', { ascending: false })
+      // ✅ ترتيب المنازل تلقائيًا حسب house_number تصاعديًا
+      .order('house_number', { ascending: true })
     if (data) setHouses(data as any)
     setLoading(false)
   }
@@ -41,7 +42,7 @@ export default function Dashboard() {
     router.push('/')
   }
 
-  // ✅ التعديل هنا: البحث بالاسم + رقم المنزل
+  // البحث (بالاسم أو رقم المنزل)
   const filtered = houses.filter(h => {
     const matchSearch =
       h.name.includes(search) ||
@@ -60,28 +61,24 @@ export default function Dashboard() {
       <div className="bg-green-600 text-white p-4 flex justify-between items-center">
         <h1 className="text-xl font-bold">جمعية العكنة الخيرية</h1>
         <div className="flex gap-3">
-
           <button
             onClick={() => router.push('/')}
             className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
           >
             الرئيسية
           </button>
-
           <button
             onClick={() => router.push('/dashboard/statistics')}
             className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
           >
             الإحصائيات
           </button>
-
           <button
             onClick={() => router.push('/dashboard/houses/new')}
             className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
           >
             + إضافة منزل
           </button>
-
           <button
             onClick={handleLogout}
             className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
@@ -148,7 +145,6 @@ export default function Dashboard() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  {/* ✅ تمت الإضافة هنا */}
                   <th className="p-3 text-right">رقم المنزل</th>
                   <th className="p-3 text-right">اسم المنزل</th>
                   <th className="p-3 text-right">المحور</th>
@@ -160,23 +156,15 @@ export default function Dashboard() {
               <tbody>
                 {filtered.map(house => (
                   <tr key={house.id} className="border-t hover:bg-gray-50">
-
-                    {/* ✅ تمت الإضافة هنا */}
-                    <td className="p-3 font-bold">
-  {house.house_number?.toString() || '-'}
-</td>
-
+                    <td className="p-3 font-bold">{house.house_number?.toString() || '-'}</td>
                     <td className="p-3 font-bold">{house.name}</td>
-
                     <td className="p-3">
                       <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
                         {house.sector}
                       </span>
                     </td>
-
                     <td className="p-3 text-center">{getFamilyCount(house)}</td>
                     <td className="p-3 text-center">{getIndividualCount(house)}</td>
-
                     <td className="p-3 text-center">
                       <button
                         onClick={() => router.push(`/dashboard/houses/${house.id}`)}
@@ -185,7 +173,6 @@ export default function Dashboard() {
                         عرض
                       </button>
                     </td>
-
                   </tr>
                 ))}
               </tbody>
