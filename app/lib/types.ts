@@ -3,6 +3,7 @@ export type Gender = 'ذكر' | 'أنثى'
 export type DisabilityType = 'بصرية' | 'سمعية' | 'حركية' | 'عقلية'
 
 export interface House {
+  house_number: string   // ✅ أضف هذا السطر
   id: string
   name: string
   sector: Sector
