@@ -7,6 +7,8 @@ export default function GeneralStatsPage() {
   const [stats, setStats] = useState<any[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)       // هل الصفحة مرئية للزوار؟
+  const [togglingVisibility, setTogglingVisibility] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState({ label: '', value: '', unit: '', icon: '', notes: '' })
@@ -18,9 +20,33 @@ export default function GeneralStatsPage() {
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) setIsAdmin(true)
-    const { data } = await supabase.from('general_stats').select('*').order('created_at', { ascending: true })
+
+    // جلب حالة الرؤية من قاعدة البيانات
+    const { data: visData } = await supabase
+      .from('page_visibility')
+      .select('is_visible')
+      .eq('page_key', 'general_stats')
+      .single()
+    if (visData) setIsVisible(visData.is_visible)
+
+    const { data } = await supabase
+      .from('general_stats')
+      .select('*')
+      .order('created_at', { ascending: true })
     if (data) setStats(data)
+
     setLoading(false)
+  }
+
+  const toggleVisibility = async () => {
+    setTogglingVisibility(true)
+    const newVal = !isVisible
+    await supabase
+      .from('page_visibility')
+      .update({ is_visible: newVal, updated_at: new Date().toISOString() })
+      .eq('page_key', 'general_stats')
+    setIsVisible(newVal)
+    setTogglingVisibility(false)
   }
 
   const resetForm = () => {
@@ -67,13 +93,7 @@ export default function GeneralStatsPage() {
   }
 
   const handleEdit = (stat: any) => {
-    setForm({
-      label: stat.label,
-      value: stat.value,
-      unit: stat.unit || '',
-      icon: stat.icon || '',
-      notes: stat.notes || ''
-    })
+    setForm({ label: stat.label, value: stat.value, unit: stat.unit || '', icon: stat.icon || '', notes: stat.notes || '' })
     setEditing(stat)
     setShowForm(true)
     setDuplicateError('')
@@ -110,7 +130,57 @@ export default function GeneralStatsPage() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="max-w-lg mx-auto px-4 py-6 relative min-h-[60vh]">
+
+        {/* ===== شاشة التغطية للزائر ===== */}
+        {!loading && !isAdmin && !isVisible && (
+          <div className="absolute inset-0 z-20 flex items-start justify-center pt-6 px-0">
+            <div className="absolute inset-0 bg-gray-100 bg-opacity-80 backdrop-blur-sm rounded-2xl"></div>
+            <div className="relative bg-white rounded-3xl shadow-2xl border border-indigo-100 p-8 text-center w-full">
+              <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl">🔄</div>
+              <h2 className="text-xl font-bold text-gray-800 mb-3">البيانات قيد الإدخال</h2>
+              <p className="text-gray-500 text-sm leading-loose mb-6">
+                يتم حالياً إدخال وتدقيق البيانات الإحصائية
+                <br />
+                ستتوفر هذه الإحصائيات للعرض بعد اكتمال عملية الحصر
+              </p>
+              <div className="bg-indigo-50 rounded-2xl p-4 flex items-center gap-3 mb-5">
+                <span className="text-2xl">⏳</span>
+                <p className="text-indigo-700 text-sm font-bold text-right flex-1">
+                  نعتذر عن عدم توفر البيانات مؤقتاً
+                </p>
+              </div>
+              <button onClick={() => router.push('/home')}
+                className="w-full bg-indigo-600 text-white py-3 rounded-2xl font-bold text-sm cursor-pointer hover:bg-indigo-700 transition-all">
+                العودة للصفحة الرئيسية
+              </button>
+            </div>
+          </div>
+        )}
+        {/* ===== نهاية شاشة التغطية ===== */}
+
+        {/* زر التحكم بالرؤية — للمستخدم فقط */}
+        {isAdmin && (
+          <div className="mb-4 flex items-center justify-between bg-white border border-gray-200 rounded-2xl p-4">
+            <div>
+              <p className="font-bold text-gray-700 text-sm">حالة الصفحة للزوار</p>
+              <p className={`text-xs mt-0.5 font-bold ${isVisible ? 'text-green-600' : 'text-red-500'}`}>
+                {isVisible ? '✅ مرئية للزوار' : '🔒 مخفية — تغطية نشطة'}
+              </p>
+            </div>
+            <button
+              onClick={toggleVisibility}
+              disabled={togglingVisibility}
+              className={`px-4 py-2 rounded-xl text-sm font-bold cursor-pointer transition-all ${
+                isVisible
+                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                  : 'bg-green-100 text-green-700 hover:bg-green-200'
+              }`}
+            >
+              {togglingVisibility ? '...' : isVisible ? '🔒 إخفاء الصفحة' : '🔓 إظهار الصفحة'}
+            </button>
+          </div>
+        )}
 
         {isAdmin && (
           <button onClick={() => { resetForm(); setShowForm(!showForm) }}
@@ -159,14 +229,8 @@ export default function GeneralStatsPage() {
                   className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
               </div>
               <div className="flex gap-2">
-                <button type="submit"
-                  className="flex-1 bg-indigo-500 text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer hover:bg-indigo-600 transition-all">
-                  حفظ
-                </button>
-                <button type="button" onClick={resetForm}
-                  className="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-gray-200 transition-all">
-                  إلغاء
-                </button>
+                <button type="submit" className="flex-1 bg-indigo-500 text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer hover:bg-indigo-600 transition-all">حفظ</button>
+                <button type="button" onClick={resetForm} className="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-gray-200 transition-all">إلغاء</button>
               </div>
             </form>
           </div>
@@ -177,39 +241,35 @@ export default function GeneralStatsPage() {
             <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : stats.length === 0 ? (
-          <div className="text-center py-12">
-            <span className="text-5xl block mb-3">📊</span>
-            <p className="text-gray-400">لا توجد إحصائيات مسجلة بعد</p>
-          </div>
-        ) : (
-          <>
-            {/* عرض شبكي للإحصائيات */}
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              {stats.map((stat, i) => {
-                const palette = colorPalette[i % colorPalette.length]
-                return (
-                  <div key={stat.id}
-                    className={`${palette.bg} rounded-2xl p-4 border border-white shadow-sm relative`}>
-                    {isAdmin && (
-                      <div className="absolute top-2 left-2 flex gap-2">
-                        <button onClick={() => handleEdit(stat)} className="text-blue-500 text-xs underline cursor-pointer">تعديل</button>
-                        <button onClick={() => handleDelete(stat.id, stat.label)} className="text-red-400 text-xs underline cursor-pointer">حذف</button>
-                      </div>
-                    )}
-                    <div className={`w-10 h-10 ${palette.icon_bg} rounded-xl flex items-center justify-center text-xl mb-3`}>
-                      {stat.icon || '📊'}
-                    </div>
-                    <p className={`text-3xl font-bold ${palette.num}`}>
-                      {stat.value}
-                    </p>
-                    {stat.unit && <p className={`text-xs ${palette.text} opacity-70`}>{stat.unit}</p>}
-                    <p className={`text-sm font-bold ${palette.text} mt-1`}>{stat.label}</p>
-                    {stat.notes && <p className="text-xs text-gray-400 mt-1">{stat.notes}</p>}
-                  </div>
-                )
-              })}
+          isAdmin ? (
+            <div className="text-center py-12">
+              <span className="text-5xl block mb-3">📊</span>
+              <p className="text-gray-400">لا توجد إحصائيات مسجلة بعد</p>
             </div>
-          </>
+          ) : null
+        ) : (
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            {stats.map((stat, i) => {
+              const palette = colorPalette[i % colorPalette.length]
+              return (
+                <div key={stat.id} className={`${palette.bg} rounded-2xl p-4 border border-white shadow-sm relative`}>
+                  {isAdmin && (
+                    <div className="absolute top-2 left-2 flex gap-2">
+                      <button onClick={() => handleEdit(stat)} className="text-blue-500 text-xs underline cursor-pointer">تعديل</button>
+                      <button onClick={() => handleDelete(stat.id, stat.label)} className="text-red-400 text-xs underline cursor-pointer">حذف</button>
+                    </div>
+                  )}
+                  <div className={`w-10 h-10 ${palette.icon_bg} rounded-xl flex items-center justify-center text-xl mb-3`}>
+                    {stat.icon || '📊'}
+                  </div>
+                  <p className={`text-3xl font-bold ${palette.num}`}>{stat.value}</p>
+                  {stat.unit && <p className={`text-xs ${palette.text} opacity-70`}>{stat.unit}</p>}
+                  <p className={`text-sm font-bold ${palette.text} mt-1`}>{stat.label}</p>
+                  {stat.notes && <p className="text-xs text-gray-400 mt-1">{stat.notes}</p>}
+                </div>
+              )
+            })}
+          </div>
         )}
       </div>
 

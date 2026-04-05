@@ -21,11 +21,26 @@ export default function PublicDashboard() {
     sectors: {} as Record<string, number>
   })
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+  const [togglingVisibility, setTogglingVisibility] = useState(false)
   const router = useRouter()
 
   useEffect(() => { fetchStats() }, [])
 
   const fetchStats = async () => {
+    // التحقق من المستخدم
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) setIsAdmin(true)
+
+    // جلب حالة الرؤية
+    const { data: visData } = await supabase
+      .from('page_visibility')
+      .select('is_visible')
+      .eq('page_key', 'public_dashboard')
+      .single()
+    if (visData) setIsVisible(visData.is_visible)
+
     const [{ count: houses }, { count: families }, { data: individuals }] = await Promise.all([
       supabase.from('houses').select('*', { count: 'exact', head: true }),
       supabase.from('families').select('*', { count: 'exact', head: true }),
@@ -37,7 +52,7 @@ export default function PublicDashboard() {
       `)
     ])
 
-    if (!individuals) return
+    if (!individuals) { setLoading(false); return }
 
     const sectors: Record<string, number> = {}
     let males = 0, females = 0
@@ -74,6 +89,17 @@ export default function PublicDashboard() {
     setLoading(false)
   }
 
+  const toggleVisibility = async () => {
+    setTogglingVisibility(true)
+    const newVal = !isVisible
+    await supabase
+      .from('page_visibility')
+      .update({ is_visible: newVal, updated_at: new Date().toISOString() })
+      .eq('page_key', 'public_dashboard')
+    setIsVisible(newVal)
+    setTogglingVisibility(false)
+  }
+
   const cards = [
     { label: 'إجمالي الأفراد', value: stats.totalIndividuals, icon: '👥', color: 'from-blue-500 to-blue-600', bg: 'bg-blue-50', text: 'text-blue-700' },
     { label: 'إجمالي المنازل', value: stats.totalHouses, icon: '🏠', color: 'from-green-500 to-green-600', bg: 'bg-green-50', text: 'text-green-700' },
@@ -100,31 +126,72 @@ export default function PublicDashboard() {
     <div className="min-h-screen bg-gray-50" dir="rtl" style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
+      {/* الهيدر */}
       <div className="bg-gradient-to-l from-blue-800 via-blue-700 to-blue-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div className="bg-blue bg-opacity-20 rounded-xl p-3">
-                
-              </div>
-              
-            </div>
-            
-
-<button onClick={() => router.push('/home')}
-            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
-             رجوع
-
-</button>
+            <div className="flex items-center gap-4"></div>
+            <button onClick={() => router.push('/home')}
+              className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
+              رجوع
+            </button>
           </div>
         </div>
-
-        
-
-
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 relative min-h-[60vh]">
+
+        {/* ===== شاشة التغطية للزائر ===== */}
+        {!loading && !isAdmin && !isVisible && (
+          <div className="absolute inset-0 z-20 flex items-start justify-center pt-6 px-4">
+            <div className="absolute inset-0 bg-gray-50 bg-opacity-80 backdrop-blur-sm rounded-2xl"></div>
+            <div className="relative bg-white rounded-3xl shadow-2xl border border-green-100 p-8 text-center w-full max-w-md mx-auto">
+              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl">
+                🔄
+              </div>
+              <h2 className="text-xl font-bold text-gray-800 mb-3">البيانات قيد الإدخال</h2>
+              <p className="text-gray-500 text-sm leading-loose mb-6">
+                يتم حالياً إدخال وتدقيق البيانات السكانية
+                <br />
+                ستتوفر الإحصائيات للعرض بعد اكتمال عملية الحصر
+              </p>
+              <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3 mb-5">
+                <span className="text-2xl">⏳</span>
+                <p className="text-green-700 text-sm font-bold text-right flex-1">
+                  نعتذر عن عدم توفر البيانات مؤقتاً
+                </p>
+              </div>
+              <button onClick={() => router.push('/home')}
+                className="w-full bg-green-600 text-white py-3 rounded-2xl font-bold text-sm cursor-pointer hover:bg-green-700 transition-all">
+                العودة للصفحة الرئيسية
+              </button>
+            </div>
+          </div>
+        )}
+        {/* ===== نهاية شاشة التغطية ===== */}
+
+        {/* زر التحكم بالرؤية — للمستخدم فقط */}
+        {isAdmin && (
+          <div className="mb-6 flex items-center justify-between bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+            <div>
+              <p className="font-bold text-gray-700 text-sm">حالة الصفحة للزوار</p>
+              <p className={`text-xs mt-0.5 font-bold ${isVisible ? 'text-green-600' : 'text-red-500'}`}>
+                {isVisible ? '✅ مرئية للزوار' : '🔒 مخفية — تغطية نشطة'}
+              </p>
+            </div>
+            <button
+              onClick={toggleVisibility}
+              disabled={togglingVisibility}
+              className={`px-4 py-2 rounded-xl text-sm font-bold cursor-pointer transition-all ${
+                isVisible
+                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                  : 'bg-green-100 text-green-700 hover:bg-green-200'
+              }`}
+            >
+              {togglingVisibility ? '...' : isVisible ? '🔒 إخفاء الصفحة' : '🔓 إظهار الصفحة'}
+            </button>
+          </div>
+        )}
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
@@ -133,8 +200,6 @@ export default function PublicDashboard() {
           </div>
         ) : (
           <>
-            
-
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
               {cards.map((card, i) => (
                 <div key={i}
