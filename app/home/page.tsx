@@ -36,13 +36,13 @@ export default function HomePage() {
       desc: 'تعرف على جمعية العكنة الخيرية',
       icon: '🏛️',
       path: '/home/about',
-      gradient: 'from-teal-400 to-teal-800',
-      shadow: 'shadow-لاقصخى-200',
+      gradient: 'from-amber-500 to-amber-700',
+      shadow: 'shadow-amber-200',
     },
     // ← جديد: التواصل والاستفسار والتبرع (ثاني زر بعد about)
     {
       label: 'تواصل واستفسر وتبرع',
-      desc: 'تواصل مع الجمعية عبر واتساب أو هاتف',
+      desc: 'تواصل مع الجمعية',
       icon: '🤝',
       path: '/home/contact',
       gradient: 'from-teal-600 to-teal-800',
@@ -59,7 +59,7 @@ export default function HomePage() {
     // ← جديد: إحصائيات عامة (بعد إحصائيات السكان)
     {
       label: 'إحصائيات عامة',
-      desc: 'أرقام وإحصائيات الجمعية',
+      desc: 'أرقام وإحصائيات عامة',
       icon: '📈',
       path: '/home/general-stats',
       gradient: 'from-indigo-600 to-indigo-800',
