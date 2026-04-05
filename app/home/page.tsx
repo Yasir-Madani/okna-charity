@@ -36,8 +36,8 @@ export default function HomePage() {
       desc: 'تعرف على جمعية العكنة الخيرية',
       icon: '🏛️',
       path: '/home/about',
-      gradient: 'from-rose-600 to-blue-800',
-      shadow: 'shadow-rose-200',
+      gradient: 'from-rose-600 to-rose-800',
+      shadow: 'shadow-لاقصخى-200',
     },
     // ← جديد: التواصل والاستفسار والتبرع (ثاني زر بعد about)
     {
@@ -53,7 +53,7 @@ export default function HomePage() {
       desc: 'بيانات سكانية عامة للقرية',
       icon: '📊',
       path: '/public-dashboard',
-      gradient: 'from-green-600 to-green-800',
+      gradient: 'from-yellow-600 to-yellow-800',
       shadow: 'shadow-green-200',
     },
     // ← جديد: إحصائيات عامة (بعد إحصائيات السكان)
@@ -119,7 +119,7 @@ export default function HomePage() {
                 className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40"
               >
                 <span>🖥️</span>
-                <span>لوحة التحكم</span>
+                <span>إضافة</span>
               </button>
               <button
                 onClick={handleLogout}
