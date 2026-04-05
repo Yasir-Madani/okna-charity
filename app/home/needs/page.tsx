@@ -120,7 +120,7 @@ export default function GeneralStatsPage() {
             className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
             رجوع
           </button>
-          <h1 className="text-lg font-bold">إحصائيات عامة</h1>
+          <h1 className="text-lg font-bold">حوجات الجمعية</h1>
           <div className="w-16"></div>
         </div>
       </div>
@@ -135,9 +135,9 @@ export default function GeneralStatsPage() {
               <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl">🔄</div>
               <h2 className="text-xl font-bold text-gray-800 mb-3">البيانات قيد الإدخال</h2>
               <p className="text-gray-500 text-sm leading-loose mb-6">
-                يتم حالياً إدخال وتدقيق البيانات الإحصائية
+                يتم حالياً إدخال وتدقيق البيانات
                 <br />
-                ستتوفر هذه الإحصائيات للعرض بعد اكتمال عملية الحصر
+                ستتوفر هذه البيانات للعرض بعد اكتمال عملية الإدخال
               </p>
               <div className="bg-indigo-50 rounded-2xl p-4 flex items-center gap-3 mb-5">
                 <span className="text-2xl">⏳</span>
@@ -180,19 +180,19 @@ export default function GeneralStatsPage() {
         {isAdmin && (
           <button onClick={() => { resetForm(); setShowForm(!showForm) }}
             className="w-full bg-gradient-to-l from-indigo-600 to-indigo-500 text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-bold mb-4 shadow-lg shadow-indigo-200 cursor-pointer hover:scale-[1.01] transition-all">
-            + إضافة إحصائية
+            + إضافة حوجة
           </button>
         )}
 
         {showForm && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4">
-            <h3 className="font-bold text-gray-700 mb-4">{editing ? 'تعديل الإحصائية' : 'إضافة إحصائية جديدة'}</h3>
+            <h3 className="font-bold text-gray-700 mb-4">{editing ? 'تعديل الحوجة' : 'إضافة حوجة جديدة'}</h3>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="text-sm text-gray-600 block mb-1">اسم الإحصائية *</label>
+                <label className="text-sm text-gray-600 block mb-1">اسم الحوجة*</label>
                 <input required value={form.name}
                   onChange={e => { setForm({ ...form, name: e.target.value }); setDuplicateError('') }}
-                  placeholder="مثال: عدد الأسر المستفيدة"
+                  placeholder=""
                   className={`w-full border rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`} />
                 {duplicateError && (
                   <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
@@ -233,7 +233,7 @@ export default function GeneralStatsPage() {
         ) : stats.length === 0 ? (
           <div className="text-center py-12">
             <span className="text-5xl block mb-3">📊</span>
-            <p className="text-gray-400">لا توجد إحصائيات مسجلة بعد</p>
+            <p className="text-gray-400">لا توجد حوجات مسجلة بعد</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -265,7 +265,7 @@ export default function GeneralStatsPage() {
         )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mt-4 text-center">
-          <p className="text-gray-500 text-sm">إجمالي الإحصائيات المسجلة</p>
+          <p className="text-gray-500 text-sm">إجمالي الحوجات المسجلة</p>
           <p className="text-3xl font-bold text-indigo-600 mt-1">
             {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar')}
           </p>

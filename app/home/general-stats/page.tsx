@@ -7,11 +7,11 @@ export default function GeneralStatsPage() {
   const [stats, setStats] = useState<any[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [isVisible, setIsVisible] = useState(false)       // هل الصفحة مرئية للزوار؟
+  const [isVisible, setIsVisible] = useState(false)
   const [togglingVisibility, setTogglingVisibility] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<any>(null)
-  const [form, setForm] = useState({ label: '', value: '', unit: '', icon: '', notes: '' })
+  const [form, setForm] = useState({ name: '', quantity: '', notes: '' })
   const [duplicateError, setDuplicateError] = useState('')
   const router = useRouter()
 
@@ -21,7 +21,6 @@ export default function GeneralStatsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) setIsAdmin(true)
 
-    // جلب حالة الرؤية من قاعدة البيانات
     const { data: visData } = await supabase
       .from('page_visibility')
       .select('is_visible')
@@ -29,12 +28,8 @@ export default function GeneralStatsPage() {
       .single()
     if (visData) setIsVisible(visData.is_visible)
 
-    const { data } = await supabase
-      .from('general_stats')
-      .select('*')
-      .order('created_at', { ascending: true })
+    const { data } = await supabase.from('general_stats').select('*').order('name')
     if (data) setStats(data)
-
     setLoading(false)
   }
 
@@ -50,7 +45,7 @@ export default function GeneralStatsPage() {
   }
 
   const resetForm = () => {
-    setForm({ label: '', value: '', unit: '', icon: '', notes: '' })
+    setForm({ name: '', quantity: '', notes: '' })
     setEditing(null)
     setShowForm(false)
     setDuplicateError('')
@@ -64,20 +59,18 @@ export default function GeneralStatsPage() {
     const { data: existing } = await supabase
       .from('general_stats')
       .select('id')
-      .ilike('label', form.label.trim())
+      .ilike('name', form.name.trim())
       .neq('id', editing?.id ?? '00000000-0000-0000-0000-000000000000')
       .single()
 
     if (existing) {
-      setDuplicateError(`"${form.label.trim()}" موجود مسبقاً في الإحصائيات`)
+      setDuplicateError(`"${form.name.trim()}" موجود مسبقاً في قائمة الإحصائيات`)
       return
     }
 
     const payload = {
-      label: form.label.trim(),
-      value: form.value.trim(),
-      unit: form.unit.trim() || null,
-      icon: form.icon.trim() || '📊',
+      name: form.name.trim(),
+      quantity: Number(form.quantity),
       notes: form.notes || null,
       created_by: user.id
     }
@@ -93,33 +86,35 @@ export default function GeneralStatsPage() {
   }
 
   const handleEdit = (stat: any) => {
-    setForm({ label: stat.label, value: stat.value, unit: stat.unit || '', icon: stat.icon || '', notes: stat.notes || '' })
+    setForm({ name: stat.name, quantity: stat.quantity.toString(), notes: stat.notes || '' })
     setEditing(stat)
     setShowForm(true)
     setDuplicateError('')
   }
 
-  const handleDelete = async (id: string, label: string) => {
-    if (!confirm(`هل أنت متأكد من حذف "${label}"؟`)) return
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return
     await supabase.from('general_stats').delete().eq('id', id)
     fetchData()
   }
 
-  const colorPalette = [
-    { bg: 'bg-blue-50',   text: 'text-blue-700',   num: 'text-blue-600',   icon_bg: 'bg-blue-100' },
-    { bg: 'bg-green-50',  text: 'text-green-700',  num: 'text-green-600',  icon_bg: 'bg-green-100' },
-    { bg: 'bg-purple-50', text: 'text-purple-700', num: 'text-purple-600', icon_bg: 'bg-purple-100' },
-    { bg: 'bg-orange-50', text: 'text-orange-700', num: 'text-orange-600', icon_bg: 'bg-orange-100' },
-    { bg: 'bg-teal-50',   text: 'text-teal-700',   num: 'text-teal-600',   icon_bg: 'bg-teal-100' },
-    { bg: 'bg-rose-50',   text: 'text-rose-700',   num: 'text-rose-600',   icon_bg: 'bg-rose-100' },
-  ]
+  const icons: Record<string, string> = {
+    'كراسي': '🪑', 'طاولات': '🪵', 'طرابيز': '🪵',
+    'أكواب': '☕', 'أطباق': '🍽️', 'ثلاجة': '🧊',
+    'مكيف': '❄️', 'مروحة': '💨', 'ستائر': '🪟',
+  }
+
+  const getIcon = (name: string) => {
+    const match = Object.keys(icons).find(k => name.includes(k))
+    return match ? icons[match] : '📊'
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
       style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
-      <div className="bg-gradient-to-l from-indigo-800 via-indigo-700 to-indigo-600 text-white">
+      <div className="bg-gradient-to-l from-indigo-700 via-indigo-600 to-indigo-500 text-white">
         <div className="max-w-lg mx-auto px-4 py-6 flex items-center justify-between">
           <button onClick={() => router.push('/home')}
             className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
@@ -194,32 +189,21 @@ export default function GeneralStatsPage() {
             <h3 className="font-bold text-gray-700 mb-4">{editing ? 'تعديل الإحصائية' : 'إضافة إحصائية جديدة'}</h3>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="text-sm text-gray-600 block mb-1">العنوان *</label>
-                <input required value={form.label}
-                  onChange={e => { setForm({ ...form, label: e.target.value }); setDuplicateError('') }}
+                <label className="text-sm text-gray-600 block mb-1">اسم الإحصائية *</label>
+                <input required value={form.name}
+                  onChange={e => { setForm({ ...form, name: e.target.value }); setDuplicateError('') }}
                   placeholder="مثال: عدد الأسر المستفيدة"
                   className={`w-full border rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`} />
-                {duplicateError && <p className="text-red-500 text-xs mt-1">⚠️ {duplicateError}</p>}
-              </div>
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label className="text-sm text-gray-600 block mb-1">القيمة *</label>
-                  <input required value={form.value}
-                    onChange={e => setForm({ ...form, value: e.target.value })}
-                    placeholder="مثال: 250"
-                    className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600 block mb-1">الوحدة</label>
-                  <input value={form.unit} placeholder="أسرة / شخص..."
-                    onChange={e => setForm({ ...form, unit: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
-                </div>
+                {duplicateError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    ⚠️ {duplicateError}
+                  </p>
+                )}
               </div>
               <div className="mb-3">
-                <label className="text-sm text-gray-600 block mb-1">الأيقونة (إيموجي)</label>
-                <input value={form.icon} placeholder="مثال: 👨‍👩‍👧"
-                  onChange={e => setForm({ ...form, icon: e.target.value })}
+                <label className="text-sm text-gray-600 block mb-1">العدد *</label>
+                <input required type="number" min="0" value={form.quantity}
+                  onChange={e => setForm({ ...form, quantity: e.target.value })}
                   className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
               </div>
               <div className="mb-4">
@@ -229,8 +213,14 @@ export default function GeneralStatsPage() {
                   className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" />
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 bg-indigo-500 text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer hover:bg-indigo-600 transition-all">حفظ</button>
-                <button type="button" onClick={resetForm} className="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-gray-200 transition-all">إلغاء</button>
+                <button type="submit"
+                  className="flex-1 bg-indigo-500 text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer hover:bg-indigo-600 transition-all">
+                  حفظ
+                </button>
+                <button type="button" onClick={resetForm}
+                  className="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-gray-200 transition-all">
+                  إلغاء
+                </button>
               </div>
             </form>
           </div>
@@ -241,36 +231,46 @@ export default function GeneralStatsPage() {
             <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : stats.length === 0 ? (
-          isAdmin ? (
-            <div className="text-center py-12">
-              <span className="text-5xl block mb-3">📊</span>
-              <p className="text-gray-400">لا توجد إحصائيات مسجلة بعد</p>
-            </div>
-          ) : null
+          <div className="text-center py-12">
+            <span className="text-5xl block mb-3">📊</span>
+            <p className="text-gray-400">لا توجد إحصائيات مسجلة بعد</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            {stats.map((stat, i) => {
-              const palette = colorPalette[i % colorPalette.length]
-              return (
-                <div key={stat.id} className={`${palette.bg} rounded-2xl p-4 border border-white shadow-sm relative`}>
-                  {isAdmin && (
-                    <div className="absolute top-2 left-2 flex gap-2">
-                      <button onClick={() => handleEdit(stat)} className="text-blue-500 text-xs underline cursor-pointer">تعديل</button>
-                      <button onClick={() => handleDelete(stat.id, stat.label)} className="text-red-400 text-xs underline cursor-pointer">حذف</button>
-                    </div>
-                  )}
-                  <div className={`w-10 h-10 ${palette.icon_bg} rounded-xl flex items-center justify-center text-xl mb-3`}>
-                    {stat.icon || '📊'}
-                  </div>
-                  <p className={`text-3xl font-bold ${palette.num}`}>{stat.value}</p>
-                  {stat.unit && <p className={`text-xs ${palette.text} opacity-70`}>{stat.unit}</p>}
-                  <p className={`text-sm font-bold ${palette.text} mt-1`}>{stat.label}</p>
-                  {stat.notes && <p className="text-xs text-gray-400 mt-1">{stat.notes}</p>}
+          <div className="space-y-3">
+            {stats.map(stat => (
+              <div key={stat.id}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4">
+                <div className="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">
+                  {getIcon(stat.name)}
                 </div>
-              )
-            })}
+                <div className="flex-1">
+                  <p className="font-bold text-gray-800">{stat.name}</p>
+                  {stat.notes && <p className="text-gray-400 text-xs">{stat.notes}</p>}
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-indigo-600">{stat.quantity.toLocaleString('ar')}</p>
+                  <p className="text-xs text-gray-400">وحدة</p>
+                </div>
+                {isAdmin && (
+                  <div className="flex flex-col gap-1">
+                    <button onClick={() => handleEdit(stat)}
+                      className="text-blue-500 text-xs underline cursor-pointer">تعديل</button>
+                    <button onClick={() => handleDelete(stat.id, stat.name)}
+                      className="text-red-400 text-xs underline cursor-pointer">حذف</button>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mt-4 text-center">
+          <p className="text-gray-500 text-sm">إجمالي الإحصائيات المسجلة</p>
+          <p className="text-3xl font-bold text-indigo-600 mt-1">
+            {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar')}
+          </p>
+          <p className="text-gray-400 text-xs">وحدة في {stats.length} صنف</p>
+        </div>
       </div>
 
       <footer className="text-center py-6 mt-4">
