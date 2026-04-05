@@ -36,8 +36,8 @@ export default function HomePage() {
       desc: 'تعرف على جمعية العكنة الخيرية',
       icon: '🏛️',
       path: '/home/about',
-      gradient: 'from-blue-600 to-blue-800',
-      shadow: 'shadow-blue-200',
+      gradient: 'from-rose-600 to-blue-800',
+      shadow: 'shadow-rose-200',
     },
     // ← جديد: التواصل والاستفسار والتبرع (ثاني زر بعد about)
     {
