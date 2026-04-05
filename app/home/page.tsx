@@ -39,6 +39,15 @@ export default function HomePage() {
       gradient: 'from-blue-600 to-blue-800',
       shadow: 'shadow-blue-200',
     },
+    // ← جديد: التواصل والاستفسار والتبرع (ثاني زر بعد about)
+    {
+      label: 'تواصل واستفسر وتبرع',
+      desc: 'تواصل مع الجمعية عبر واتساب أو هاتف',
+      icon: '🤝',
+      path: '/home/contact',
+      gradient: 'from-teal-600 to-teal-800',
+      shadow: 'shadow-teal-200',
+    },
     {
       label: 'إحصائيات السكان',
       desc: 'بيانات سكانية عامة للقرية',
@@ -47,6 +56,15 @@ export default function HomePage() {
       gradient: 'from-green-600 to-green-800',
       shadow: 'shadow-green-200',
     },
+    // ← جديد: إحصائيات عامة (بعد إحصائيات السكان)
+    {
+      label: 'إحصائيات عامة',
+      desc: 'أرقام وإحصائيات الجمعية',
+      icon: '📈',
+      path: '/home/general-stats',
+      gradient: 'from-indigo-600 to-indigo-800',
+      shadow: 'shadow-indigo-200',
+    },
     {
       label: 'ممتلكات الجمعية',
       desc: 'قائمة ممتلكات وأصول الجمعية',
@@ -54,6 +72,15 @@ export default function HomePage() {
       path: '/home/assets',
       gradient: 'from-orange-500 to-orange-700',
       shadow: 'shadow-orange-200',
+    },
+    // ← جديد: حوجة الجمعية (بعد ممتلكات الجمعية)
+    {
+      label: 'حوجة الجمعية',
+      desc: 'احتياجات الجمعية الحالية',
+      icon: '📋',
+      path: '/home/needs',
+      gradient: 'from-rose-500 to-rose-700',
+      shadow: 'shadow-rose-200',
     },
     {
       label: 'إدارة الجمعية',
@@ -79,19 +106,17 @@ export default function HomePage() {
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
       <div className="bg-gradient-to-l from-blue-900 via-blue-800 to-blue-700 text-white">
-        
-        <div className="max-w-lg mx-auto px-4 pt-4 flex justify-between items-center">
-          {/* اسم المستخدم */}
-          <div className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40">
-  {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
-</div>
 
-          {/* أزرار Dashboard و Logout للمستخدم المصرح له فقط */}
+        <div className="max-w-lg mx-auto px-4 pt-4 flex justify-between items-center">
+          <div className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40">
+            {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
+          </div>
+
           {isLoggedIn && (
             <div className="flex gap-2">
               <button
                 onClick={() => router.push('/dashboard')}
-               className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40 ..."
+                className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40"
               >
                 <span>🖥️</span>
                 <span>لوحة التحكم</span>
