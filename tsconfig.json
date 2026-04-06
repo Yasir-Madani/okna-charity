@@ -19,8 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
-    }
+  "@/*": ["./*"],
+  "@lib/*": ["./lib/*"]
+}
+
   },
   "include": [
     "next-env.d.ts",
@@ -32,3 +34,5 @@
 , "app/lib/supabase.js"  ],
   "exclude": ["node_modules"]
 }
+
+
