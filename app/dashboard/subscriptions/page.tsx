@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 type House = {
   id: string
   name: string
-  number: number
+  house_number: number
   sector: string
 }
 
@@ -105,11 +105,8 @@ export default function SubscriptionsPage() {
   const loadHouses = async () => {
   const { data, error } = await supabase
     .from('houses')
-    .select('id, name, number, sector')
-    .order('number', { ascending: true })
-  
-  console.log('houses data:', data)
-  console.log('houses error:', error)
+    .select('id, name, house_number, sector')
+    .order('house_number', { ascending: true })
   
   if (data) setHouses(data)
 }
@@ -434,7 +431,7 @@ export default function SubscriptionsPage() {
                   <div className="col-span-4">
                     <p className="text-sm font-bold text-gray-800">
                       منزل {house.name}
-                      <span className="text-gray-400 font-normal text-xs mr-1">#{house.number}</span>
+                      <span className="text-gray-400 font-normal text-xs mr-1">#{house.house_number}</span>
                     </p>
                     <span className="inline-block mt-0.5 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
                       {house.sector}
