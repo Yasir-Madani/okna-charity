@@ -123,11 +123,11 @@ export default function OverdueReportPage() {
           </div>
           <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
             <p className="text-xs text-gray-500 mb-1">إجمالي المتأخرات</p>
-            <p className="text-2xl font-bold text-red-600">{totalOwedAll} ريال</p>
+            <p className="text-2xl font-bold text-red-600">{totalOwedAll} جنيه</p>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
             <p className="text-xs text-gray-500 mb-1">المبلغ الشهري</p>
-            <p className="text-2xl font-bold text-gray-700">{defaultAmount} ريال</p>
+            <p className="text-2xl font-bold text-gray-700">{defaultAmount} جنيه</p>
           </div>
         </div>
 
@@ -156,7 +156,7 @@ export default function OverdueReportPage() {
                       <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">
                         {overdueMonths.length} شهر
                       </span>
-                      <p className="text-sm font-bold text-red-600 mt-0.5">{totalOwed} ريال</p>
+                      <p className="text-sm font-bold text-red-600 mt-0.5">{totalOwed} جنيه</p>
                     </div>
                     <span className="text-gray-400 text-xs">{expandedId === house.id ? '▲' : '▼'}</span>
                   </div>

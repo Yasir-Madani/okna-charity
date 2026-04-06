@@ -314,7 +314,7 @@ export default function SubscriptionsPage() {
             { label: 'إجمالي المنازل', value: houses.length, color: 'text-gray-800' },
             { label: 'دفعوا هذا الشهر', value: paidCount, color: 'text-green-700' },
             { label: 'لم يدفعوا', value: unpaidCount, color: 'text-red-600' },
-            { label: 'المحصّل', value: `${totalCollected} ريال`, color: 'text-green-700' },
+            { label: 'المحصّل', value: `${totalCollected} جنيه`, color: 'text-green-700' },
           ].map((s, i) => (
             <div key={i} className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
               <p className="text-xs text-gray-500 mb-1">{s.label}</p>
@@ -343,7 +343,7 @@ export default function SubscriptionsPage() {
 
             {/* المبلغ الافتراضي */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">المبلغ الافتراضي (ريال)</label>
+              <label className="text-xs text-gray-500">المبلغ الافتراضي (جنيه)</label>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -408,7 +408,7 @@ export default function SubscriptionsPage() {
           <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500">
             <div className="col-span-4">المنزل</div>
             <div className="col-span-3 text-center">المتأخرات</div>
-            <div className="col-span-2 text-center">المبلغ (ريال)</div>
+            <div className="col-span-2 text-center">المبلغ (جنيه)</div>
             <div className="col-span-3 text-center">الحالة</div>
           </div>
 
@@ -445,7 +445,7 @@ export default function SubscriptionsPage() {
                         <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">
                           {overdue.months} شهر
                         </span>
-                        <p className="text-xs text-red-600 mt-0.5 font-bold">{overdue.total} ريال</p>
+                        <p className="text-xs text-red-600 mt-0.5 font-bold">{overdue.total} جنيه</p>
                       </div>
                     ) : (
                       <span className="text-xs text-gray-300">—</span>
