@@ -103,12 +103,16 @@ export default function SubscriptionsPage() {
   }
 
   const loadHouses = async () => {
-    const { data } = await supabase
-      .from('houses')
-      .select('id, name, number, sector')
-      .order('number', { ascending: true })
-    if (data) setHouses(data)
-  }
+  const { data, error } = await supabase
+    .from('houses')
+    .select('id, name, number, sector')
+    .order('number', { ascending: true })
+  
+  console.log('houses data:', data)
+  console.log('houses error:', error)
+  
+  if (data) setHouses(data)
+}
 
   const loadDefaultAmount = async () => {
     const { data } = await supabase
