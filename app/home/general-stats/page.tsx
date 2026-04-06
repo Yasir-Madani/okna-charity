@@ -192,7 +192,7 @@ export default function GeneralStatsPage() {
                 <label className="text-sm text-gray-600 block mb-1">اسم الإحصائية *</label>
                 <input required value={form.name}
                   onChange={e => { setForm({ ...form, name: e.target.value }); setDuplicateError('') }}
-                  placeholder="مثال: عدد الأسر المستفيدة"
+                  placeholder=""
                   className={`w-full border rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`} />
                 {duplicateError && (
                   <p className="text-red-500 text-xs mt-1 flex items-center gap-1">

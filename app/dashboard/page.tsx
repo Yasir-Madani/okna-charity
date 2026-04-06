@@ -82,6 +82,22 @@ export default function Dashboard() {
             + إضافة منزل
           </button>
 
+
+<button
+  onClick={() => router.push('/dashboard/subscriptions')}
+  className="bg-green-600 text-white px-4 py-2 rounded"
+>
+  الاشتراكات الشهرية
+</button>
+
+
+
+<button
+  onClick={() => router.push('/dashboard/subscriptions/overdue-report')}
+  className="bg-red-600 text-white px-4 py-2 rounded"
+>
+  تقرير المتأخرين
+</button>
           <button
             onClick={handleLogout}
             className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
