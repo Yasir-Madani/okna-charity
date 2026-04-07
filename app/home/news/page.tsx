@@ -16,7 +16,9 @@ export default function NewsPage() {
   })
   const [duplicateError, setDuplicateError] = useState('')
   const router = useRouter()
+  const [animationDuration, setAnimationDuration] = useState(60)
 
+  // جلب الأخبار
   useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
@@ -25,10 +27,26 @@ export default function NewsPage() {
     const { data } = await supabase
       .from('news')
       .select('*')
-      .order('news_date', { ascending: true }) // تصاعدي لتظهر الأخبار القديمة أولًا
+      .order('news_date', { ascending: true })
     if (data) setNews(data)
     setLoading(false)
   }
+
+  // ضبط مدة الحركة حسب طول الشريط
+  useEffect(() => {
+    const tempDiv = document.createElement('div')
+    tempDiv.style.visibility = 'hidden'
+    tempDiv.style.position = 'absolute'
+    tempDiv.style.whiteSpace = 'nowrap'
+    tempDiv.style.fontSize = '14px'
+    tempDiv.style.fontFamily = "'Cairo', sans-serif"
+    tempDiv.innerHTML = news.map(n => n.content).join(' ') + ' ' + news.map(n => n.content).join(' ')
+    document.body.appendChild(tempDiv)
+    const width = tempDiv.offsetWidth
+    const duration = width / 50 // سرعة تقريبية 50px/sec
+    setAnimationDuration(duration)
+    document.body.removeChild(tempDiv)
+  }, [news])
 
   const resetForm = () => {
     setForm({ title: '', content: '', news_date: new Date().toISOString().split('T')[0] })
@@ -98,7 +116,7 @@ export default function NewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col" dir="rtl"
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
       style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
@@ -114,13 +132,17 @@ export default function NewsPage() {
         </div>
       </div>
 
-      {/* شريط الأخبار الأزرق المستمر بدون فراغ */}
+      {/* شريط الأخبار الأزرق المستمر */}
       {news.length > 0 && (
-        <div className="bg-blue-600 text-white overflow-hidden relative whitespace-nowrap">
-          <div className="flex animate-marquee items-center py-2 gap-12">
-            {/* تكرار الأخبار مرتين لتجنب الفراغ */}
+        <div className="bg-blue-600 text-white overflow-hidden whitespace-nowrap">
+          <div
+            className="flex"
+            style={{
+              animation: `marquee ${animationDuration}s linear infinite`
+            }}
+          >
             {[...news, ...news].map((item, idx) => (
-              <span key={idx} className="flex-shrink-0 px-4 text-sm sm:text-base">
+              <span key={idx} className="flex-shrink-0 px-6 text-sm sm:text-base">
                 📰 {item.content}
               </span>
             ))}
@@ -128,7 +150,8 @@ export default function NewsPage() {
         </div>
       )}
 
-      <div className="max-w-lg mx-auto px-4 py-6 flex-1">
+      {/* الأخبار وإدارة الإداري */}
+      <div className="max-w-lg mx-auto px-4 py-6">
         {isAdmin && (
           <>
             <p className="text-gray-400 text-sm mb-4 text-center">
@@ -196,7 +219,7 @@ export default function NewsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {news.map((item, i) => (
+            {news.map((item) => (
               <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="bg-teal-600 px-4 py-3 flex items-center justify-between text-white">
                   <div className="flex items-center gap-2">
@@ -235,14 +258,10 @@ export default function NewsPage() {
       </footer>
 
       {/* أنيميشن الشريط المستمر */}
-      <style jsx global>{`
+      <style jsx>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          display: inline-flex;
-          animation: marquee 40s linear infinite; /* حركة مستمرة بدون توقف */
         }
       `}</style>
     </div>
