@@ -25,7 +25,7 @@ export default function NewsPage() {
     const { data } = await supabase
       .from('news')
       .select('*')
-      .order('news_date', { ascending: false })
+      .order('news_date', { ascending: true }) // تصاعدي لتظهر الأخبار القديمة أولًا
     if (data) setNews(data)
     setLoading(false)
   }
@@ -98,7 +98,7 @@ export default function NewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col" dir="rtl"
       style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
@@ -114,18 +114,13 @@ export default function NewsPage() {
         </div>
       </div>
 
-      {/* شريط الأخبار الأزرق المستمر */}
+      {/* شريط الأخبار الأزرق المستمر بدون فراغ */}
       {news.length > 0 && (
         <div className="bg-blue-600 text-white overflow-hidden relative whitespace-nowrap">
           <div className="flex animate-marquee items-center py-2 gap-12">
-            {news.map((item, index) => (
-              <span key={index} className="flex-shrink-0 px-4">
-                📰 {item.content}
-              </span>
-            ))}
-            {/* كرر الأخبار لجعل الحركة مستمرة بدون أي فراغ */}
-            {news.map((item, index) => (
-              <span key={'dup-' + index} className="flex-shrink-0 px-4">
+            {/* تكرار الأخبار مرتين لتجنب الفراغ */}
+            {[...news, ...news].map((item, idx) => (
+              <span key={idx} className="flex-shrink-0 px-4 text-sm sm:text-base">
                 📰 {item.content}
               </span>
             ))}
@@ -133,7 +128,7 @@ export default function NewsPage() {
         </div>
       )}
 
-      <div className="max-w-lg mx-auto px-4 py-6">
+      <div className="max-w-lg mx-auto px-4 py-6 flex-1">
         {isAdmin && (
           <>
             <p className="text-gray-400 text-sm mb-4 text-center">
@@ -201,38 +196,36 @@ export default function NewsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {news.map((item, i) => {
-              return (
-                <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                  <div className="bg-teal-600 px-4 py-3 flex items-center justify-between text-white">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">📰</span>
-                      <p className="font-bold text-sm">{item.title}</p>
+            {news.map((item, i) => (
+              <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-teal-600 px-4 py-3 flex items-center justify-between text-white">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📰</span>
+                    <p className="font-bold text-sm">{item.title}</p>
+                  </div>
+                  {isAdmin && (
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEdit(item)}
+                        className="text-xs underline opacity-80 cursor-pointer hover:opacity-100">
+                        تعديل
+                      </button>
+                      <button onClick={() => handleDelete(item.id, item.title)}
+                        className="text-xs underline opacity-80 cursor-pointer hover:opacity-100">
+                        حذف
+                      </button>
                     </div>
-                    {isAdmin && (
-                      <div className="flex gap-2">
-                        <button onClick={() => handleEdit(item)}
-                          className="text-xs underline opacity-80 cursor-pointer hover:opacity-100">
-                          تعديل
-                        </button>
-                        <button onClick={() => handleDelete(item.id, item.title)}
-                          className="text-xs underline opacity-80 cursor-pointer hover:opacity-100">
-                          حذف
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="bg-blue-50 px-4 py-3">
-                    <p className="text-gray-400 text-xs mb-2 flex items-center gap-1">
-                      <span>📅</span> {formatDate(item.news_date)}
-                    </p>
-                    <p className="text-gray-700 text-sm leading-loose whitespace-pre-wrap">
-                      {item.content}
-                    </p>
-                  </div>
+                  )}
                 </div>
-              )
-            })}
+                <div className="bg-blue-50 px-4 py-3">
+                  <p className="text-gray-400 text-xs mb-2 flex items-center gap-1">
+                    <span>📅</span> {formatDate(item.news_date)}
+                  </p>
+                  <p className="text-gray-700 text-sm leading-loose whitespace-pre-wrap">
+                    {item.content}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -247,10 +240,9 @@ export default function NewsPage() {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-
         .animate-marquee {
           display: inline-flex;
-          animation: marquee 80s linear infinite; /* يمكن تعديل السرعة هنا */
+          animation: marquee 40s linear infinite; /* حركة مستمرة بدون توقف */
         }
       `}</style>
     </div>
