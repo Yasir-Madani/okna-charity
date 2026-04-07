@@ -114,19 +114,19 @@ export default function NewsPage() {
         </div>
       </div>
 
-      {/* 🔥 شريط الأخبار المتحرك المتواصل */}
+      {/* شريط الأخبار الأزرق المستمر */}
       {news.length > 0 && (
-        <div className="bg-blue-600 text-white overflow-hidden whitespace-nowrap">
-          <div className="flex animate-marquee items-center py-2 gap-8">
+        <div className="bg-blue-600 text-white overflow-hidden relative whitespace-nowrap">
+          <div className="flex animate-marquee items-center py-2 gap-12">
             {news.map((item, index) => (
-              <span key={index} className="flex-shrink-0">
-                📰 {item.content.slice(0, 80)}...
+              <span key={index} className="flex-shrink-0 px-4">
+                📰 {item.content}
               </span>
             ))}
-            {/* كرر الأخبار لجعل الحركة مستمرة */}
+            {/* كرر الأخبار لجعل الحركة مستمرة بدون أي فراغ */}
             {news.map((item, index) => (
-              <span key={'dup-' + index} className="flex-shrink-0">
-                📰 {item.content.slice(0, 80)}...
+              <span key={'dup-' + index} className="flex-shrink-0 px-4">
+                📰 {item.content}
               </span>
             ))}
           </div>
@@ -134,7 +134,6 @@ export default function NewsPage() {
       )}
 
       <div className="max-w-lg mx-auto px-4 py-6">
-
         {isAdmin && (
           <>
             <p className="text-gray-400 text-sm mb-4 text-center">
@@ -242,7 +241,7 @@ export default function NewsPage() {
         <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية</p>
       </footer>
 
-      {/* أنيميشن الشريط */}
+      {/* أنيميشن الشريط المستمر */}
       <style jsx global>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
@@ -251,7 +250,7 @@ export default function NewsPage() {
 
         .animate-marquee {
           display: inline-flex;
-          animation: marquee 60s linear infinite;
+          animation: marquee 80s linear infinite; /* يمكن تعديل السرعة هنا */
         }
       `}</style>
     </div>
