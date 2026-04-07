@@ -9,11 +9,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [sectorFilter, setSectorFilter] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
-    checkUser()
-  }, [])
+  useEffect(() => { checkUser() }, [])
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -24,14 +23,8 @@ export default function Dashboard() {
   const fetchHouses = async () => {
     const { data } = await supabase
       .from('houses')
-      .select(`
-        *,
-        families (
-          id,
-          individuals (id)
-        )
-      `)
-      .order('created_at', { ascending: false })
+      .select(`*, families(id, individuals(id))`)
+      .order('house_number', { ascending: true })
     if (data) setHouses(data as any)
     setLoading(false)
   }
@@ -41,12 +34,10 @@ export default function Dashboard() {
     router.push('/')
   }
 
-  // ✅ التعديل هنا: البحث بالاسم + رقم المنزل
   const filtered = houses.filter(h => {
     const matchSearch =
       h.name.includes(search) ||
       (h.house_number && h.house_number.toString().includes(search))
-
     const matchSector = sectorFilter ? h.sector === sectorFilter : true
     return matchSearch && matchSector
   })
@@ -55,159 +46,151 @@ export default function Dashboard() {
   const getIndividualCount = (house: any) =>
     house.families?.reduce((sum: number, f: any) => sum + (f.individuals?.length || 0), 0) || 0
 
+  const totalFamilies = houses.reduce((sum, h) => sum + getFamilyCount(h), 0)
+  const totalIndividuals = houses.reduce((sum, h) => sum + getIndividualCount(h), 0)
+
   return (
-    <div className="min-h-screen bg-gray-100" dir="rtl">
-      <div className="bg-green-600 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">جمعية العكنة الخيرية</h1>
-        <div className="flex gap-3">
+    <div className="min-h-screen bg-gray-50" dir="rtl">
 
-          <button
-            onClick={() => router.push('/')}
-            className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
-          >
-            الرئيسية
-          </button>
+      {/* ===== شريط العنوان ===== */}
+      <div className="bg-green-700 text-white px-4 py-3 flex justify-between items-center sticky top-0 z-20 shadow-md">
+        <h1 className="text-base font-bold">جمعية العكنة الخيرية</h1>
 
-          <button
-            onClick={() => router.push('/dashboard/statistics')}
-            className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
-          >
-            الإحصائيات
-          </button>
-
+        {/* قائمة الموبايل */}
+        <div className="flex items-center gap-2">
           <button
             onClick={() => router.push('/dashboard/houses/new')}
-            className="bg-white text-green-600 px-3 py-1 rounded text-sm font-bold cursor-pointer"
+            className="bg-white text-green-700 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
           >
-            + إضافة منزل
+            + منزل
           </button>
-
-
-<button
-  onClick={() => router.push('/dashboard/subscriptions')}
-  className="bg-green-600 text-white px-4 py-2 rounded"
->
-  الاشتراكات الشهرية
-</button>
-
-
-
-<button
-  onClick={() => router.push('/dashboard/subscriptions/overdue-report')}
-  className="bg-red-600 text-white px-4 py-2 rounded"
->
-  تقرير المتأخرين
-</button>
           <button
-            onClick={handleLogout}
-            className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs cursor-pointer"
           >
-            خروج
+            ☰ قائمة
           </button>
         </div>
       </div>
 
-      <div className="p-4 max-w-5xl mx-auto">
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow text-center">
-            <p className="text-3xl font-bold text-green-600">{houses.length}</p>
-            <p className="text-gray-600 text-sm">إجمالي المنازل</p>
+      {/* القائمة المنسدلة */}
+      {menuOpen && (
+        <div className="bg-green-800 text-white px-4 py-3 space-y-2 z-10 shadow-lg">
+          <button
+            onClick={() => { router.push('/dashboard/subscriptions'); setMenuOpen(false) }}
+            className="w-full text-right py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer"
+          >
+            💳 الاشتراكات الشهرية
+          </button>
+          <button
+            onClick={() => { router.push('/dashboard/subscriptions/overdue-report'); setMenuOpen(false) }}
+            className="w-full text-right py-2.5 px-3 rounded-lg bg-red-500/30 hover:bg-red-500/50 text-sm cursor-pointer"
+          >
+            ⚠️ تقرير المتأخرين
+          </button>
+          <button
+            onClick={() => { router.push('/dashboard/statistics'); setMenuOpen(false) }}
+            className="w-full text-right py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer"
+          >
+            📊 الإحصائيات
+          </button>
+          <button
+            onClick={() => { router.push('/'); setMenuOpen(false) }}
+            className="w-full text-right py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer"
+          >
+            🏠 الرئيسية
+          </button>
+          <button
+            onClick={handleLogout}
+            className="w-full text-right py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer text-red-300"
+          >
+            🚪 تسجيل الخروج
+          </button>
+        </div>
+      )}
+
+      <div className="max-w-2xl mx-auto px-3 py-3 space-y-3">
+
+        {/* ===== بطاقات الإحصاء ===== */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm text-center">
+            <p className="text-2xl font-bold text-green-600">{houses.length}</p>
+            <p className="text-xs text-gray-400 mt-0.5">منزل</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow text-center">
-            <p className="text-3xl font-bold text-blue-600">
-              {houses.reduce((sum, h) => sum + getFamilyCount(h), 0)}
-            </p>
-            <p className="text-gray-600 text-sm">إجمالي الأسر</p>
+          <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm text-center">
+            <p className="text-2xl font-bold text-blue-600">{totalFamilies}</p>
+            <p className="text-xs text-gray-400 mt-0.5">أسرة</p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow text-center">
-            <p className="text-3xl font-bold text-purple-600">
-              {houses.reduce((sum, h) => sum + getIndividualCount(h), 0)}
-            </p>
-            <p className="text-gray-600 text-sm">إجمالي الأفراد</p>
+          <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm text-center">
+            <p className="text-2xl font-bold text-purple-600">{totalIndividuals}</p>
+            <p className="text-xs text-gray-400 mt-0.5">فرد</p>
           </div>
         </div>
 
-        <div className="bg-white p-3 rounded-lg shadow mb-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">بحث (اسم أو رقم المنزل)</label>
-              <input
-                placeholder="ابحث..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="border rounded p-2 text-right text-sm w-full h-10"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">المحور</label>
-              <select
-                value={sectorFilter}
-                onChange={e => setSectorFilter(e.target.value)}
-                className="border rounded p-2 text-right text-sm w-full h-10"
-              >
-                <option value="">كل المحاور</option>
-                <option value="شرق">شرق</option>
-                <option value="شمال">شمال</option>
-                <option value="وسط">وسط</option>
-                <option value="الدوراشاب">الدوراشاب</option>
-              </select>
-            </div>
-          </div>
+        {/* ===== البحث والفلتر ===== */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 space-y-2">
+          <input
+            placeholder="ابحث باسم أو رقم المنزل..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <select
+            value={sectorFilter}
+            onChange={e => setSectorFilter(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">كل المحاور</option>
+            <option value="شرق">شرق</option>
+            <option value="شمال">شمال</option>
+            <option value="وسط">وسط</option>
+            <option value="الدوراشاب">الدوراشاب</option>
+          </select>
         </div>
 
+        {/* ===== قائمة المنازل - بطاقات ===== */}
         {loading ? (
-          <p className="text-center text-gray-500">جاري التحميل...</p>
+          <p className="text-center text-gray-400 text-sm py-10">جاري التحميل...</p>
         ) : filtered.length === 0 ? (
-          <p className="text-center text-gray-500 mt-8">لا توجد منازل بعد</p>
+          <p className="text-center text-gray-400 text-sm py-10">لا توجد منازل</p>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  {/* ✅ تمت الإضافة هنا */}
-                  <th className="p-3 text-right">رقم المنزل</th>
-                  <th className="p-3 text-right">اسم المنزل</th>
-                  <th className="p-3 text-right">المحور</th>
-                  <th className="p-3 text-center">عدد الأسر</th>
-                  <th className="p-3 text-center">عدد الأفراد</th>
-                  <th className="p-3 text-center">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(house => (
-                  <tr key={house.id} className="border-t hover:bg-gray-50">
+          <div className="space-y-2">
+            {filtered.map(house => (
+              <div
+                key={house.id}
+                onClick={() => router.push(`/dashboard/houses/${house.id}`)}
+                className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-green-300 active:bg-green-50 transition-all"
+              >
+                {/* رقم المنزل */}
+                <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold text-green-700">
+                    {house.house_number || '—'}
+                  </span>
+                </div>
 
-                    {/* ✅ تمت الإضافة هنا */}
-                    <td className="p-3 font-bold">
-  {house.house_number?.toString() || '-'}
-</td>
+                {/* المعلومات */}
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-gray-800 text-sm truncate">{house.name}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                      {house.sector}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {getFamilyCount(house)} أسرة · {getIndividualCount(house)} فرد
+                    </span>
+                  </div>
+                </div>
 
-                    <td className="p-3 font-bold">{house.name}</td>
-
-                    <td className="p-3">
-                      <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
-                        {house.sector}
-                      </span>
-                    </td>
-
-                    <td className="p-3 text-center">{getFamilyCount(house)}</td>
-                    <td className="p-3 text-center">{getIndividualCount(house)}</td>
-
-                    <td className="p-3 text-center">
-                      <button
-                        onClick={() => router.push(`/dashboard/houses/${house.id}`)}
-                        className="text-green-600 text-sm underline cursor-pointer"
-                      >
-                        عرض
-                      </button>
-                    </td>
-
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                {/* سهم */}
+                <span className="text-gray-300 text-lg flex-shrink-0">←</span>
+              </div>
+            ))}
           </div>
         )}
+
+        <p className="text-center text-xs text-gray-400 pb-4">
+          {filtered.length} من {houses.length} منزل
+        </p>
       </div>
     </div>
   )
