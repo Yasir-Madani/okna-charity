@@ -22,22 +22,16 @@ export default function NewsPage() {
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     setIsAdmin(!!user)
-
     const { data } = await supabase
       .from('news')
       .select('*')
       .order('news_date', { ascending: false })
-
     if (data) setNews(data)
     setLoading(false)
   }
 
   const resetForm = () => {
-    setForm({
-      title: '',
-      content: '',
-      news_date: new Date().toISOString().split('T')[0]
-    })
+    setForm({ title: '', content: '', news_date: new Date().toISOString().split('T')[0] })
     setEditing(null)
     setShowForm(false)
     setDuplicateError('')
@@ -56,7 +50,7 @@ export default function NewsPage() {
       .single()
 
     if (existing) {
-      setDuplicateError(`"${form.title.trim()}" موجود مسبقاً`)
+      setDuplicateError(`"${form.title.trim()}" موجود مسبقاً في قائمة الأخبار`)
       return
     }
 
@@ -103,112 +97,93 @@ export default function NewsPage() {
     })
   }
 
-  const newsColors = [
-    { bg: 'bg-blue-500', light: 'bg-blue-50', border: 'border-blue-100' },
-    { bg: 'bg-teal-500', light: 'bg-teal-50', border: 'border-teal-100' },
-    { bg: 'bg-purple-500', light: 'bg-purple-50', border: 'border-purple-100' },
-    { bg: 'bg-green-500', light: 'bg-green-50', border: 'border-green-100' },
-    { bg: 'bg-orange-500', light: 'bg-orange-50', border: 'border-orange-100' },
-  ]
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
       style={{ fontFamily: "'Cairo', sans-serif" }}>
-
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
-      {/* Header */}
+      {/* رأس الصفحة */}
       <div className="bg-gradient-to-l from-teal-900 via-teal-800 to-teal-600 text-white">
-        <div className="max-w-xl md:max-w-2xl mx-auto px-4 py-6 flex items-center justify-between">
-          <button
-            onClick={() => router.push('/home')}
-            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm hover:bg-opacity-30 transition"
-          >
-            رجوع
+        <div className="max-w-lg mx-auto px-4 py-6 flex items-center justify-between">
+          <button onClick={() => router.push('/home')}
+            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
+             رجوع
           </button>
-
           <h1 className="text-lg font-bold">أخبار الجمعية</h1>
-
           <div className="w-16"></div>
         </div>
       </div>
 
-      {/* 🔥 شريط الأخبار المتحرك */}
+      {/* 🔥 شريط الأخبار المتحرك المتواصل */}
       {news.length > 0 && (
-        <div className="bg-black text-white overflow-hidden">
-          <div className="flex w-max animate-marquee py-2 text-sm">
-            {[...news, ...news].map((item, index) => (
-              <span key={index} className="mx-8 whitespace-nowrap">
-                📰 {item.title}
+        <div className="bg-blue-600 text-white overflow-hidden whitespace-nowrap">
+          <div className="flex animate-marquee items-center py-2 gap-8">
+            {news.map((item, index) => (
+              <span key={index} className="flex-shrink-0">
+                📰 {item.content.slice(0, 80)}...
+              </span>
+            ))}
+            {/* كرر الأخبار لجعل الحركة مستمرة */}
+            {news.map((item, index) => (
+              <span key={'dup-' + index} className="flex-shrink-0">
+                📰 {item.content.slice(0, 80)}...
               </span>
             ))}
           </div>
         </div>
       )}
 
-      {/* Content */}
-      <div className="max-w-xl md:max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-lg mx-auto px-4 py-6">
 
         {isAdmin && (
           <>
             <p className="text-gray-400 text-sm mb-4 text-center">
               يمكنك مشاهدة الأخبار فقط — سجل الدخول لإضافة أو تعديل الأخبار
             </p>
-
-            <button
-              onClick={() => { resetForm(); setShowForm(!showForm) }}
-              className="w-full bg-gradient-to-l from-teal-700 to-teal-600 text-white rounded-2xl p-4 font-bold mb-4 shadow-lg hover:scale-[1.01] transition"
-            >
+            <button onClick={() => { resetForm(); setShowForm(!showForm) }}
+              className="w-full bg-gradient-to-l from-teal-700 to-teal-600 text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-bold mb-4 shadow-lg shadow-teal-200 cursor-pointer hover:scale-[1.01] transition-all">
               + إضافة خبر جديد
             </button>
           </>
         )}
 
         {showForm && (
-          <div className="bg-white rounded-2xl shadow-sm border p-5 mb-4">
-            <h3 className="font-bold text-gray-700 mb-4">
-              {editing ? 'تعديل الخبر' : 'إضافة خبر جديد'}
-            </h3>
-
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4">
+            <h3 className="font-bold text-gray-700 mb-4">{editing ? 'تعديل الخبر' : 'إضافة خبر جديد'}</h3>
             <form onSubmit={handleSubmit}>
-              <input
-                required
-                value={form.title}
-                onChange={e => {
-                  setForm({ ...form, title: e.target.value })
-                  setDuplicateError('')
-                }}
-                placeholder="عنوان الخبر"
-                className="w-full border rounded-xl p-3 mb-3"
-              />
-
-              {duplicateError && (
-                <p className="text-red-500 text-xs mb-2">⚠️ {duplicateError}</p>
-              )}
-
-              <input
-                type="date"
-                required
-                value={form.news_date}
-                onChange={e => setForm({ ...form, news_date: e.target.value })}
-                className="w-full border rounded-xl p-3 mb-3"
-              />
-
-              <textarea
-                required
-                value={form.content}
-                onChange={e => setForm({ ...form, content: e.target.value })}
-                rows={4}
-                placeholder="تفاصيل الخبر"
-                className="w-full border rounded-xl p-3 mb-4"
-              />
-
+              <div className="mb-3">
+                <label className="text-sm text-gray-600 block mb-1">عنوان الخبر *</label>
+                <input required value={form.title}
+                  onChange={e => { setForm({ ...form, title: e.target.value }); setDuplicateError('') }}
+                  placeholder="اكتب عنوان الخبر..."
+                  className={`w-full border rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`} />
+                {duplicateError && (
+                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    ⚠️ {duplicateError}
+                  </p>
+                )}
+              </div>
+              <div className="mb-3">
+                <label className="text-sm text-gray-600 block mb-1">تاريخ الخبر *</label>
+                <input type="date" required value={form.news_date}
+                  onChange={e => setForm({ ...form, news_date: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+              </div>
+              <div className="mb-4">
+                <label className="text-sm text-gray-600 block mb-1">تفاصيل الخبر *</label>
+                <textarea required value={form.content}
+                  onChange={e => setForm({ ...form, content: e.target.value })}
+                  rows={5}
+                  placeholder="اكتب تفاصيل الخبر هنا..."
+                  className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm resize-none focus:outline-none focus:ring-2 focus:ring-teal-300" />
+              </div>
               <div className="flex gap-2">
-                <button className="flex-1 bg-teal-600 text-white py-2 rounded-xl">
-                  نشر
+                <button type="submit"
+                  className="flex-1 bg-teal-600 text-white py-2.5 rounded-xl font-bold text-sm cursor-pointer hover:bg-teal-700 transition-all">
+                  نشر الخبر
                 </button>
                 <button type="button" onClick={resetForm}
-                  className="flex-1 bg-gray-200 py-2 rounded-xl">
+                  className="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-gray-200 transition-all">
                   إلغاء
                 </button>
               </div>
@@ -216,51 +191,69 @@ export default function NewsPage() {
           </div>
         )}
 
-        {/* الأخبار */}
-        <div className="space-y-4">
-          {news.map((item, i) => {
-            const color = newsColors[i % newsColors.length]
-
-            return (
-              <div key={item.id}
-                className={`bg-white rounded-2xl shadow border ${color.border}`}>
-
-                <div className={`${color.bg} text-white p-3 flex justify-between`}>
-                  <span>{item.title}</span>
-
-                  {isAdmin && (
-                    <div className="flex gap-2 text-xs">
-                      <button onClick={() => handleEdit(item)}>تعديل</button>
-                      <button onClick={() => handleDelete(item.id, item.title)}>حذف</button>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : news.length === 0 ? (
+          <div className="text-center py-12">
+            <span className="text-5xl block mb-3">📰</span>
+            <p className="text-gray-400">لا توجد أخبار بعد</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {news.map((item, i) => {
+              return (
+                <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="bg-teal-600 px-4 py-3 flex items-center justify-between text-white">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">📰</span>
+                      <p className="font-bold text-sm">{item.title}</p>
                     </div>
-                  )}
+                    {isAdmin && (
+                      <div className="flex gap-2">
+                        <button onClick={() => handleEdit(item)}
+                          className="text-xs underline opacity-80 cursor-pointer hover:opacity-100">
+                          تعديل
+                        </button>
+                        <button onClick={() => handleDelete(item.id, item.title)}
+                          className="text-xs underline opacity-80 cursor-pointer hover:opacity-100">
+                          حذف
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="bg-blue-50 px-4 py-3">
+                    <p className="text-gray-400 text-xs mb-2 flex items-center gap-1">
+                      <span>📅</span> {formatDate(item.news_date)}
+                    </p>
+                    <p className="text-gray-700 text-sm leading-loose whitespace-pre-wrap">
+                      {item.content}
+                    </p>
+                  </div>
                 </div>
-
-                <div className={`${color.light} p-3`}>
-                  <p className="text-xs text-gray-400 mb-2">
-                    📅 {formatDate(item.news_date)}
-                  </p>
-                  <p className="text-sm whitespace-pre-wrap">{item.content}</p>
-                </div>
-
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
-      {/* 🔥 الأنيميشن */}
+      <footer className="text-center py-6 mt-4">
+        <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية</p>
+      </footer>
+
+      {/* أنيميشن الشريط */}
       <style jsx global>{`
         @keyframes marquee {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-100%); }
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
 
         .animate-marquee {
-          animation: marquee 20s linear infinite;
+          display: inline-flex;
+          animation: marquee 60s linear infinite;
         }
       `}</style>
-
     </div>
   )
 }
