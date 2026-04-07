@@ -13,7 +13,7 @@ export default function FamilyPage() {
   const [editingIndividual, setEditingIndividual] = useState<any>(null)
   const [diseases, setDiseases] = useState<any[]>([])
   const [disabilities, setDisabilities] = useState<any[]>([])
-  const [individualError, setIndividualError] = useState('') // ← إضافة
+  const [individualError, setIndividualError] = useState('')
 
   const [selectedDiseases, setSelectedDiseases] = useState<{ id?: string; name: string; medication: string }[]>([])
   const [diseaseInput, setDiseaseInput] = useState('')
@@ -76,7 +76,7 @@ export default function FamilyPage() {
     setOtherDisability('')
     setEditingIndividual(null)
     setShowForm(false)
-    setIndividualError('') // ← إضافة
+    setIndividualError('')
   }
 
   const handleDiseaseInput = (val: string) => {
@@ -138,7 +138,7 @@ export default function FamilyPage() {
   }
 
   const handleEdit = (ind: any) => {
-    setIndividualError('') // ← إضافة
+    setIndividualError('')
     setForm({
       full_name: ind.full_name || '',
       national_id: ind.national_id || '',
@@ -167,13 +167,14 @@ export default function FamilyPage() {
 
     setEditingIndividual(ind)
     setShowForm(true)
+    // تمرير للأعلى لرؤية النموذج
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIndividualError('') // ← إضافة
+    setIndividualError('')
 
-    // ← إضافة: التحقق من تكرار الاسم
     const trimmedName = form.full_name.trim()
     const alreadyExists = individuals.some(
       (ind) =>
@@ -260,172 +261,216 @@ export default function FamilyPage() {
     router.push(`/dashboard/houses/${family.house_id}`)
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">جاري التحميل...</div>
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
+      <p className="text-gray-400 text-sm">جاري التحميل...</p>
+    </div>
+  )
 
   const standardDisabilityTypes = ['بصرية', 'سمعية', 'حركية', 'عقلية']
 
   return (
-    <div className="min-h-screen bg-gray-100" dir="rtl">
-      <div className="bg-green-600 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">أسرة {family?.name} ← منزل {house?.name}</h1>
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+
+      {/* ===== شريط العنوان ===== */}
+      <div className="bg-green-700 text-white px-4 py-3 flex justify-between items-center sticky top-0 z-20 shadow-md">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-green-200 truncate">منزل {house?.name}</p>
+          <h1 className="text-sm font-bold truncate">أسرة {family?.name}</h1>
+        </div>
         <button
           onClick={() => router.push(`/dashboard/houses/${family?.house_id}`)}
-          className="bg-white text-green-600 px-3 py-1 rounded text-sm cursor-pointer"
+          className="bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs cursor-pointer flex-shrink-0 mr-2"
         >
           رجوع
         </button>
       </div>
 
-      <div className="p-4 max-w-3xl mx-auto">
-        <div className="bg-white p-4 rounded-lg shadow mb-4 flex justify-between items-center">
-          <div>
-            <p className="text-sm text-gray-500">المحور: <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">{house?.sector}</span></p>
-            <p className="text-sm text-gray-500 mt-1">عدد الأفراد: <span className="font-bold">{individuals.length}</span></p>
+      <div className="max-w-2xl mx-auto px-3 py-3 space-y-3">
+
+        {/* ===== بطاقة معلومات الأسرة ===== */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-3 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div>
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                {house?.sector}
+              </span>
+              <p className="text-xs text-gray-400 mt-1">
+                {individuals.length} فرد
+              </p>
+            </div>
           </div>
-          <button onClick={handleDeleteFamily} className="text-red-500 text-sm underline cursor-pointer">حذف الأسرة</button>
+          <button
+            onClick={handleDeleteFamily}
+            className="text-red-400 text-xs border border-red-200 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-red-50"
+          >
+            حذف الأسرة
+          </button>
         </div>
 
-        <button
-          onClick={() => { resetForm(); setShowForm(!showForm) }}
-          className="w-full bg-green-600 text-white py-3 rounded-lg font-bold mb-4 cursor-pointer"
-        >
-          + إضافة فرد
-        </button>
-
+        {/* ===== نموذج الإضافة/التعديل ===== */}
         {showForm && (
-          <div className="bg-white p-4 rounded-lg shadow mb-4">
-            <h2 className="font-bold text-lg mb-4">{editingIndividual ? 'تعديل الفرد' : 'إضافة فرد جديد'}</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <label className="text-sm text-gray-600">الاسم الكامل *</label>
-                  <input
-                    required
-                    value={form.full_name}
-                    onChange={e => {
-                      setForm({ ...form, full_name: e.target.value })
-                      setIndividualError('') // ← إضافة
-                    }}
-                    className={`w-full border rounded p-2 text-right text-sm ${
-                      individualError ? 'border-red-500 bg-red-50' : ''
-                    }`}
-                  />
-                  {/* ← إضافة: رسالة الخطأ */}
-                  {individualError && (
-                    <p className="text-red-600 text-sm mt-2 bg-red-50 border border-red-200 rounded p-2">
-                      {individualError}
-                    </p>
-                  )}
-                </div>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-bold text-gray-800">
+                {editingIndividual ? 'تعديل الفرد' : 'إضافة فرد جديد'}
+              </h2>
+              <button onClick={resetForm} className="text-gray-400 text-xl cursor-pointer">✕</button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+
+              {/* الاسم */}
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">الاسم الكامل *</label>
+                <input
+                  required
+                  value={form.full_name}
+                  onChange={e => { setForm({ ...form, full_name: e.target.value }); setIndividualError('') }}
+                  className={`w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500
+                    ${individualError ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
+                />
+                {individualError && (
+                  <p className="text-red-600 text-xs mt-1.5 bg-red-50 border border-red-200 rounded-lg p-2">
+                    {individualError}
+                  </p>
+                )}
+              </div>
+
+              {/* الجنس + صلة القرابة */}
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-sm text-gray-600">الرقم الوطني</label>
-                  <input value={form.national_id}
-                    onChange={e => setForm({ ...form, national_id: e.target.value })}
-                    className="w-full border rounded p-2 text-right text-sm" />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">رقم الحساب البنكي</label>
-                  <input value={form.bank_account}
-                    onChange={e => setForm({ ...form, bank_account: e.target.value })}
-                    className="w-full border rounded p-2 text-right text-sm" />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">الجنس *</label>
-                  <select value={form.gender}
+                  <label className="text-xs text-gray-500 block mb-1">الجنس *</label>
+                  <select
+                    value={form.gender}
                     onChange={e => setForm({ ...form, gender: e.target.value })}
-                    className="w-full border rounded p-2 text-right text-sm cursor-pointer">
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
                     <option value="ذكر">ذكر</option>
                     <option value="أنثى">أنثى</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600">تاريخ الميلاد</label>
-                  <input type="date" value={form.birth_date}
-                    onChange={e => setForm({ ...form, birth_date: e.target.value })}
-                    className="w-full border rounded p-2 text-sm" />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-600">صلة القرابة</label>
-                  <input value={form.relationship}
+                  <label className="text-xs text-gray-500 block mb-1">صلة القرابة</label>
+                  <input
+                    value={form.relationship}
                     onChange={e => setForm({ ...form, relationship: e.target.value })}
-                    placeholder="رب أسرة / زوجة / ابن..."
-                    className="w-full border rounded p-2 text-right text-sm" />
+                    placeholder="رب أسرة / زوجة..."
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
                 </div>
               </div>
 
-              <div className="mt-4">
-                <label className="text-sm font-bold text-gray-700 block mb-2">الأمراض المزمنة</label>
-                <div className="border rounded-lg p-3">
+              {/* تاريخ الميلاد */}
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">تاريخ الميلاد</label>
+                <input
+                  type="date"
+                  value={form.birth_date}
+                  onChange={e => setForm({ ...form, birth_date: e.target.value })}
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              {/* الرقم الوطني + الحساب البنكي */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1">الرقم الوطني</label>
+                  <input
+                    value={form.national_id}
+                    onChange={e => setForm({ ...form, national_id: e.target.value })}
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1">رقم الحساب البنكي</label>
+                  <input
+                    value={form.bank_account}
+                    onChange={e => setForm({ ...form, bank_account: e.target.value })}
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </div>
+
+              {/* الأمراض */}
+              <div>
+                <label className="text-xs font-bold text-gray-700 block mb-1.5">الأمراض المزمنة</label>
+                <div className="border border-gray-200 rounded-xl p-3 space-y-2">
                   {selectedDiseases.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="space-y-2">
                       {selectedDiseases.map(d => (
-                        <div key={d.name} className="bg-red-50 border border-red-200 rounded-lg p-2 text-sm">
-                          <div className="flex items-center gap-1 mb-1">
-                            <span className="text-red-800 font-bold">{d.name}</span>
-                            <button type="button" onClick={() => removeDisease(d.name)}
-                              className="text-red-400 hover:text-red-600 cursor-pointer text-xs mr-1">✕</button>
+                        <div key={d.name} className="bg-red-50 border border-red-200 rounded-xl p-2.5">
+                          <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-red-800 font-bold text-sm">{d.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeDisease(d.name)}
+                              className="text-red-400 text-lg cursor-pointer leading-none"
+                            >✕</button>
                           </div>
                           <input
                             value={d.medication}
                             onChange={e => updateMedication(d.name, e.target.value)}
                             placeholder="الدواء (اختياري)"
-                            className="w-full border border-red-200 rounded p-1 text-xs text-right bg-white"
+                            className="w-full border border-red-200 rounded-lg p-2 text-xs bg-white"
                           />
                         </div>
                       ))}
                     </div>
                   )}
-
                   <div className="relative flex gap-2">
-                    <button
-                      type="button"
-                      onClick={addCustomDisease}
-                      className="bg-green-600 text-white px-3 rounded text-sm cursor-pointer flex-shrink-0"
-                    >
-                      +
-                    </button>
                     <input
                       ref={diseaseInputRef}
                       value={diseaseInput}
                       onChange={e => handleDiseaseInput(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomDisease() } }}
                       placeholder="اكتب اسم المرض..."
-                      className="flex-1 border rounded p-2 text-right text-sm"
+                      className="flex-1 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
+                    <button
+                      type="button"
+                      onClick={addCustomDisease}
+                      className="bg-green-600 text-white px-4 rounded-xl text-sm cursor-pointer font-bold"
+                    >+</button>
                     {showSuggestions && diseaseSuggestions.length > 0 && (
-                      <div className="absolute top-full right-0 left-0 bg-white border rounded-lg shadow-lg z-10 mt-1">
+                      <div className="absolute top-full right-0 left-0 bg-white border border-gray-200 rounded-xl shadow-lg z-10 mt-1 overflow-hidden">
                         {diseaseSuggestions.map(d => (
                           <button key={d.id} type="button"
                             onClick={() => addDiseaseFromSuggestion(d)}
-                            className="w-full text-right px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer border-b last:border-0">
+                            className="w-full text-right px-4 py-3 text-sm hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0">
                             {d.name}
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">اكتب واختر من الاقتراحات أو اضغط Enter لإضافة مرض جديد</p>
+                  <p className="text-xs text-gray-400">اكتب واختر من الاقتراحات أو اضغط + لإضافة مرض جديد</p>
                 </div>
               </div>
 
-              <div className="mt-4">
-                <label className="text-sm font-bold text-gray-700 block mb-2">الإعاقة</label>
-                <div className="border rounded-lg p-3">
-                  <div className="flex flex-wrap gap-3">
+              {/* الإعاقة */}
+              <div>
+                <label className="text-xs font-bold text-gray-700 block mb-1.5">الإعاقة</label>
+                <div className="border border-gray-200 rounded-xl p-3">
+                  <div className="grid grid-cols-3 gap-2">
                     {standardDisabilityTypes.map(type => (
-                      <label key={type} className="flex items-center gap-2 cursor-pointer text-sm">
-                        <input type="checkbox"
+                      <label key={type} className="flex items-center gap-2 cursor-pointer text-sm py-1">
+                        <input
+                          type="checkbox"
                           checked={selectedDisabilities.includes(type)}
                           onChange={() => toggleDisability(type)}
-                          className="cursor-pointer" />
+                          className="w-4 h-4 accent-green-600 cursor-pointer"
+                        />
                         {type}
                       </label>
                     ))}
-                    <label className="flex items-center gap-2 cursor-pointer text-sm">
-                      <input type="checkbox"
+                    <label className="flex items-center gap-2 cursor-pointer text-sm py-1">
+                      <input
+                        type="checkbox"
                         checked={selectedDisabilities.includes('أخرى')}
                         onChange={() => toggleDisability('أخرى')}
-                        className="cursor-pointer" />
+                        className="w-4 h-4 accent-green-600 cursor-pointer"
+                      />
                       أخرى
                     </label>
                   </div>
@@ -434,46 +479,141 @@ export default function FamilyPage() {
                       value={otherDisability}
                       onChange={e => setOtherDisability(e.target.value)}
                       placeholder="حدد نوع الإعاقة..."
-                      className="mt-2 w-full border rounded p-2 text-right text-sm"
+                      className="mt-2 w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   )}
                 </div>
               </div>
 
-              <div className="mt-4">
-                <label className="text-sm text-gray-600">ملاحظات</label>
-                <textarea value={form.notes}
+              {/* ملاحظات */}
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">ملاحظات</label>
+                <textarea
+                  value={form.notes}
                   onChange={e => setForm({ ...form, notes: e.target.value })}
-                  className="w-full border rounded p-2 text-right text-sm" rows={2} />
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  rows={2}
+                />
               </div>
 
-              <div className="flex gap-2 mt-4">
-                <button type="submit" className="flex-1 bg-green-600 text-white py-2 rounded font-bold cursor-pointer">حفظ</button>
-                <button type="button" onClick={resetForm} className="flex-1 bg-gray-200 py-2 rounded cursor-pointer">إلغاء</button>
+              {/* أزرار الحفظ والإلغاء */}
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 bg-green-700 text-white py-3 rounded-xl font-bold text-sm cursor-pointer"
+                >
+                  حفظ
+                </button>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl text-sm cursor-pointer"
+                >
+                  إلغاء
+                </button>
               </div>
             </form>
           </div>
         )}
 
+        {/* ===== زر إضافة فرد ===== */}
+        {!showForm && (
+          <button
+            onClick={() => { resetForm(); setShowForm(true) }}
+            className="w-full bg-green-700 text-white py-3.5 rounded-xl font-bold text-sm cursor-pointer shadow-sm"
+          >
+            + إضافة فرد
+          </button>
+        )}
+
+        {/* ===== قائمة الأفراد ===== */}
         {individuals.length === 0 ? (
-          <p className="text-center text-gray-500 mt-8">لا يوجد أفراد بعد</p>
+          <p className="text-center text-gray-400 text-sm py-10">لا يوجد أفراد بعد</p>
         ) : (
-          <div className="space-y-3">
-            {individuals.map(ind => (
-              <div key={ind.id} className="bg-white p-4 rounded-lg shadow">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold text-lg">{ind.full_name}</h3>
+          <div className="space-y-2">
+            {individuals.map(ind => {
+              const indDiseases = ind.individual_diseases || []
+              const indDisabilities = ind.individual_disabilities || []
+
+              return (
+                <div key={ind.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+
+                  {/* رأس بطاقة الفرد */}
+                  <div className="px-4 py-3 flex justify-between items-center">
+                    <div>
+                      <p className="font-bold text-gray-800 text-sm">{ind.full_name}</p>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {ind.gender && (
+                          <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">
+                            {ind.gender}
+                          </span>
+                        )}
+                        {ind.relationship && (
+                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                            {ind.relationship}
+                          </span>
+                        )}
+                        {ind.birth_date && (
+                          <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                            {new Date(ind.birth_date).toLocaleDateString('ar-LY')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(ind)}
+                        className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg cursor-pointer border border-blue-100"
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        onClick={() => handleDelete(ind.id)}
+                        className="text-xs bg-red-50 text-red-500 px-3 py-1.5 rounded-lg cursor-pointer border border-red-100"
+                      >
+                        حذف
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1 items-end">
-                    <button onClick={() => handleEdit(ind)} className="text-blue-600 text-sm underline cursor-pointer">تعديل</button>
-                    <button onClick={() => handleDelete(ind.id)} className="text-red-500 text-sm underline cursor-pointer">حذف</button>
-                  </div>
+
+                  {/* الأمراض والإعاقات */}
+                  {(indDiseases.length > 0 || indDisabilities.length > 0) && (
+                    <div className="px-4 pb-3 border-t border-gray-100 pt-2 space-y-1.5">
+                      {indDiseases.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {indDiseases.map((d: any) => (
+                            <span key={d.id} className="text-xs bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-full">
+                              {d.diseases?.name || d.custom_disease}
+                              {d.medication ? ` · ${d.medication}` : ''}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {indDisabilities.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {indDisabilities.map((d: any) => (
+                            <span key={d.id} className="text-xs bg-orange-50 text-orange-600 border border-orange-100 px-2 py-0.5 rounded-full">
+                              إعاقة: {d.disabilities?.type || d.custom_disability}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ملاحظات */}
+                  {ind.notes && (
+                    <div className="px-4 pb-3">
+                      <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2">{ind.notes}</p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
+
+        <div className="h-4" />
       </div>
     </div>
   )
