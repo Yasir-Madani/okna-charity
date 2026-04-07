@@ -16,9 +16,7 @@ export default function NewsPage() {
   })
   const [duplicateError, setDuplicateError] = useState('')
   const router = useRouter()
-  const [animationDuration, setAnimationDuration] = useState(60)
 
-  // جلب الأخبار
   useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
@@ -27,26 +25,10 @@ export default function NewsPage() {
     const { data } = await supabase
       .from('news')
       .select('*')
-      .order('news_date', { ascending: true })
+      .order('news_date', { ascending: false })
     if (data) setNews(data)
     setLoading(false)
   }
-
-  // ضبط مدة الحركة حسب طول الشريط
-  useEffect(() => {
-    const tempDiv = document.createElement('div')
-    tempDiv.style.visibility = 'hidden'
-    tempDiv.style.position = 'absolute'
-    tempDiv.style.whiteSpace = 'nowrap'
-    tempDiv.style.fontSize = '14px'
-    tempDiv.style.fontFamily = "'Cairo', sans-serif"
-    tempDiv.innerHTML = news.map(n => n.content).join(' ') + ' ' + news.map(n => n.content).join(' ')
-    document.body.appendChild(tempDiv)
-    const width = tempDiv.offsetWidth
-    const duration = width / 50 // سرعة تقريبية 50px/sec
-    setAnimationDuration(duration)
-    document.body.removeChild(tempDiv)
-  }, [news])
 
   const resetForm = () => {
     setForm({ title: '', content: '', news_date: new Date().toISOString().split('T')[0] })
@@ -115,12 +97,19 @@ export default function NewsPage() {
     })
   }
 
+  const newsColors = [
+    { bg: 'bg-blue-500', light: 'bg-blue-50', border: 'border-blue-100' },
+    { bg: 'bg-teal-500', light: 'bg-teal-50', border: 'border-teal-100' },
+    { bg: 'bg-purple-500', light: 'bg-purple-50', border: 'border-purple-100' },
+    { bg: 'bg-green-500', light: 'bg-green-50', border: 'border-green-100' },
+    { bg: 'bg-orange-500', light: 'bg-orange-50', border: 'border-orange-100' },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
       style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
-      {/* رأس الصفحة */}
       <div className="bg-gradient-to-l from-teal-900 via-teal-800 to-teal-600 text-white">
         <div className="max-w-lg mx-auto px-4 py-6 flex items-center justify-between">
           <button onClick={() => router.push('/home')}
@@ -132,26 +121,8 @@ export default function NewsPage() {
         </div>
       </div>
 
-      {/* شريط الأخبار الأزرق المستمر */}
-      {news.length > 0 && (
-        <div className="bg-blue-600 text-white overflow-hidden whitespace-nowrap">
-          <div
-            className="flex"
-            style={{
-              animation: `marquee ${animationDuration}s linear infinite`
-            }}
-          >
-            {[...news, ...news].map((item, idx) => (
-              <span key={idx} className="flex-shrink-0 px-6 text-sm sm:text-base">
-                📰 {item.content}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* الأخبار وإدارة الإداري */}
       <div className="max-w-lg mx-auto px-4 py-6">
+
         {isAdmin && (
           <>
             <p className="text-gray-400 text-sm mb-4 text-center">
@@ -219,36 +190,40 @@ export default function NewsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {news.map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-teal-600 px-4 py-3 flex items-center justify-between text-white">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">📰</span>
-                    <p className="font-bold text-sm">{item.title}</p>
-                  </div>
-                  {isAdmin && (
-                    <div className="flex gap-2">
-                      <button onClick={() => handleEdit(item)}
-                        className="text-xs underline opacity-80 cursor-pointer hover:opacity-100">
-                        تعديل
-                      </button>
-                      <button onClick={() => handleDelete(item.id, item.title)}
-                        className="text-xs underline opacity-80 cursor-pointer hover:opacity-100">
-                        حذف
-                      </button>
+            {news.map((item, i) => {
+              const color = newsColors[i % newsColors.length]
+              return (
+                <div key={item.id}
+                  className={`bg-white rounded-2xl shadow-sm border ${color.border} overflow-hidden`}>
+                  <div className={`${color.bg} px-4 py-3 flex items-center justify-between`}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white text-lg">📰</span>
+                      <p className="text-white font-bold text-sm">{item.title}</p>
                     </div>
-                  )}
+                    {isAdmin && (
+                      <div className="flex gap-2">
+                        <button onClick={() => handleEdit(item)}
+                          className="text-white text-xs underline opacity-80 cursor-pointer hover:opacity-100">
+                          تعديل
+                        </button>
+                        <button onClick={() => handleDelete(item.id, item.title)}
+                          className="text-white text-xs underline opacity-80 cursor-pointer hover:opacity-100">
+                          حذف
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className={`${color.light} px-4 py-3`}>
+                    <p className="text-gray-400 text-xs mb-2 flex items-center gap-1">
+                      <span>📅</span> {formatDate(item.news_date)}
+                    </p>
+                    <p className="text-gray-700 text-sm leading-loose whitespace-pre-wrap">
+                      {item.content}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-blue-50 px-4 py-3">
-                  <p className="text-gray-400 text-xs mb-2 flex items-center gap-1">
-                    <span>📅</span> {formatDate(item.news_date)}
-                  </p>
-                  <p className="text-gray-700 text-sm leading-loose whitespace-pre-wrap">
-                    {item.content}
-                  </p>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
@@ -256,14 +231,7 @@ export default function NewsPage() {
       <footer className="text-center py-6 mt-4">
         <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية</p>
       </footer>
-
-      {/* أنيميشن الشريط المستمر */}
-      <style jsx>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
     </div>
   )
 }
+
