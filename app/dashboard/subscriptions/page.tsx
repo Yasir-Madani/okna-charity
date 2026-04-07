@@ -40,17 +40,13 @@ function formatMonth(value: string): string {
   return `${MONTH_NAMES[month]} ${year}`
 }
 
-// الأشهر من يناير 2026 فصاعداً فقط
 function getValidMonths(): string[] {
   const months: string[] = []
   const start = new Date(2026, 0, 1)
   const now = new Date()
-  const current = new Date(now.getFullYear(), now.getMonth(), 1)
-  const d = new Date(current)
+  const d = new Date(now.getFullYear(), now.getMonth(), 1)
   while (d >= start) {
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, '0')
-    months.push(`${y}-${m}`)
+    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
     d.setMonth(d.getMonth() - 1)
   }
   return months
@@ -98,7 +94,6 @@ export default function SubscriptionsPage() {
   const loadMonthData = useCallback(async () => {
     if (houses.length === 0) return
 
-    // جلب اشتراكات الشهر المحدد
     const { data } = await supabase
       .from('subscriptions')
       .select('*')
@@ -109,13 +104,8 @@ export default function SubscriptionsPage() {
     setMonthlyData(map)
 
     const hasSavedData = data && data.length > 0
-
-    // إذا الشهر مدخل مسبقاً → استدعاء المبالغ المحفوظة + تفعيل checkbox
-    // إذا شهر جديد → مسح المبلغ الافتراضي + checkbox غير مفعل
     if (hasSavedData) {
-      // استدعاء أول مبلغ محفوظ كمبلغ افتراضي للعرض
-      const firstAmount = String(data![0].amount)
-      setDefaultAmount(firstAmount)
+      setDefaultAmount(String(data![0].amount))
     } else {
       setDefaultAmount('')
     }
@@ -131,12 +121,12 @@ export default function SubscriptionsPage() {
     })
     setEntries(newEntries)
 
-    await computeOverdue()
+    await computeOverdue(map)
   }, [houses, selectedMonth])
 
   useEffect(() => { loadMonthData() }, [loadMonthData])
 
-  const computeOverdue = async () => {
+  const computeOverdue = async (currentMap: Record<string, Subscription>) => {
     if (houses.length === 0) return
 
     const { data: allSubs } = await supabase
@@ -177,7 +167,7 @@ export default function SubscriptionsPage() {
     setOverdueMap(overdue)
   }
 
-  // تفعيل checkbox → يضع المبلغ الافتراضي ويغير الحالة لـ "جاهز للحفظ"
+  // ✅ الإصلاح 1: تغيير الحالة فور تغيير checkbox
   const handleCheck = (houseId: string, checked: boolean) => {
     setEntries(prev => ({
       ...prev,
@@ -195,7 +185,6 @@ export default function SubscriptionsPage() {
       .upsert({ key: 'default_subscription', value, updated_at: new Date().toISOString() })
   }
 
-  // تعبئة الكل → تفعيل checkbox لكل المنازل غير المحددة
   const fillAllDefault = () => {
     if (!defaultAmount) {
       showToast('أدخل المبلغ الافتراضي أولاً')
@@ -211,14 +200,31 @@ export default function SubscriptionsPage() {
     showToast('تم تعبئة الكل بالمبلغ الافتراضي')
   }
 
+  // ✅ الإصلاح 2: زر "إلغاء الكل" - يلغي تصحيح كل الـ checkboxes
+  const uncheckAll = () => {
+    const newEntries = { ...entries }
+    houses.forEach(h => {
+      newEntries[h.id] = { amount: '', checked: false }
+    })
+    setEntries(newEntries)
+    showToast('تم إلغاء تحديد الكل')
+  }
+
+  // ✅ الإصلاح 3: الحفظ يحذف من قاعدة البيانات من أُلغي تصحيحه
   const saveAll = async () => {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setSaving(false); return }
 
+    // المنازل المحددة → تُحفظ أو تُحدَّث
     const toSave: Subscription[] = []
+    // المنازل غير المحددة التي كانت مدفوعة → تُحذف
+    const toDelete: string[] = []
+
     houses.forEach(h => {
       const entry = entries[h.id]
+      const wasSaved = monthlyData[h.id]
+
       if (entry?.checked) {
         const amount = parseInt(entry.amount || defaultAmount)
         if (amount > 0) {
@@ -229,25 +235,36 @@ export default function SubscriptionsPage() {
             created_by: user.id
           })
         }
+      } else if (wasSaved) {
+        // كان مدفوعاً وأُلغي تصحيحه → احذفه
+        toDelete.push(h.id)
       }
     })
 
-    if (toSave.length === 0) {
-      showToast('حدد المنازل التي دفعت أولاً')
+    // حفظ المحددين
+    if (toSave.length > 0) {
+      await supabase
+        .from('subscriptions')
+        .upsert(toSave, { onConflict: 'house_id,month' })
+    }
+
+    // حذف من أُلغي تصحيحه
+    if (toDelete.length > 0) {
+      await supabase
+        .from('subscriptions')
+        .delete()
+        .eq('month', selectedMonth)
+        .in('house_id', toDelete)
+    }
+
+    if (toSave.length === 0 && toDelete.length === 0) {
+      showToast('لا توجد تغييرات للحفظ')
       setSaving(false)
       return
     }
 
-    const { error } = await supabase
-      .from('subscriptions')
-      .upsert(toSave, { onConflict: 'house_id,month' })
-
-    if (error) {
-      showToast('حدث خطأ أثناء الحفظ')
-    } else {
-      showToast(`تم حفظ ${toSave.length} اشتراك بنجاح ✓`)
-      await loadMonthData()
-    }
+    showToast(`تم الحفظ: ${toSave.length} مدفوع، ${toDelete.length} تم إلغاؤه`)
+    await loadMonthData()
     setSaving(false)
   }
 
@@ -256,9 +273,6 @@ export default function SubscriptionsPage() {
     setTimeout(() => setToast(''), 3000)
   }
 
-  // =============================================
-  // الإحصائيات
-  // =============================================
   const filteredHouses = houses.filter(h => {
     if (filterSector !== 'الكل' && h.sector !== filterSector) return false
     if (filterStatus === 'مدفوع' && !monthlyData[h.id]) return false
@@ -301,7 +315,6 @@ export default function SubscriptionsPage() {
 
       <div className="max-w-5xl mx-auto p-4 space-y-4">
 
-        {/* الإحصائيات */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label: 'إجمالي المنازل', value: houses.length, color: 'text-gray-800' },
@@ -316,7 +329,6 @@ export default function SubscriptionsPage() {
           ))}
         </div>
 
-        {/* شريط التحكم */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
           <div className="flex flex-wrap gap-3 items-end">
 
@@ -350,6 +362,13 @@ export default function SubscriptionsPage() {
                   className="text-sm bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer transition-colors whitespace-nowrap"
                 >
                   تعبئة الكل
+                </button>
+                {/* ✅ زر إلغاء الكل */}
+                <button
+                  onClick={uncheckAll}
+                  className="text-sm bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 px-3 py-2 rounded-lg cursor-pointer transition-colors whitespace-nowrap"
+                >
+                  إلغاء الكل
                 </button>
               </div>
             </div>
@@ -390,7 +409,6 @@ export default function SubscriptionsPage() {
           </div>
         </div>
 
-        {/* الجدول */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500">
             <div className="col-span-1 text-center">رقم</div>
@@ -409,18 +427,21 @@ export default function SubscriptionsPage() {
               const overdue = overdueMap[house.id]
               const entry = entries[house.id] || { amount: '', checked: false }
 
+              // ✅ الإصلاح 1: الحالة تعتمد على checked وليس saved فقط
+              const isPaid = saved && entry.checked
+              const isReadyToSave = !saved && entry.checked
+              const isUnpaid = !entry.checked
+
               return (
                 <div
                   key={house.id}
-                  className={`grid grid-cols-12 gap-2 px-4 py-3 border-b border-gray-100 items-center
-                    ${overdue ? 'bg-red-50/40' : 'hover:bg-gray-50'} transition-colors`}
+                  className={`grid grid-cols-12 gap-2 px-4 py-3 border-b border-gray-100 items-center transition-colors
+                    ${overdue && !entry.checked ? 'bg-red-50/40' : 'hover:bg-gray-50'}`}
                 >
-                  {/* رقم المنزل */}
                   <div className="col-span-1 text-center">
                     <span className="text-sm font-bold text-gray-500">#{house.house_number}</span>
                   </div>
 
-                  {/* اسم المنزل */}
                   <div className="col-span-3">
                     <p className="text-sm font-bold text-gray-800">{house.name}</p>
                     <span className="inline-block mt-0.5 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
@@ -428,7 +449,6 @@ export default function SubscriptionsPage() {
                     </span>
                   </div>
 
-                  {/* المتأخرات */}
                   <div className="col-span-2 text-center">
                     {overdue ? (
                       <div>
@@ -442,7 +462,6 @@ export default function SubscriptionsPage() {
                     )}
                   </div>
 
-                  {/* حقل المبلغ */}
                   <div className="col-span-2 flex justify-center">
                     <input
                       type="number"
@@ -456,13 +475,12 @@ export default function SubscriptionsPage() {
                       }))}
                       className={`w-24 border rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-green-500 transition
                         ${entry.checked
-                          ? saved ? 'border-green-400 bg-green-50' : 'border-gray-300 bg-white'
+                          ? isPaid ? 'border-green-400 bg-green-50' : 'border-gray-300 bg-white'
                           : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
                         }`}
                     />
                   </div>
 
-                  {/* Checkbox */}
                   <div className="col-span-2 flex justify-center">
                     <input
                       type="checkbox"
@@ -472,13 +490,13 @@ export default function SubscriptionsPage() {
                     />
                   </div>
 
-                  {/* الحالة */}
+                  {/* ✅ الحالة تتغير فوراً مع checkbox */}
                   <div className="col-span-2 text-center">
-                    {saved ? (
+                    {isPaid ? (
                       <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">
                         مدفوع ✓
                       </span>
-                    ) : entry.checked ? (
+                    ) : isReadyToSave ? (
                       <span className="text-xs bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-bold">
                         جاهز للحفظ
                       </span>
