@@ -191,11 +191,9 @@ export default function MembersPage() {
           <div className="space-y-3">
             {members.map((member, i) => (
               <div key={member.id}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center gap-4">
-                <div className={`w-14 h-14 ${bgColors[i % bgColors.length]} rounded-xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0`}>
-                  {getInitials(member.full_name)}
-                </div>
-                <div className="flex-1">
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center">
+                
+             <div className="flex-1 text-right">
                   <p className="font-bold text-gray-800">{member.full_name}</p>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRoleColor(member.role)}`}>
                     {member.role}
