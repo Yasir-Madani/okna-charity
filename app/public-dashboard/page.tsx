@@ -29,11 +29,9 @@ export default function PublicDashboard() {
   useEffect(() => { fetchStats() }, [])
 
   const fetchStats = async () => {
-    // التحقق من المستخدم
     const { data: { user } } = await supabase.auth.getUser()
     if (user) setIsAdmin(true)
 
-    // جلب حالة الرؤية
     const { data: visData } = await supabase
       .from('page_visibility')
       .select('is_visible')
@@ -100,181 +98,388 @@ export default function PublicDashboard() {
     setTogglingVisibility(false)
   }
 
-  const cards = [
-    { label: 'إجمالي الأفراد', value: stats.totalIndividuals, icon: '👥', color: 'from-blue-500 to-blue-600', bg: 'bg-blue-50', text: 'text-blue-700' },
-    { label: 'إجمالي المنازل', value: stats.totalHouses, icon: '🏠', color: 'from-green-500 to-green-600', bg: 'bg-green-50', text: 'text-green-700' },
-    { label: 'إجمالي الأسر', value: stats.totalFamilies, icon: '👨‍👩‍👧‍👦', color: 'from-orange-500 to-orange-600', bg: 'bg-orange-50', text: 'text-orange-700' },
-    { label: 'الذكور', value: stats.males, icon: '👨', color: 'from-cyan-500 to-cyan-600', bg: 'bg-cyan-50', text: 'text-cyan-700' },
-    { label: 'الإناث', value: stats.females, icon: '👩', color: 'from-pink-500 to-pink-600', bg: 'bg-pink-50', text: 'text-pink-700' },
-    { label: 'الرضع', value: stats.infants, icon: '👶', color: 'from-violet-500 to-violet-600', bg: 'bg-violet-50', text: 'text-violet-700' },
-    { label: 'الأطفال', value: stats.children, icon: '🧒', color: 'from-yellow-500 to-yellow-600', bg: 'bg-yellow-50', text: 'text-yellow-700' },
-    { label: 'الشباب', value: stats.youth, icon: '🧑', color: 'from-lime-500 to-lime-600', bg: 'bg-lime-50', text: 'text-lime-700' },
-    { label: 'البالغون', value: stats.adults, icon: '🧑‍💼', color: 'from-teal-500 to-teal-600', bg: 'bg-teal-50', text: 'text-teal-700' },
-    { label: 'كبار السن', value: stats.elderly, icon: '👴', color: 'from-slate-500 to-slate-600', bg: 'bg-slate-50', text: 'text-slate-700' },
-    { label: 'الأمراض المزمنة', value: stats.diseased, icon: '🏥', color: 'from-red-500 to-red-600', bg: 'bg-red-50', text: 'text-red-700' },
-    { label: 'حالات الإعاقة', value: stats.disabled, icon: '♿', color: 'from-rose-500 to-rose-600', bg: 'bg-rose-50', text: 'text-rose-700' },
+  const ageItems = [
+    { label: 'رضيع (0–2)', value: stats.infants, color: '#7F77DD' },
+    { label: 'طفل (3–14)', value: stats.children, color: '#BA7517' },
+    { label: 'شاب (15–24)', value: stats.youth, color: '#639922' },
+    { label: 'بالغ (25–64)', value: stats.adults, color: '#1D9E75' },
+    { label: 'مسن (65+)', value: stats.elderly, color: '#5F5E5A' },
   ]
 
-  const sectorColors: Record<string, string> = {
-    'شرق': 'bg-blue-100 text-blue-800 border-blue-200',
-    'شمال': 'bg-green-100 text-green-800 border-green-200',
-    'وسط': 'bg-orange-100 text-orange-800 border-orange-200',
-    'الدوراشاب': 'bg-purple-100 text-purple-800 border-purple-200',
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl" style={{ fontFamily: "'Cairo', sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <div
+      dir="rtl"
+      style={{
+        minHeight: '100vh',
+        background: '#F7F6F3',
+        fontFamily: "'Cairo', sans-serif",
+      }}
+    >
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-      {/* الهيدر */}
-      <div className="bg-gradient-to-l from-blue-800 via-blue-700 to-blue-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4"></div>
-            <button onClick={() => router.push('/home')}
-              className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
-              رجوع
-            </button>
+      {/* Header */}
+      <div style={{
+        background: '#111827',
+        padding: '0 16px',
+      }}>
+        <div style={{
+          maxWidth: 680,
+          margin: '0 auto',
+          padding: '16px 0',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <div>
+            <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0, letterSpacing: '0.05em' }}>
+              جمعية العكنة الخيرية
+            </p>
+            <h1 style={{ fontSize: 16, fontWeight: 700, color: '#F9FAFB', margin: '2px 0 0' }}>
+              لوحة الإحصاء السكاني
+            </h1>
           </div>
+          <button
+            onClick={() => router.push('/home')}
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '0.5px solid rgba(255,255,255,0.15)',
+              borderRadius: 8,
+              color: '#D1D5DB',
+              fontSize: 12,
+              fontFamily: "'Cairo', sans-serif",
+              padding: '6px 14px',
+              cursor: 'pointer',
+            }}
+          >
+            رجوع
+          </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 relative min-h-[60vh]">
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '16px 12px 40px', position: 'relative' }}>
 
-        {/* ===== شاشة التغطية للزائر ===== */}
+        {/* Visibility overlay for non-admin guests */}
         {!loading && !isAdmin && !isVisible && (
-          <div className="absolute inset-0 z-20 flex items-start justify-center pt-6 px-4">
-            <div className="absolute inset-0 bg-gray-50 bg-opacity-80 backdrop-blur-sm rounded-2xl"></div>
-            <div className="relative bg-white rounded-3xl shadow-2xl border border-green-100 p-8 text-center w-full max-w-md mx-auto">
-              <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5 text-4xl">
-                🔄
-              </div>
-              <h2 className="text-xl font-bold text-gray-800 mb-3">البيانات قيد الإدخال</h2>
-              <p className="text-gray-500 text-sm leading-loose mb-6">
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 20,
+            display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+            paddingTop: 24,
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'rgba(247,246,243,0.85)',
+              backdropFilter: 'blur(6px)',
+              borderRadius: 16,
+            }} />
+            <div style={{
+              position: 'relative',
+              background: '#fff',
+              borderRadius: 20,
+              border: '0.5px solid #E5E7EB',
+              padding: '32px 24px',
+              textAlign: 'center',
+              width: '100%',
+              maxWidth: 360,
+            }}>
+              <div style={{
+                width: 52, height: 52,
+                background: '#F0FDF4',
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 16px',
+                fontSize: 22,
+              }}>🔄</div>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+                البيانات قيد الإدخال
+              </h2>
+              <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.8, marginBottom: 20 }}>
                 يتم حالياً إدخال وتدقيق البيانات السكانية
                 <br />
-                ستتوفر الإحصائيات للعرض بعد اكتمال عملية الحصر
+                ستتوفر الإحصائيات بعد اكتمال عملية الحصر
               </p>
-              <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3 mb-5">
-                <span className="text-2xl">⏳</span>
-                <p className="text-green-700 text-sm font-bold text-right flex-1">
-                  نعتذر عن عدم توفر البيانات مؤقتاً
-                </p>
-              </div>
-              <button onClick={() => router.push('/home')}
-                className="w-full bg-green-600 text-white py-3 rounded-2xl font-bold text-sm cursor-pointer hover:bg-green-700 transition-all">
+              <button
+                onClick={() => router.push('/home')}
+                style={{
+                  width: '100%',
+                  background: '#111827',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 10,
+                  padding: '12px 0',
+                  fontFamily: "'Cairo', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
                 العودة للصفحة الرئيسية
               </button>
             </div>
           </div>
         )}
-        {/* ===== نهاية شاشة التغطية ===== */}
 
-        {/* زر التحكم بالرؤية — للمستخدم فقط */}
+        {/* Admin visibility toggle */}
         {isAdmin && (
-          <div className="mb-6 flex items-center justify-between bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+          <div style={{
+            background: '#fff',
+            border: '0.5px solid #E5E7EB',
+            borderRadius: 12,
+            padding: '12px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 16,
+          }}>
             <div>
-              <p className="font-bold text-gray-700 text-sm">حالة الصفحة للزوار</p>
-              <p className={`text-xs mt-0.5 font-bold ${isVisible ? 'text-green-600' : 'text-red-500'}`}>
-                {isVisible ? '✅ مرئية للزوار' : '🔒 مخفية — تغطية نشطة'}
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#374151', margin: 0 }}>
+                حالة الصفحة للزوار
+              </p>
+              <p style={{
+                fontSize: 11, margin: '3px 0 0',
+                fontWeight: 600,
+                color: isVisible ? '#15803D' : '#DC2626',
+              }}>
+                {isVisible ? '● مرئية للزوار' : '● مخفية — تغطية نشطة'}
               </p>
             </div>
             <button
               onClick={toggleVisibility}
               disabled={togglingVisibility}
-              className={`px-4 py-2 rounded-xl text-sm font-bold cursor-pointer transition-all ${
-                isVisible
-                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                  : 'bg-green-100 text-green-700 hover:bg-green-200'
-              }`}
+              style={{
+                background: isVisible ? '#FEF2F2' : '#F0FDF4',
+                color: isVisible ? '#DC2626' : '#15803D',
+                border: `0.5px solid ${isVisible ? '#FECACA' : '#BBF7D0'}`,
+                borderRadius: 8,
+                padding: '7px 14px',
+                fontSize: 12,
+                fontFamily: "'Cairo', sans-serif",
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
             >
-              {togglingVisibility ? '...' : isVisible ? '🔒 إخفاء الصفحة' : '🔓 إظهار الصفحة'}
+              {togglingVisibility ? '...' : isVisible ? 'إخفاء الصفحة' : 'إظهار الصفحة'}
             </button>
           </div>
         )}
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-500">جاري تحميل البيانات...</p>
+          <div style={{
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            padding: '80px 0', gap: 14,
+          }}>
+            <div style={{
+              width: 36, height: 36,
+              border: '3px solid #E5E7EB',
+              borderTopColor: '#111827',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite',
+            }} />
+            <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>جاري تحميل البيانات...</p>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-              {cards.map((card, i) => (
-                <div key={i}
-                  className={`${card.bg} rounded-2xl p-5 border border-opacity-30 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5`}
-                  style={{ borderColor: 'currentColor' }}>
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-2xl">{card.icon}</span>
-                    <div className={`w-2 h-2 rounded-full bg-gradient-to-br ${card.color}`}></div>
-                  </div>
-                  <p className={`text-4xl font-bold ${card.text} mb-1`}>
-                    {card.value.toLocaleString('ar')}
+            {/* ── Section: General Stats ── */}
+            <SectionLabel>إحصاءات عامة</SectionLabel>
+            <div style={gridStyle(3)}>
+              <StatCard value={stats.totalIndividuals} label="إجمالي الأفراد" accent="#185FA5" />
+              <StatCard value={stats.totalHouses} label="إجمالي المنازل" accent="#3B6D11" />
+              <StatCard value={stats.totalFamilies} label="إجمالي الأسر" accent="#854F0B" />
+            </div>
+
+            {/* ── Section: Gender ── */}
+            <SectionLabel>توزيع الجنس</SectionLabel>
+            <div style={gridStyle(2)}>
+              <StatCard value={stats.males} label="الذكور" accent="#0F6E56" />
+              <StatCard value={stats.females} label="الإناث" accent="#993556" />
+            </div>
+
+            {/* ── Section: Age groups ── */}
+            <SectionLabel>الفئات العمرية</SectionLabel>
+            <div style={{ ...gridStyle(3), gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
+              <StatCard value={stats.infants} label="الرضع" accent="#534AB7" />
+              <StatCard value={stats.children} label="الأطفال" accent="#854F0B" />
+              <StatCard value={stats.youth} label="الشباب" accent="#3B6D11" />
+              <StatCard value={stats.adults} label="البالغون" accent="#0F6E56" />
+              <StatCard value={stats.elderly} label="كبار السن" accent="#444441" />
+            </div>
+
+            {/* ── Section: Health ── */}
+            <SectionLabel>الحالات الصحية</SectionLabel>
+            <div style={gridStyle(2)}>
+              <StatCard value={stats.diseased} label="أمراض مزمنة" accent="#A32D2D" />
+              <StatCard value={stats.disabled} label="حالات إعاقة" accent="#993C1D" />
+            </div>
+
+            {/* ── Section: Geographic distribution ── */}
+            <SectionLabel>التوزيع الجغرافي</SectionLabel>
+            <div style={{
+              background: '#fff',
+              border: '0.5px solid #E5E7EB',
+              borderRadius: 14,
+              padding: '14px',
+              marginBottom: 10,
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 8,
+            }}>
+              {Object.entries(stats.sectors).map(([sector, count]) => (
+                <div key={sector} style={{
+                  background: '#F7F6F3',
+                  borderRadius: 10,
+                  padding: '12px 10px',
+                  textAlign: 'center',
+                }}>
+                  <p style={{ fontSize: 22, fontWeight: 800, color: '#111827', margin: 0 }}>
+                    {count.toLocaleString('ar')}
                   </p>
-                  <p className="text-gray-600 text-sm font-medium">{card.label}</p>
+                  <p style={{ fontSize: 11, color: '#6B7280', margin: '3px 0 0' }}>محور {sector}</p>
+                  <p style={{ fontSize: 10, color: '#9CA3AF', margin: '2px 0 0' }}>
+                    {stats.totalIndividuals > 0 ? Math.round((count / stats.totalIndividuals) * 100) : 0}٪
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-              <h3 className="font-bold text-gray-700 mb-4 flex items-center gap-2">
-                <span className="text-blue-600">📍</span>
-                التوزيع الجغرافي حسب المحور
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {Object.entries(stats.sectors).map(([sector, count]) => (
-                  <div key={sector} className={`border rounded-xl p-4 text-center ${sectorColors[sector] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>
-                    <p className="text-3xl font-bold mb-1">{count}</p>
-                    <p className="text-sm font-medium">محور {sector}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {stats.totalIndividuals > 0
-                        ? Math.round((count / stats.totalIndividuals) * 100)
-                        : 0}%
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-700 mb-4 flex items-center gap-2">
-                <span className="text-green-600">📈</span>
-                التوزيع العمري
-              </h3>
-              <div className="space-y-3">
-                {[
-                  { label: 'رضيع (0-2)', value: stats.infants, color: 'bg-violet-500' },
-                  { label: 'طفل (3-14)', value: stats.children, color: 'bg-yellow-500' },
-                  { label: 'شاب (15-24)', value: stats.youth, color: 'bg-lime-500' },
-                  { label: 'بالغ (25-64)', value: stats.adults, color: 'bg-teal-500' },
-                  { label: 'مسن (65+)', value: stats.elderly, color: 'bg-slate-500' },
-                ].map(item => (
-                  <div key={item.label} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-600 w-28 flex-shrink-0">{item.label}</span>
-                    <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
-                      <div
-                        className={`${item.color} h-6 rounded-full flex items-center justify-end pr-2 transition-all duration-700`}
-                        style={{ width: stats.totalIndividuals > 0 ? `${Math.max((item.value / stats.totalIndividuals) * 100, 2)}%` : '2%' }}
-                      >
-                        <span className="text-white text-xs font-bold">{item.value}</span>
-                      </div>
+            {/* ── Section: Age bar chart ── */}
+            <SectionLabel>التوزيع العمري</SectionLabel>
+            <div style={{
+              background: '#fff',
+              border: '0.5px solid #E5E7EB',
+              borderRadius: 14,
+              padding: '16px',
+              marginBottom: 10,
+            }}>
+              {ageItems.map((item, i) => {
+                const pct = stats.totalIndividuals > 0
+                  ? Math.round((item.value / stats.totalIndividuals) * 100)
+                  : 0
+                return (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    marginBottom: i < ageItems.length - 1 ? 10 : 0,
+                  }}>
+                    <span style={{
+                      fontSize: 12, color: '#6B7280',
+                      width: 90, flexShrink: 0, textAlign: 'right',
+                    }}>
+                      {item.label}
+                    </span>
+                    <div style={{
+                      flex: 1,
+                      background: '#F3F4F6',
+                      borderRadius: 100,
+                      height: 5,
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        width: `${Math.max(pct, 2)}%`,
+                        height: 5,
+                        borderRadius: 100,
+                        background: item.color,
+                      }} />
                     </div>
-                    <span className="text-xs text-gray-400 w-8">
-                      {stats.totalIndividuals > 0 ? Math.round((item.value / stats.totalIndividuals) * 100) : 0}%
+                    <span style={{ fontSize: 11, color: '#9CA3AF', width: 26, textAlign: 'left' }}>
+                      {pct}٪
                     </span>
                   </div>
-                ))}
-              </div>
+                )
+              })}
             </div>
           </>
         )}
       </div>
 
-      <footer className="text-center py-6 mt-4 border-t border-gray-200">
-        <p className="text-gray-400 text-sm">© 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة</p>
-        <p className="text-gray-300 text-xs mt-1">نظام الإحصاء السكاني — بيانات عامة</p>
+      <footer style={{
+        textAlign: 'center',
+        padding: '20px 16px',
+        borderTop: '0.5px solid #E5E7EB',
+      }}>
+        <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0 }}>
+          © 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة
+        </p>
+        <p style={{ fontSize: 10, color: '#D1D5DB', margin: '3px 0 0' }}>
+          نظام الإحصاء السكاني — بيانات عامة
+        </p>
       </footer>
     </div>
   )
+}
+
+/* ────────── Sub-components ────────── */
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{
+      fontSize: 11,
+      fontWeight: 600,
+      color: '#9CA3AF',
+      letterSpacing: '0.06em',
+      margin: '16px 0 8px 2px',
+      textTransform: 'uppercase',
+    }}>
+      {children}
+    </p>
+  )
+}
+
+function StatCard({
+  value,
+  label,
+  accent,
+}: {
+  value: number
+  label: string
+  accent: string
+}) {
+  return (
+    <div style={{
+      background: '#fff',
+      border: '0.5px solid #E5E7EB',
+      borderRadius: 12,
+      padding: '14px 12px 12px',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Top accent bar */}
+      <div style={{
+        position: 'absolute',
+        top: 0, right: 0, left: 0,
+        height: 3,
+        background: accent,
+        borderRadius: '12px 12px 0 0',
+      }} />
+      <p style={{
+        fontSize: 24,
+        fontWeight: 800,
+        color: accent,
+        margin: 0,
+        lineHeight: 1.1,
+        letterSpacing: '-0.5px',
+      }}>
+        {value.toLocaleString('ar')}
+      </p>
+      <p style={{
+        fontSize: 11,
+        color: '#6B7280',
+        margin: '5px 0 0',
+        fontWeight: 500,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      }}>
+        {label}
+      </p>
+    </div>
+  )
+}
+
+function gridStyle(cols: number): React.CSSProperties {
+  return {
+    display: 'grid',
+    gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+    gap: 8,
+    marginBottom: 4,
+  }
 }
