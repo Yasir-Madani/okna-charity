@@ -114,9 +114,10 @@ export default function NewsPage() {
       <div className="bg-gradient-to-l from-teal-900 via-teal-800 to-teal-600 text-white">
         <div className="max-w-lg mx-auto px-4 py-6 flex items-center justify-between">
           <button onClick={() => router.push('/home')}
-            className="bg-white bg-opacity-20 text-white px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
-            رجوع
+            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
+             رجوع
           </button>
+
           <h1 className="text-lg font-bold">أخبار الجمعية</h1>
           <div className="w-16"></div>
         </div>
