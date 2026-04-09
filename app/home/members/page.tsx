@@ -207,21 +207,22 @@ export default function MembersPage() {
           <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
 
             {/* Header Row */}
-            <div className="bg-orange-50 border-b border-orange-100 px-4 py-2.5 flex items-center gap-3">
-              <div className="flex-shrink-0 w-7 text-center">
-                <span className="text-[11px] font-bold text-orange-700">الرقم</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[11px] font-bold text-orange-700">الاسم</span>
-              </div>
-              <div className="w-24 flex-shrink-0">
-                <span className="text-[11px] font-bold text-orange-700">المنصب</span>
-              </div>
-              <div className="w-24 flex-shrink-0">
-                <span className="text-[11px] font-bold text-orange-700">رقم الهاتف</span>
-              </div>
-              {isAdmin && <div className="w-16 flex-shrink-0" />}
-            </div>
+            
+<div className="bg-orange-50 border-b border-orange-100 px-4 py-2.5 flex items-center gap-3">
+  <div className="flex-shrink-0 w-7 flex justify-center">
+    <span className="text-[11px] font-bold text-orange-700">الرقم</span>
+  </div>
+  <div className="flex-1 min-w-0 flex justify-center">
+    <span className="text-[11px] font-bold text-orange-700">الاسم</span>
+  </div>
+  <div className="w-24 flex-shrink-0 flex justify-center">
+    <span className="text-[11px] font-bold text-orange-700">المنصب</span>
+  </div>
+  <div className="w-24 flex-shrink-0 flex justify-center">
+    <span className="text-[11px] font-bold text-orange-700">رقم الهاتف</span>
+  </div>
+  {isAdmin && <div className="w-16 flex-shrink-0" />}
+</div>
 
             {/* Member Rows */}
             {members.map((member, index) => (
