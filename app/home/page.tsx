@@ -80,9 +80,6 @@ export default function HomePage() {
 
         {/* Logo + title */}
         <div className="text-center">
-          <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-content-center mx-auto mb-3 text-2xl flex items-center justify-center">
-            🏛️
-          </div>
           <h1 className="text-white text-xl font-extrabold mb-1 tracking-tight">
             جمعية العكنة الخيرية
           </h1>
