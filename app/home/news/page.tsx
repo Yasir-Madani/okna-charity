@@ -110,11 +110,12 @@ export default function NewsPage() {
       style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
+      {/* Header */}
       <div className="bg-gradient-to-l from-teal-900 via-teal-800 to-teal-600 text-white">
         <div className="max-w-lg mx-auto px-4 py-6 flex items-center justify-between">
           <button onClick={() => router.push('/home')}
-            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
-             رجوع
+            className="bg-white bg-opacity-20 text-white px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
+            رجوع
           </button>
           <h1 className="text-lg font-bold">أخبار الجمعية</h1>
           <div className="w-16"></div>
@@ -123,19 +124,23 @@ export default function NewsPage() {
 
       <div className="max-w-lg mx-auto px-4 py-6">
 
-        {isAdmin && (
-          <>
-            <p className="text-gray-400 text-sm mb-4 text-center">
-              يمكنك مشاهدة الأخبار فقط — سجل الدخول لإضافة أو تعديل الأخبار
-            </p>
-            <button onClick={() => { resetForm(); setShowForm(!showForm) }}
-              className="w-full bg-gradient-to-l from-teal-700 to-teal-600 text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-bold mb-4 shadow-lg shadow-teal-200 cursor-pointer hover:scale-[1.01] transition-all">
-              + إضافة خبر جديد
-            </button>
-          </>
+        {/* رسالة للزوار غير المسجلين */}
+        {!isAdmin && (
+          <p className="text-gray-400 text-sm mb-4 text-center">
+            يمكنك مشاهدة الأخبار فقط — سجل الدخول لإضافة أو تعديل الأخبار
+          </p>
         )}
 
-        {showForm && (
+        {/* زر إضافة خبر — للأدمن فقط */}
+        {isAdmin && (
+          <button onClick={() => { resetForm(); setShowForm(!showForm) }}
+            className="w-full bg-gradient-to-l from-teal-700 to-teal-600 text-white rounded-2xl p-4 flex items-center justify-center gap-2 font-bold mb-4 shadow-lg shadow-teal-200 cursor-pointer hover:scale-[1.01] transition-all">
+            + إضافة خبر جديد
+          </button>
+        )}
+
+        {/* نموذج الإضافة / التعديل */}
+        {showForm && isAdmin && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4">
             <h3 className="font-bold text-gray-700 mb-4">{editing ? 'تعديل الخبر' : 'إضافة خبر جديد'}</h3>
             <form onSubmit={handleSubmit}>
@@ -163,7 +168,7 @@ export default function NewsPage() {
                   onChange={e => setForm({ ...form, content: e.target.value })}
                   rows={5}
                   placeholder="اكتب تفاصيل الخبر هنا..."
-                  className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm resize-none focus:outline-none focus:ring-2 focus:ring-teal-300" />
+                  className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm resize-none focus:outline-none focus:ring-2 focus:ring-teal-300 min-h-[120px]" />
               </div>
               <div className="flex gap-2">
                 <button type="submit"
@@ -179,6 +184,7 @@ export default function NewsPage() {
           </div>
         )}
 
+        {/* قائمة الأخبار */}
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
@@ -196,12 +202,12 @@ export default function NewsPage() {
                 <div key={item.id}
                   className={`bg-white rounded-2xl shadow-sm border ${color.border} overflow-hidden`}>
                   <div className={`${color.bg} px-4 py-3 flex items-center justify-between`}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-white text-lg">📰</span>
-                      <p className="text-white font-bold text-sm">{item.title}</p>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className="text-white text-lg shrink-0">📰</span>
+                      <p className="text-white font-bold text-sm truncate">{item.title}</p>
                     </div>
                     {isAdmin && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 shrink-0 mr-2">
                         <button onClick={() => handleEdit(item)}
                           className="text-white text-xs underline opacity-80 cursor-pointer hover:opacity-100">
                           تعديل
@@ -228,10 +234,10 @@ export default function NewsPage() {
         )}
       </div>
 
-      <footer className="text-center py-6 mt-4">
+      {/* Footer مع padding آمن لأجهزة iPhone */}
+      <footer className="text-center py-6 mt-4 pb-safe">
         <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية</p>
       </footer>
     </div>
   )
 }
-
