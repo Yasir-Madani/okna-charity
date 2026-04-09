@@ -216,7 +216,6 @@ export default function AssetsPage() {
                   <p className="text-lg font-bold text-orange-700 leading-tight">
                     {asset.quantity.toLocaleString('ar-EG')}
                   </p>
-                  <p className="text-xs text-gray-400">وحدة</p>
                 </div>
 
                 {/* Admin Actions */}
