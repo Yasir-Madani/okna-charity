@@ -83,20 +83,14 @@ export default function HomePage() {
   ]
 
   return (
-    <div
-      className="min-h-screen bg-gray-100"
-      dir="rtl"
-      style={{ fontFamily: "'Cairo', sans-serif" }}
-    >
-      <link
-        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"
-        rel="stylesheet"
-      />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
+      style={{ fontFamily: "'Cairo', sans-serif" }}>
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
-      {/* Header */}
       <div className="bg-gradient-to-l from-blue-900 via-blue-800 to-blue-700 text-white">
-        <div className="max-w-lg mx-auto px-5 pt-3 flex justify-between items-center">
-          <div className="flex items-center gap-1 bg-white bg-opacity-10 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-white border-opacity-20">
+
+        <div className="max-w-lg mx-auto px-4 pt-4 flex justify-between items-center">
+          <div className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40">
             {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
           </div>
 
@@ -104,14 +98,14 @@ export default function HomePage() {
             <div className="flex gap-2">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-1 bg-white bg-opacity-10 hover:bg-opacity-20 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-white border-opacity-20 transition-all"
+                className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40"
               >
                 <span>🖥️</span>
                 <span>إضافة</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 active:scale-95"
+                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-md"
               >
                 <span>🚪</span>
                 <span>خروج</span>
@@ -120,9 +114,9 @@ export default function HomePage() {
           )}
         </div>
 
-        <div className="max-w-lg mx-auto px-5 pb-5 text-center mt-2">
-          <h1 className="text-lg font-bold mb-0.5">جمعية العكنة الخيرية</h1>
-          <p className="text-blue-200 text-xs">بوابة المعلومات والخدمات</p>
+        <div className="max-w-lg mx-auto px-4 pb-10 text-center mt-4">
+          <h1 className="text-2xl font-bold mb-1">جمعية العكنة الخيرية</h1>
+          <p className="text-blue-200 text-sm">بوابة المعلومات والخدمات</p>
         </div>
       </div>
 
