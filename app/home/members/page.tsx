@@ -83,7 +83,6 @@ export default function MembersPage() {
     fetchData()
   }
 
-  // ألوان شارات المناصب
   const roleColors: Record<string, string> = {
     'رئيس': 'bg-orange-100 text-orange-800',
     'نائب': 'bg-blue-100 text-blue-800',
@@ -206,11 +205,18 @@ export default function MembersPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {members.map(member => (
+            {members.map((member, index) => (
               <div
                 key={member.id}
                 className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3"
               >
+                {/* Sequential Number */}
+                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center">
+                  <span className="text-xs font-bold text-orange-700">
+                    {index + 1}
+                  </span>
+                </div>
+
                 {/* Member Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 truncate">{member.full_name}</p>
@@ -229,7 +235,6 @@ export default function MembersPage() {
                 {/* Admin Actions */}
                 {isAdmin && (
                   <>
-                    {/* Divider */}
                     <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
                     <div className="flex items-center gap-3 flex-shrink-0">
                       <button
