@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Home, Users, MapPin, Hash, ChevronLeft } from 'lucide-react' // اختياري: ستحتاج لتثبيت lucide-react
 
 export default function OverviewPage() {
   const [rows, setRows] = useState<any[]>([])
@@ -50,7 +51,7 @@ export default function OverviewPage() {
           expanded.push({
             house_number: house.house_number || '—',
             house_name: house.name,
-            family_name: '—',
+            family_name: 'بدون أسرة',
             sector: house.sector,
             individual_count: 0,
           })
@@ -61,138 +62,101 @@ export default function OverviewPage() {
     setLoading(false)
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+  const totalIndividuals = rows.reduce((s, r) => s + r.individual_count, 0)
 
-      {/* شريط العنوان */}
-      <div className="bg-green-700 text-white px-4 py-3 flex justify-between items-center sticky top-0 z-20 shadow-md">
-        <h1 className="text-base font-bold">نظرة عامة — المنازل والأسر</h1>
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="bg-white text-green-700 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
-        >
-          ← الرئيسية
-        </button>
+  return (
+    <div className="min-h-screen bg-[#F8FAFC]" dir="rtl">
+      {/* Header العصري */}
+      <div className="bg-white border-b border-gray-100 px-5 py-4 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-2xl mx-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-black text-gray-900">نظرة عامة</h1>
+            <p className="text-xs text-gray-500 mt-0.5">إحصائيات المنازل والعوائل</p>
+          </div>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="p-2 bg-gray-50 hover:bg-green-50 text-green-700 rounded-xl transition-colors border border-gray-100"
+          >
+            <ChevronLeft size={20} />
+          </button>
+        </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-3 py-4">
-
-        {loading ? (
-          <p className="text-center text-gray-400 text-sm py-16">جاري التحميل...</p>
-        ) : rows.length === 0 ? (
-          <p className="text-center text-gray-400 text-sm py-16">لا توجد بيانات</p>
-        ) : (
-          <>
-            {/* 🔥 البطاقات للموبايل */}
-            <div className="md:hidden space-y-4">
-              {rows.map((row, index) => (
-                <div
-                  key={index}
-                  className="relative bg-white rounded-2xl shadow-lg border border-gray-100 p-4 overflow-hidden"
-                >
-                  {/* لمسة جمالية */}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-green-700"></div>
-
-                  {/* رقم المنزل */}
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs text-gray-400">رقم المنزل</span>
-                    <span className="text-sm font-bold text-green-700">
-                      {row.house_number}
-                    </span>
-                  </div>
-
-                  {/* اسم المنزل */}
-                  <div className="mb-2">
-                    <p className="text-xs text-gray-400">اسم المنزل</p>
-                    <p className="text-sm font-semibold text-gray-800 leading-snug">
-                      {row.house_name}
-                    </p>
-                  </div>
-
-                  {/* اسم الأسرة */}
-                  <div className="mb-3">
-                    <p className="text-xs text-gray-400">اسم الأسرة</p>
-                    <p className="text-sm text-gray-700 leading-snug">
-                      {row.family_name}
-                    </p>
-                  </div>
-
-                  {/* أسفل البطاقة */}
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-
-                    {/* المحور */}
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
-                      {row.sector}
-                    </span>
-
-                    {/* عدد الأفراد */}
-                    <div className="text-right">
-                      <p className="text-[10px] text-gray-400">عدد الأفراد</p>
-                      <p className="text-base font-bold text-purple-600">
-                        {row.individual_count}
-                      </p>
-                    </div>
-
-                  </div>
-                </div>
-              ))}
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        
+        {/* ملخص سريع (Stats) */}
+        {!loading && rows.length > 0 && (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="bg-green-600 p-4 rounded-2xl text-white shadow-lg shadow-green-100">
+              <p className="text-xs opacity-80 mb-1">إجمالي الأفراد</p>
+              <p className="text-2xl font-bold">{totalIndividuals}</p>
             </div>
-
-            {/* ✅ الجدول كما هو (للديسكتوب فقط) */}
-            <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-
-              <div className="grid grid-cols-5 bg-green-700 text-white text-xs font-bold text-center">
-                <div className="px-2 py-3 border-l border-green-600">رقم المنزل</div>
-                <div className="px-2 py-3 border-l border-green-600">اسم المنزل</div>
-                <div className="px-2 py-3 border-l border-green-600">اسم الأسرة</div>
-                <div className="px-2 py-3 border-l border-green-600">المحور</div>
-                <div className="px-2 py-3">عدد الأفراد</div>
-              </div>
-
-              {rows.map((row, index) => (
-                <div
-                  key={index}
-                  className={`grid grid-cols-5 text-xs text-center border-t border-gray-100 ${
-                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                  }`}
-                >
-                  <div className="px-2 py-3 border-l border-gray-100 font-bold text-green-700">
-                    {row.house_number}
-                  </div>
-                  <div className="px-2 py-3 border-l border-gray-100 text-gray-800 font-medium truncate">
-                    {row.house_name}
-                  </div>
-                  <div className="px-2 py-3 border-l border-gray-100 text-gray-600">
-                    {row.family_name}
-                  </div>
-                  <div className="px-2 py-3 border-l border-gray-100">
-                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs">
-                      {row.sector}
-                    </span>
-                  </div>
-                  <div className="px-2 py-3 text-purple-600 font-bold">
-                    {row.individual_count}
-                  </div>
-                </div>
-              ))}
-
-              <div className="grid grid-cols-5 bg-green-50 border-t-2 border-green-200 text-xs font-bold text-center">
-                <div className="px-2 py-3 border-l border-green-200 text-green-700 col-span-3 text-right pr-4">
-                  الإجمالي
-                </div>
-                <div className="px-2 py-3 border-l border-green-200"></div>
-                <div className="px-2 py-3 text-purple-700">
-                  {rows.reduce((s, r) => s + r.individual_count, 0)}
-                </div>
-              </div>
-
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+              <p className="text-xs text-gray-500 mb-1">عدد السجلات</p>
+              <p className="text-2xl font-bold text-gray-800">{rows.length}</p>
             </div>
-          </>
+          </div>
         )}
 
-        <p className="text-center text-xs text-gray-400 mt-3 pb-4">
-          {rows.length} سجل
-        </p>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+             <p className="text-gray-400 text-sm mt-4 font-medium">جاري جلب البيانات...</p>
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
+            <p className="text-gray-400 text-sm">لا توجد بيانات مسجلة حالياً</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {rows.map((row, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+              >
+                {/* خلفية جمالية خفيفة */}
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500"></div>
+                
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+                      <Home size={20} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-base">{row.house_name}</h3>
+                      <div className="flex items-center text-gray-400 text-[10px] mt-0.5 gap-1">
+                        <Hash size={12} />
+                        <span>رقم المنزل: {row.house_number}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-bold border border-blue-100">
+                    {row.sector}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-50">
+                  <div className="flex items-center gap-2">
+                    <Users size={16} className="text-gray-400" />
+                    <div>
+                      <p className="text-[10px] text-gray-400 leading-none mb-1">اسم العائلة</p>
+                      <p className="text-sm font-semibold text-gray-700">{row.family_name}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 justify-end">
+                    <div className="text-left">
+                      <p className="text-[10px] text-gray-400 leading-none mb-1">أفراد الأسرة</p>
+                      <p className="text-sm font-black text-purple-600">{row.individual_count} فرد</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="h-20"></div> {/* مساحة إضافية للتمرير */}
       </div>
     </div>
   )
