@@ -204,11 +204,30 @@ export default function MembersPage() {
             <p className="text-gray-400 text-sm">لا يوجد أعضاء مسجلون بعد</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+
+            {/* Header Row */}
+            <div className="bg-orange-50 border-b border-orange-100 px-4 py-2.5 flex items-center gap-3">
+              <div className="flex-shrink-0 w-7 text-center">
+                <span className="text-[11px] font-bold text-orange-700">الرقم</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[11px] font-bold text-orange-700">الاسم</span>
+              </div>
+              <div className="w-24 flex-shrink-0">
+                <span className="text-[11px] font-bold text-orange-700">المنصب</span>
+              </div>
+              <div className="w-24 flex-shrink-0">
+                <span className="text-[11px] font-bold text-orange-700">رقم الهاتف</span>
+              </div>
+              {isAdmin && <div className="w-16 flex-shrink-0" />}
+            </div>
+
+            {/* Member Rows */}
             {members.map((member, index) => (
               <div
                 key={member.id}
-                className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3"
+                className="px-4 py-3 flex items-center gap-3 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors"
               >
                 {/* Sequential Number */}
                 <div className="flex-shrink-0 w-7 h-7 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center">
@@ -217,40 +236,43 @@ export default function MembersPage() {
                   </span>
                 </div>
 
-                {/* Member Info */}
+                {/* Name */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 truncate">{member.full_name}</p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium whitespace-nowrap ${getRoleColor(member.role)}`}>
-                      {member.role}
-                    </span>
-                    {member.phone && (
-                      <p className="text-xs text-gray-400 truncate" dir="ltr">
-                        {member.phone}
-                      </p>
-                    )}
-                  </div>
+                </div>
+
+                {/* Role */}
+                <div className="w-24 flex-shrink-0">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium whitespace-nowrap ${getRoleColor(member.role)}`}>
+                    {member.role}
+                  </span>
+                </div>
+
+                {/* Phone */}
+                <div className="w-24 flex-shrink-0">
+                  {member.phone ? (
+                    <p className="text-xs text-gray-400 truncate" dir="ltr">{member.phone}</p>
+                  ) : (
+                    <p className="text-xs text-gray-200">—</p>
+                  )}
                 </div>
 
                 {/* Admin Actions */}
                 {isAdmin && (
-                  <>
-                    <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <button
-                        onClick={() => handleEdit(member)}
-                        className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
-                      >
-                        تعديل
-                      </button>
-                      <button
-                        onClick={() => handleDelete(member.id, member.full_name)}
-                        className="text-xs text-red-400 hover:text-red-600 cursor-pointer transition-colors"
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  </>
+                  <div className="flex items-center gap-3 flex-shrink-0 w-16 justify-end">
+                    <button
+                      onClick={() => handleEdit(member)}
+                      className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
+                    >
+                      تعديل
+                    </button>
+                    <button
+                      onClick={() => handleDelete(member.id, member.full_name)}
+                      className="text-xs text-red-400 hover:text-red-600 cursor-pointer transition-colors"
+                    >
+                      حذف
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
