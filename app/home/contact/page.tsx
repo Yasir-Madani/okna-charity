@@ -59,19 +59,7 @@ export default function ContactPage() {
             <div className="w-[72px]" />
           </div>
 
-          <div className="text-center">
-            <div className="w-16 h-16 bg-white/15 border border-white/20 rounded-[20px] flex items-center justify-center mx-auto mb-3">
-              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </div>
-            <p className="text-white/80 text-sm leading-relaxed max-w-[280px] mx-auto">
-              نحن هنا للإجابة على استفساراتكم واستقبال تبرعاتكم الكريمة
-            </p>
-          </div>
+          
         </div>
       </div>
 
@@ -85,26 +73,7 @@ export default function ContactPage() {
           </div>
           <div className="space-y-2.5">
 
-            {/* Phone */}
-            <button
-              onClick={() => window.open(`tel:${phoneNumber}`)}
-              className="w-full rounded-[18px] overflow-hidden cursor-pointer hover:-translate-y-0.5 active:scale-[0.97] transition-all shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #1a56a0 0%, #1e6bc9 100%)' }}
-            >
-              <div className="flex items-center gap-4 p-[18px_20px]">
-                <div className="w-[52px] h-[52px] bg-white/20 rounded-[14px] flex items-center justify-center shrink-0">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-[26px] h-[26px]">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 5.53 5.53l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                </div>
-                <div className="flex-1 text-right">
-                  <p className="text-white text-base font-bold">الاتصال المباشر</p>
-                  <p className="text-white/75 text-xs mt-0.5">للتواصل والاستفسار</p>
-                  <p className="text-white/60 text-[11px] font-mono mt-0.5 tracking-wide">{phoneNumber}</p>
-                </div>
-                <span className="text-white/50 text-lg">←</span>
-              </div>
-            </button>
+            
 
             {/* WhatsApp */}
             <button
