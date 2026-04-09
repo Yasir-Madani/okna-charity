@@ -89,13 +89,13 @@ export default function NewsPage() {
   }
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('ar-EG', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
 
   const newsColors = [
     { bg: 'bg-blue-500', light: 'bg-blue-50', border: 'border-blue-100' },
