@@ -5,6 +5,8 @@ import { supabase } from './../app/lib/supabase'
 export default function NewsTicker() {
   const [items, setItems] = useState<string[]>([])
   const trackRef = useRef<HTMLDivElement>(null)
+  const posRef = useRef(0)
+ const rafRef = useRef<number>(0)
 
   useEffect(() => {
     async function load() {
@@ -20,11 +22,25 @@ export default function NewsTicker() {
   }, [])
 
   useEffect(() => {
-    if (!trackRef.current || items.length === 0) return
-    const SPEED = 80
-    const half = trackRef.current.scrollWidth / 2
-    const dur = half / SPEED
-    trackRef.current.style.animationDuration = `${dur}s`
+    const track = trackRef.current
+    if (!track || items.length === 0) return
+
+    const SPEED = 0.5 // بكسل لكل frame — عدّل هذا لتغيير السرعة
+
+    const half = track.scrollWidth / 2
+    posRef.current = 0
+
+    const animate = () => {
+      posRef.current += SPEED
+      if (posRef.current >= half) {
+        posRef.current = 0
+      }
+      track.style.transform = `translateX(${posRef.current}px)`
+      rafRef.current = requestAnimationFrame(animate)
+    }
+
+    rafRef.current = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(rafRef.current!)
   }, [items])
 
   if (items.length === 0) return null
@@ -45,10 +61,7 @@ export default function NewsTicker() {
         <div
           ref={trackRef}
           className="flex whitespace-nowrap"
-          style={{
-            animation: 'ticker-rtl 60s linear infinite',
-            willChange: 'transform',
-          }}
+          style={{ willChange: 'transform' }}
         >
           {doubled.map((text, i) => (
             <span
@@ -61,13 +74,6 @@ export default function NewsTicker() {
           ))}
         </div>
       </div>
-
-      <style>{`
-       @keyframes ticker-rtl {
-  0%   { transform: translateX(0%); }
-  100% { transform: translateX(50%); }
-}
-      `}</style>
     </div>
   )
 }
