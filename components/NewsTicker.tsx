@@ -4,9 +4,10 @@ import { supabase } from './../app/lib/supabase'
 
 export default function NewsTicker() {
   const [items, setItems] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
   const trackRef = useRef<HTMLDivElement>(null)
   const posRef = useRef(0)
- const rafRef = useRef<number>(0)
+  const rafRef = useRef<number>(0)
 
   useEffect(() => {
     async function load() {
@@ -17,6 +18,7 @@ export default function NewsTicker() {
       if (data && data.length > 0) {
         setItems(data.map((r: any) => r.content as string))
       }
+      setLoading(false)
     }
     load()
   }, [])
@@ -25,7 +27,7 @@ export default function NewsTicker() {
     const track = trackRef.current
     if (!track || items.length === 0) return
 
-    const SPEED = 0.5 // بكسل لكل frame — عدّل هذا لتغيير السرعة
+    const SPEED = 0.5
 
     const half = track.scrollWidth / 2
     posRef.current = 0
@@ -43,6 +45,29 @@ export default function NewsTicker() {
     return () => cancelAnimationFrame(rafRef.current!)
   }, [items])
 
+  const containerStyle = {
+    height: '36px',
+    fontFamily: "'Cairo', sans-serif",
+  }
+
+  // Skeleton — نفس الارتفاع والألوان، يظهر فوراً
+  if (loading) {
+    return (
+      <div
+        dir="rtl"
+        className="w-full flex items-center overflow-hidden bg-[#1a1a2e] border-t-2 border-b-2 border-red-600"
+        style={containerStyle}
+      >
+        <div className="flex-shrink-0 bg-red-600 text-white text-[13px] font-bold px-4 h-full flex items-center whitespace-nowrap">
+          📰 أخبار
+        </div>
+        <div className="flex-1 h-full flex items-center px-6">
+          <div className="h-2 w-48 rounded-full bg-white opacity-10 animate-pulse" />
+        </div>
+      </div>
+    )
+  }
+
   if (items.length === 0) return null
 
   const doubled = [...items, ...items]
@@ -51,7 +76,7 @@ export default function NewsTicker() {
     <div
       dir="rtl"
       className="w-full flex items-center overflow-hidden bg-[#1a1a2e] border-t-2 border-b-2 border-red-600"
-      style={{ height: '36px', fontFamily: "'Cairo', sans-serif" }}
+      style={containerStyle}
     >
       <div className="flex-shrink-0 bg-red-600 text-white text-[13px] font-bold px-4 h-full flex items-center whitespace-nowrap z-10">
         📰 أخبار
