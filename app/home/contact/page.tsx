@@ -4,150 +4,174 @@ import { useRouter } from 'next/navigation'
 export default function ContactPage() {
   const router = useRouter()
 
-  const whatsappNumber = '218910000000' // ← غيّر الرقم هنا
-  const phoneNumber = '+218910000000'   // ← غيّر الرقم هنا
-
+  const whatsappNumber = '218910000000'
+  const phoneNumber = '+218910000000'
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=السلام عليكم، أود التواصل مع جمعية العكنة الخيرية`
 
-  const contactMethods = [
-    {
-      icon: '📞',
-      label: 'الاتصال المباشر',
-      value: phoneNumber,
-      desc: 'للتواصل والاستفسار',
-      action: () => window.open(`tel:${phoneNumber}`),
-      gradient: 'from-blue-600 to-blue-800',
-      shadow: 'shadow-blue-200',
-      bg: 'bg-blue-50',
-      text: 'text-blue-700',
-    },
-    {
-      icon: '💬',
-      label: 'واتساب',
-      value: 'ابدأ محادثة مباشرة',
-      desc: 'تواصل سريع عبر واتساب',
-      action: () => window.open(whatsappLink, '_blank'),
-      gradient: 'from-green-500 to-green-700',
-      shadow: 'shadow-green-200',
-      bg: 'bg-green-50',
-      text: 'text-green-700',
-    },
-  ]
-
   const donationMethods = [
-    { icon: '🏦', label: 'التحويل البنكي', desc: 'بنك الجمهورية — حساب رقم: XXXXXXXXXX' },
-    { icon: '🤲', label: 'التبرع العيني', desc: 'يمكن تسليم التبرعات العينية مباشرة في مقر الجمعية' },
-    { icon: '💵', label: 'التبرع النقدي', desc: 'يمكن التبرع نقداً بالتواصل مع أحد المسؤولين' },
+    {
+      label: 'التحويل البنكي',
+      desc: 'بنك الجمهورية — حساب رقم: XXXXXXXXXX',
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0d7a60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+          <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
+        </svg>
+      ),
+    },
+    {
+      label: 'التبرع العيني',
+      desc: 'يمكن تسليم التبرعات مباشرة في مقر الجمعية',
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0d7a60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      ),
+    },
+    {
+      label: 'التبرع النقدي',
+      desc: 'بالتواصل مع أحد المسؤولين عبر الهاتف أو واتساب',
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0d7a60" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+      ),
+    },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
-      style={{ fontFamily: "'Cairo', sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <div className="min-h-screen bg-[#f7f5f0] font-cairo" dir="rtl" style={{ fontFamily: "'Cairo', sans-serif" }}>
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-      {/* الهيدر */}
-      <div className="bg-gradient-to-l from-teal-800 via-teal-700 to-teal-600 text-white">
-        <div className="max-w-lg mx-auto px-4 py-6 flex items-center justify-between">
-          <button onClick={() => router.push('/home')}
-            className="bg-white bg-opacity-20 text-black px-3 py-1.5 rounded-lg text-sm cursor-pointer hover:bg-opacity-30 transition-all">
-            رجوع
-          </button>
-          <h1 className="text-lg font-bold">تواصل معنا</h1>
-          <div className="w-16"></div>
-        </div>
+      {/* Header */}
+      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0a5c47 0%, #0d7a60 50%, #0f8c6e 100%)' }}>
+        <div className="absolute -top-10 -left-10 w-44 h-44 bg-white/5 rounded-full" />
+        <div className="absolute -bottom-5 -right-5 w-28 h-28 bg-white/5 rounded-full" />
 
-        {/* بانر علوي */}
-        <div className="max-w-lg mx-auto px-4 pb-8 text-center">
-          <div className="text-5xl mb-3">🤝</div>
-          <p className="text-teal-100 text-sm leading-relaxed">
-            نحن هنا للإجابة على استفساراتكم واستقبال تبرعاتكم الكريمة
-          </p>
+        <div className="relative z-10 max-w-lg mx-auto px-5 pt-4 pb-8">
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => router.push('/home')}
+              className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
+            >
+              ← رجوع
+            </button>
+            <h1 className="text-white text-[17px] font-bold">تواصل معنا</h1>
+            <div className="w-[72px]" />
+          </div>
+
+          <div className="text-center">
+            <div className="w-16 h-16 bg-white/15 border border-white/20 rounded-[20px] flex items-center justify-center mx-auto mb-3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <p className="text-white/80 text-sm leading-relaxed max-w-[280px] mx-auto">
+              نحن هنا للإجابة على استفساراتكم واستقبال تبرعاتكم الكريمة
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
 
-        {/* قسم التواصل */}
+        {/* Contact Methods */}
         <div>
-          <h2 className="text-gray-700 font-bold text-base mb-3 flex items-center gap-2">
-            <span className="w-1 h-5 bg-teal-500 rounded-full inline-block"></span>
-            وسائل التواصل
-          </h2>
-          <div className="space-y-3">
-            {contactMethods.map((method, i) => (
-              <button key={i} onClick={method.action}
-                className={`w-full bg-gradient-to-l ${method.gradient} text-white rounded-2xl p-5 flex items-center gap-4 shadow-lg ${method.shadow} hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer`}>
-                <div className="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">
-                  {method.icon}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-[3px] h-5 rounded-full" style={{ background: '#0d7a60' }} />
+            <span className="text-sm font-bold text-gray-900">وسائل التواصل</span>
+          </div>
+          <div className="space-y-2.5">
+
+            {/* Phone */}
+            <button
+              onClick={() => window.open(`tel:${phoneNumber}`)}
+              className="w-full rounded-[18px] overflow-hidden cursor-pointer hover:-translate-y-0.5 active:scale-[0.97] transition-all shadow-lg"
+              style={{ background: 'linear-gradient(135deg, #1a56a0 0%, #1e6bc9 100%)' }}
+            >
+              <div className="flex items-center gap-4 p-[18px_20px]">
+                <div className="w-[52px] h-[52px] bg-white/20 rounded-[14px] flex items-center justify-center shrink-0">
+                  <svg viewBox="0 0 24 24" fill="white" className="w-[26px] h-[26px]">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 5.53 5.53l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
                 </div>
-                <div className="text-right flex-1">
-                  <p className="text-lg font-bold">{method.label}</p>
-                  <p className="text-sm opacity-80">{method.desc}</p>
-                  <p className="text-xs opacity-70 mt-0.5 font-mono">{method.value}</p>
+                <div className="flex-1 text-right">
+                  <p className="text-white text-base font-bold">الاتصال المباشر</p>
+                  <p className="text-white/75 text-xs mt-0.5">للتواصل والاستفسار</p>
+                  <p className="text-white/60 text-[11px] font-mono mt-0.5 tracking-wide">{phoneNumber}</p>
                 </div>
-                <span className="text-white opacity-60 text-xl">←</span>
-              </button>
-            ))}
+                <span className="text-white/50 text-lg">←</span>
+              </div>
+            </button>
+
+            {/* WhatsApp */}
+            <button
+              onClick={() => window.open(whatsappLink, '_blank')}
+              className="w-full rounded-[18px] overflow-hidden cursor-pointer hover:-translate-y-0.5 active:scale-[0.97] transition-all shadow-lg"
+              style={{ background: 'linear-gradient(135deg, #1a7a3a 0%, #22a04d 100%)' }}
+            >
+              <div className="flex items-center gap-4 p-[18px_20px]">
+                <div className="w-[52px] h-[52px] bg-white/20 rounded-[14px] flex items-center justify-center shrink-0">
+                  <svg viewBox="0 0 24 24" fill="white" className="w-[26px] h-[26px]">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                    <path d="M11.99 2C6.469 2 2 6.468 2 12c0 1.99.517 3.857 1.426 5.479L2.05 22l4.637-1.358A9.945 9.945 0 0 0 11.99 22c5.522 0 9.99-4.468 9.99-9.99C21.98 6.468 17.512 2 11.99 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 text-right">
+                  <p className="text-white text-base font-bold">واتساب</p>
+                  <p className="text-white/75 text-xs mt-0.5">تواصل سريع ومباشر</p>
+                  <p className="text-white/60 text-[11px] mt-0.5">ابدأ محادثة الآن</p>
+                </div>
+                <span className="text-white/50 text-lg">←</span>
+              </div>
+            </button>
+
           </div>
         </div>
 
-        {/* قسم التبرع */}
+        {/* Donation Methods */}
         <div>
-          <h2 className="text-gray-700 font-bold text-base mb-3 flex items-center gap-2">
-            <span className="w-1 h-5 bg-teal-500 rounded-full inline-block"></span>
-            طرق التبرع
-          </h2>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            {donationMethods.map((method, i) => (
-              <div key={i}
-                className={`p-4 flex items-start gap-4 ${i < donationMethods.length - 1 ? 'border-b border-gray-100' : ''}`}>
-                <div className="w-11 h-11 bg-teal-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
-                  {method.icon}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-[3px] h-5 rounded-full" style={{ background: '#0d7a60' }} />
+            <span className="text-sm font-bold text-gray-900">طرق التبرع</span>
+          </div>
+          <div className="bg-white rounded-[18px] overflow-hidden shadow-sm border border-black/[0.06]">
+            {donationMethods.map((item, i) => (
+              <div key={i} className={`flex items-start gap-3.5 p-4 ${i < donationMethods.length - 1 ? 'border-b border-black/[0.06]' : ''}`}>
+                <div className="w-[42px] h-[42px] bg-[#eaf6f1] rounded-[12px] flex items-center justify-center shrink-0">
+                  {item.icon}
                 </div>
                 <div>
-                  <p className="font-bold text-gray-800 text-sm">{method.label}</p>
-                  <p className="text-gray-500 text-xs mt-0.5 leading-relaxed">{method.desc}</p>
+                  <p className="text-sm font-bold text-gray-900">{item.label}</p>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* بطاقة واتساب بارزة */}
-        <button onClick={() => window.open(whatsappLink, '_blank')}
-          className="w-full bg-gradient-to-l from-green-600 to-green-500 text-white rounded-2xl p-5 flex items-center gap-4 shadow-lg shadow-green-200 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer">
-          <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
-            <svg viewBox="0 0 32 32" className="w-10 h-10" fill="none">
-              <circle cx="16" cy="16" r="16" fill="#25D366"/>
-              <path d="M22.5 9.5A9 9 0 0 0 7.2 20.3L6 26l5.9-1.5a9 9 0 0 0 10.6-15z" fill="white"/>
-              <path d="M12.5 11.5c-.3-.7-.6-.7-.9-.7h-.8c-.3 0-.7.1-1 .5-.4.4-1.4 1.3-1.4 3.2s1.4 3.7 1.6 4c.2.2 2.8 4.4 6.9 6 .9.4 1.7.6 2.2.8.9.3 1.8.2 2.4-.1.7-.4 2.2-1.4 2.5-2.7.3-1.3.3-2.4.2-2.7-.1-.3-.5-.4-1-.7s-3-1.5-3.5-1.6c-.5-.2-.8-.3-1.2.3-.4.6-1.4 1.6-1.7 1.9-.3.3-.6.4-1.1.1-.5-.3-2.1-.8-4-2.5-1.5-1.3-2.5-3-2.7-3.5-.3-.5 0-.8.2-1 .2-.2.5-.6.7-.8.2-.3.3-.5.4-.8z" fill="#25D366"/>
+        {/* Hours */}
+        <div className="bg-white rounded-[18px] p-[18px] shadow-sm border border-black/[0.06] flex items-center gap-3.5">
+          <div className="w-11 h-11 bg-[#fff8e8] rounded-[12px] flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#c8880a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
+              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
             </svg>
           </div>
-          <div className="text-right flex-1">
-            <p className="text-lg font-bold">تواصل عبر واتساب</p>
-            <p className="text-green-100 text-sm">اضغط للبدء في محادثة مباشرة</p>
+          <div className="flex-1 text-right">
+            <p className="text-sm font-bold text-gray-900">أوقات التواصل</p>
+            <p className="text-xs text-gray-400 mt-0.5">من السبت إلى الخميس</p>
           </div>
-          <span className="text-white opacity-60 text-xl">←</span>
-        </button>
-
-        {/* معلومات إضافية */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-2xl">🕐</span>
-            <div>
-              <p className="font-bold text-gray-800 text-sm">أوقات التواصل</p>
-              <p className="text-gray-500 text-xs">من السبت إلى الخميس</p>
-            </div>
-          </div>
-          <div className="bg-teal-50 rounded-xl p-3 text-center">
-            <p className="text-teal-700 font-bold text-sm">8:00 ص — 10:00 م</p>
+          <div className="bg-[#eaf6f1] text-[#0d7a60] text-sm font-bold px-3.5 py-1.5 rounded-[10px]">
+            8ص — 10م
           </div>
         </div>
 
       </div>
 
-      <footer className="text-center py-6 mt-4">
-        <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية</p>
+      <footer className="text-center pb-6">
+        <p className="text-xs text-gray-300">© 2026 جمعية العكنة الخيرية</p>
       </footer>
     </div>
   )
