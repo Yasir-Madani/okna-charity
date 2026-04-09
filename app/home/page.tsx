@@ -33,7 +33,7 @@ export default function HomePage() {
     { label: 'عن الجمعية',           icon: '🏛️', path: '/home/about',        iconBg: 'bg-amber-50',   iconColor: 'text-amber-600',  bar: 'bg-amber-400',   sub: 'تعرف علينا'    },
     { label: 'تواصل وتبرع',          icon: '🤝', path: '/home/contact',       iconBg: 'bg-teal-50',    iconColor: 'text-teal-600',   bar: 'bg-teal-400',    sub: 'ساهم معنا'     },
     { label: 'إحصائيات السكان',      icon: '📊', path: '/public-dashboard',   iconBg: 'bg-indigo-50',  iconColor: 'text-indigo-600', bar: 'bg-indigo-400',  sub: 'بيانات المجتمع' },
-    { label: 'إحصائيات عامة',        icon: '📈', path: '/home/general-stats', iconBg: 'bg-blue-50',    iconColor: 'text-blue-600',   bar: 'bg-blue-400',    sub: 'أرقام وتقارير' },
+    { label: 'مشاريع الجمعية',       icon: '🏗️', path: '/home/projects', iconBg: 'bg-blue-50', iconColor: 'text-blue-600', bar: 'bg-blue-400', sub: 'إنجازاتنا ومبادراتنا' },
     { label: 'ممتلكات الجمعية',      icon: '🏗️', path: '/home/assets',        iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600',bar: 'bg-emerald-400', sub: 'الأصول والعقار' },
     { label: 'حوجة الجمعية',         icon: '📋', path: '/home/needs',         iconBg: 'bg-rose-50',    iconColor: 'text-rose-600',   bar: 'bg-rose-400',    sub: 'الاحتياجات'    },
     { label: 'إدارة الجمعية',        icon: '👥', path: '/home/members',       iconBg: 'bg-purple-50',  iconColor: 'text-purple-600', bar: 'bg-purple-400',  sub: 'الهيئة الإدارية'},
