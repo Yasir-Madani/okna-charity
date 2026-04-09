@@ -6,7 +6,6 @@ import NewsTicker from '../../components/NewsTicker'
 
 export default function HomePage() {
   const router = useRouter()
-
   const [username, setUsername] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
@@ -16,7 +15,6 @@ export default function HomePage() {
 
   const getUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-
     if (user) {
       const name = user.email?.split('@')[0]
       setUsername(name || '')
@@ -32,126 +30,120 @@ export default function HomePage() {
   }
 
   const buttons = [
-    {
-      label: 'عن الجمعية',
-      icon: '🏛️',
-      path: '/home/about',
-      gradient: 'from-amber-500 to-amber-700',
-    },
-    {
-      label: 'تواصل واستفسر وتبرع',
-      icon: '🤝',
-      path: '/home/contact',
-      gradient: 'from-teal-600 to-teal-800',
-    },
-    {
-      label: 'إحصائيات السكان',
-      icon: '📊',
-      path: '/public-dashboard',
-      gradient: 'from-indigo-700 to-indigo-900',
-    },
-    {
-      label: 'إحصائيات عامة',
-      icon: '📈',
-      path: '/home/general-stats',
-      gradient: 'from-indigo-600 to-indigo-800',
-    },
-    {
-      label: 'ممتلكات الجمعية',
-      icon: '🏗️',
-      path: '/home/assets',
-      gradient: 'from-emerald-600 to-emerald-900',
-    },
-    {
-      label: 'حوجة الجمعية',
-      icon: '📋',
-      path: '/home/needs',
-      gradient: 'from-rose-500 to-rose-700',
-    },
-    {
-      label: 'إدارة الجمعية',
-      icon: '👥',
-      path: '/home/members',
-      gradient: 'from-purple-600 to-purple-800',
-    },
-    {
-      label: 'أخبار الجمعية',
-      icon: '📰',
-      path: '/home/news',
-      gradient: 'from-teal-600 to-teal-800',
-    },
+    { label: 'عن الجمعية',           icon: '🏛️', path: '/home/about',        iconBg: 'bg-amber-50',   iconColor: 'text-amber-600',  bar: 'bg-amber-400',   sub: 'تعرف علينا'    },
+    { label: 'تواصل وتبرع',          icon: '🤝', path: '/home/contact',       iconBg: 'bg-teal-50',    iconColor: 'text-teal-600',   bar: 'bg-teal-400',    sub: 'ساهم معنا'     },
+    { label: 'إحصائيات السكان',      icon: '📊', path: '/public-dashboard',   iconBg: 'bg-indigo-50',  iconColor: 'text-indigo-600', bar: 'bg-indigo-400',  sub: 'بيانات المجتمع' },
+    { label: 'إحصائيات عامة',        icon: '📈', path: '/home/general-stats', iconBg: 'bg-blue-50',    iconColor: 'text-blue-600',   bar: 'bg-blue-400',    sub: 'أرقام وتقارير' },
+    { label: 'ممتلكات الجمعية',      icon: '🏗️', path: '/home/assets',        iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600',bar: 'bg-emerald-400', sub: 'الأصول والعقار' },
+    { label: 'حوجة الجمعية',         icon: '📋', path: '/home/needs',         iconBg: 'bg-rose-50',    iconColor: 'text-rose-600',   bar: 'bg-rose-400',    sub: 'الاحتياجات'    },
+    { label: 'إدارة الجمعية',        icon: '👥', path: '/home/members',       iconBg: 'bg-purple-50',  iconColor: 'text-purple-600', bar: 'bg-purple-400',  sub: 'الهيئة الإدارية'},
+    { label: 'أخبار الجمعية',        icon: '📰', path: '/home/news',          iconBg: 'bg-orange-50',  iconColor: 'text-orange-600', bar: 'bg-orange-400',  sub: 'آخر المستجدات' },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
-      style={{ fontFamily: "'Cairo', sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <div
+      className="min-h-screen bg-gray-50"
+      dir="rtl"
+      style={{ fontFamily: "'Cairo', sans-serif" }}
+    >
+      <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"
+        rel="stylesheet"
+      />
 
-      <div className="bg-gradient-to-l from-blue-900 via-blue-800 to-blue-700 text-white">
-
-        <div className="max-w-lg mx-auto px-4 pt-4 flex justify-between items-center">
-          <div className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40">
-            {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
+      {/* ───── Header ───── */}
+      <div className="bg-[#0f2a5e] px-4 pt-4 pb-8">
+        {/* Top bar */}
+        <div className="flex justify-between items-center mb-5">
+          <div className="flex items-center gap-2 bg-white/10 border border-white/15 text-white text-sm font-bold px-3 py-1.5 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+            {isLoggedIn ? `${username}` : 'زائر'}
           </div>
 
           {isLoggedIn && (
             <div className="flex gap-2">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40"
+                className="flex items-center gap-1 bg-white/10 border border-white/15 text-white text-xs font-bold px-3 py-1.5 rounded-full"
               >
-                <span>🖥️</span>
-                <span>إضافة</span>
+                🖥️ إضافة
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-md"
+                className="flex items-center gap-1 bg-red-500/30 border border-red-400/30 text-red-200 text-xs font-bold px-3 py-1.5 rounded-full"
               >
-                <span>🚪</span>
-                <span>خروج</span>
+                🚪 خروج
               </button>
             </div>
           )}
         </div>
 
-        <div className="max-w-lg mx-auto px-4 pb-10 text-center mt-4">
-          <h1 className="text-2xl font-bold mb-1">جمعية العكنة الخيرية</h1>
-          <p className="text-blue-200 text-sm">بوابة المعلومات والخدمات</p>
+        {/* Logo + title */}
+        <div className="text-center">
+          <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-content-center mx-auto mb-3 text-2xl flex items-center justify-center">
+            🏛️
+          </div>
+          <h1 className="text-white text-xl font-extrabold mb-1 tracking-tight">
+            جمعية العكنة الخيرية
+          </h1>
+          <p className="text-white/50 text-xs">بوابة المعلومات والخدمات</p>
         </div>
       </div>
 
-      {/* شريط الأخبار */}
+      {/* ───── News Ticker ───── */}
       <NewsTicker />
 
-      {/* البطاقات — هامش جانبي أوسع لتضييق عرضها */}
-      <div className="max-w-lg mx-auto px-6 pt-3 pb-5 space-y-3">
+      {/* ───── Cards Grid ───── */}
+      <div className="px-4 pt-4 pb-4 grid grid-cols-2 gap-3">
         {buttons.map((btn, i) => (
           <button
             key={i}
             onClick={() => router.push(btn.path)}
-            className={`w-full bg-gradient-to-l ${btn.gradient} text-white rounded-2xl px-5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 cursor-pointer`}
-            style={{ height: '46px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
+            className="bg-white border border-gray-100 rounded-2xl p-3.5 flex flex-col items-start gap-2.5 active:scale-95 transition-all duration-150 text-right relative overflow-hidden"
+            style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
           >
-            <span style={{ fontSize: '18px', lineHeight: 1 }}>{btn.icon}</span>
-            <p className="text-sm font-bold text-right flex-1 truncate">{btn.label}</p>
-            <span className="text-white opacity-40 text-sm leading-none flex-shrink-0">←</span>
+            {/* colour accent bar on the right side */}
+            <span className={`absolute top-0 right-0 w-1 h-full rounded-r-2xl ${btn.bar}`} />
+
+            {/* icon */}
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base ${btn.iconBg}`}>
+              {btn.icon}
+            </div>
+
+            {/* label */}
+            <p className="text-sm font-bold text-gray-800 leading-tight pr-1">
+              {btn.label}
+            </p>
+
+            {/* sub-label */}
+            <p className="text-xs text-gray-400 font-medium pr-1 -mt-1">
+              {btn.sub}
+            </p>
           </button>
         ))}
+      </div>
 
-        {/* زر دخول الإداريين */}
+      {/* ───── Admin button ───── */}
+      <div className="px-4 pb-4">
         <button
           onClick={() => router.push(isLoggedIn ? '/dashboard' : '/login')}
-          className="w-full bg-white border border-gray-200 text-gray-600 rounded-2xl px-5 flex items-center gap-3 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 cursor-pointer"
-          style={{ height: '46px' }}
+          className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
         >
-          <span style={{ fontSize: '18px', lineHeight: 1 }}>🔐</span>
-          <p className="text-sm font-bold text-right flex-1">دخول الإداريين</p>
-          <span className="text-gray-400 text-sm leading-none flex-shrink-0">←</span>
+          <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-base">
+            🔐
+          </div>
+          <p className="text-sm font-bold text-gray-700 flex-1 text-right">
+            دخول الإداريين
+          </p>
+          <span className="text-gray-300 text-sm">←</span>
         </button>
       </div>
 
-      <footer className="text-center pb-5">
-        <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة</p>
+      <footer className="text-center pb-6 pt-1">
+        <p className="text-gray-400 text-xs">
+          © 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة
+        </p>
       </footer>
     </div>
   )
