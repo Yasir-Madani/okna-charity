@@ -265,7 +265,7 @@ export default function GeneralStatsPage() {
                 {/* Quantity */}
                 <div className="text-center flex-shrink-0 min-w-[40px]">
                   <p className="text-lg font-bold text-indigo-700 leading-tight">
-                    {stat.quantity.toLocaleString('ar-EG')}
+                    {stat.quantity.toLocaleString('en-US')}
                   </p>
                 
                 </div>
