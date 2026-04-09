@@ -177,6 +177,24 @@ export default function AssetsPage() {
           </div>
         ) : (
           <div className="space-y-2">
+
+            {/* ── شريط العنوان ── */}
+            <div className="flex items-center gap-3 px-4 py-1">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-400">الصنف</p>
+              </div>
+              <div className="w-px flex-shrink-0" />
+              <div className="text-center flex-shrink-0 min-w-[40px]">
+                <p className="text-xs font-semibold text-gray-400">العدد</p>
+              </div>
+              {isAdmin && (
+                <>
+                  <div className="w-px flex-shrink-0" />
+                  <div className="flex-shrink-0 w-[72px]" />
+                </>
+              )}
+            </div>
+
             {assets.map(asset => (
               <div
                 key={asset.id}
@@ -205,7 +223,7 @@ export default function AssetsPage() {
                 {isAdmin && (
                   <>
                     <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-3 flex-shrink-0 w-[72px] justify-start">
                       <button
                         onClick={() => handleEdit(asset)}
                         className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
@@ -226,16 +244,25 @@ export default function AssetsPage() {
           </div>
         )}
 
-        {/* Summary */}
+        {/* ── Summary — محاذي لعمود العدد ── */}
         {assets.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center justify-between">
-            <div>
+          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center gap-3">
+            <div className="flex-1 min-w-0">
               <p className="text-xs text-gray-400">إجمالي الممتلكات</p>
               <p className="text-xs text-gray-300 mt-0.5">{assets.length} صنف مسجل</p>
             </div>
-            <p className="text-2xl font-bold text-orange-700">
-              {assets.reduce((sum, a) => sum + a.quantity, 0).toLocaleString('ar-EG')}
-            </p>
+            <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
+            <div className="text-center flex-shrink-0 min-w-[40px]">
+              <p className="text-2xl font-bold text-orange-700 leading-tight">
+                {assets.reduce((sum, a) => sum + a.quantity, 0).toLocaleString('ar-EG')}
+              </p>
+            </div>
+            {isAdmin && (
+              <>
+                <div className="w-px h-8 bg-transparent flex-shrink-0" />
+                <div className="flex-shrink-0 w-[72px]" />
+              </>
+            )}
           </div>
         )}
 
