@@ -34,79 +34,77 @@ export default function HomePage() {
   const buttons = [
     {
       label: 'عن الجمعية',
-      desc: 'تعرف على جمعية العكنة الخيرية',
       icon: '🏛️',
       path: '/home/about',
       gradient: 'from-amber-500 to-amber-700',
-      shadow: 'shadow-amber-200',
+      shadow: 'shadow-amber-100',
     },
     {
       label: 'تواصل واستفسر وتبرع',
-      desc: 'تواصل مع الجمعية',
       icon: '🤝',
       path: '/home/contact',
       gradient: 'from-teal-600 to-teal-800',
-      shadow: 'shadow-teal-200',
+      shadow: 'shadow-teal-100',
     },
     {
       label: 'إحصائيات السكان',
-      desc: 'بيانات سكانية عامة للقرية',
       icon: '📊',
       path: '/public-dashboard',
       gradient: 'from-indigo-700 to-indigo-900',
-      shadow: 'shadow-indig-200',
+      shadow: 'shadow-indigo-100',
     },
     {
       label: 'إحصائيات عامة',
-      desc: 'أرقام وإحصائيات عامة',
       icon: '📈',
       path: '/home/general-stats',
       gradient: 'from-indigo-600 to-indigo-800',
-      shadow: 'shadow-indigo-200',
+      shadow: 'shadow-indigo-100',
     },
     {
       label: 'ممتلكات الجمعية',
-      desc: 'قائمة ممتلكات وأصول الجمعية',
       icon: '🏗️',
       path: '/home/assets',
       gradient: 'from-emerald-600 to-emerald-900',
-      shadow: 'shadow-emerald-200',
+      shadow: 'shadow-emerald-100',
     },
     {
       label: 'حوجة الجمعية',
-      desc: 'احتياجات الجمعية الحالية',
       icon: '📋',
       path: '/home/needs',
       gradient: 'from-rose-500 to-rose-700',
-      shadow: 'shadow-rose-200',
+      shadow: 'shadow-rose-100',
     },
     {
       label: 'إدارة الجمعية',
-      desc: 'أعضاء المكتب التنفيذي',
       icon: '👥',
       path: '/home/members',
       gradient: 'from-purple-600 to-purple-800',
-      shadow: 'shadow-purple-200',
+      shadow: 'shadow-purple-100',
     },
     {
       label: 'أخبار الجمعية',
-      desc: 'آخر الأخبار والإعلانات',
       icon: '📰',
       path: '/home/news',
       gradient: 'from-teal-600 to-teal-800',
-      shadow: 'shadow-teal-200',
+      shadow: 'shadow-teal-100',
     },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" dir="rtl"
-      style={{ fontFamily: "'Cairo', sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <div
+      className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100"
+      dir="rtl"
+      style={{ fontFamily: "'Cairo', sans-serif" }}
+    >
+      <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"
+        rel="stylesheet"
+      />
 
+      {/* Header */}
       <div className="bg-gradient-to-l from-blue-900 via-blue-800 to-blue-700 text-white">
-
-        <div className="max-w-lg mx-auto px-4 pt-4 flex justify-between items-center">
-          <div className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40">
+        <div className="max-w-lg mx-auto px-4 pt-3 flex justify-between items-center">
+          <div className="flex items-center gap-1 bg-blue-700 bg-opacity-60 text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-white border-opacity-30">
             {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
           </div>
 
@@ -114,14 +112,14 @@ export default function HomePage() {
             <div className="flex gap-2">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-1 bg-blue-700 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl border border-white border-opacity-40"
+                className="flex items-center gap-1 bg-blue-700 bg-opacity-60 hover:bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-white border-opacity-30 transition-all"
               >
                 <span>🖥️</span>
                 <span>إضافة</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-md"
+                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm"
               >
                 <span>🚪</span>
                 <span>خروج</span>
@@ -130,45 +128,44 @@ export default function HomePage() {
           )}
         </div>
 
-        <div className="max-w-lg mx-auto px-4 pb-10 text-center mt-4">
-          <h1 className="text-2xl font-bold mb-1">جمعية العكنة الخيرية</h1>
-          <p className="text-blue-200 text-sm">بوابة المعلومات والخدمات</p>
+        <div className="max-w-lg mx-auto px-4 pb-6 text-center mt-3">
+          <h1 className="text-xl font-bold mb-0.5">جمعية العكنة الخيرية</h1>
+          <p className="text-blue-200 text-xs">بوابة المعلومات والخدمات</p>
         </div>
       </div>
 
-      {/* ✅ شريط الأخبار هنا */}
+      {/* شريط الأخبار */}
       <NewsTicker />
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      {/* البطاقات */}
+      <div className="max-w-lg mx-auto px-3 py-3 space-y-2">
         {buttons.map((btn, i) => (
           <button
             key={i}
             onClick={() => router.push(btn.path)}
-            className={`w-full bg-gradient-to-l ${btn.gradient} text-white rounded-2xl p-5 flex items-center gap-4 shadow-lg ${btn.shadow} hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer`}
+            className={`w-full bg-gradient-to-l ${btn.gradient} text-white rounded-xl py-2.5 px-4 flex items-center gap-3 shadow-md ${btn.shadow} hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 cursor-pointer`}
           >
-            <span className="text-4xl">{btn.icon}</span>
-            <div className="text-right">
-              <p className="text-lg font-bold">{btn.label}</p>
-              <p className="text-sm opacity-80">{btn.desc}</p>
-            </div>
-            <span className="mr-auto text-white opacity-60 text-xl">←</span>
+            <span className="text-2xl leading-none">{btn.icon}</span>
+            <p className="text-sm font-bold text-right flex-1">{btn.label}</p>
+            <span className="text-white opacity-50 text-base leading-none">←</span>
           </button>
         ))}
 
+        {/* زر دخول الإداريين */}
         <button
           onClick={() => router.push(isLoggedIn ? '/dashboard' : '/login')}
-          className="w-full bg-white border-2 border-gray-200 text-gray-600 rounded-2xl p-4 flex items-center gap-4 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 cursor-pointer mt-2"
+          className="w-full bg-white border border-gray-200 text-gray-600 rounded-xl py-2.5 px-4 flex items-center gap-3 hover:border-gray-300 hover:bg-gray-50 transition-all duration-150 cursor-pointer mt-1"
         >
-          <span className="text-3xl">🔐</span>
-          <div className="text-right">
-            <p className="text-base font-bold">دخول الإداريين</p>
+          <span className="text-2xl leading-none">🔐</span>
+          <div className="text-right flex-1">
+            <p className="text-sm font-bold">دخول الإداريين</p>
             <p className="text-xs text-gray-400">للمستخدمين المصرح لهم فقط</p>
           </div>
-          <span className="mr-auto text-gray-400 text-xl">←</span>
+          <span className="text-gray-400 text-base leading-none">←</span>
         </button>
       </div>
 
-      <footer className="text-center py-6 mt-4">
+      <footer className="text-center py-4 mt-2">
         <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة</p>
       </footer>
     </div>
