@@ -92,7 +92,7 @@ export default function HomePage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100"
+      className="min-h-screen bg-gray-100"
       dir="rtl"
       style={{ fontFamily: "'Cairo', sans-serif" }}
     >
@@ -104,7 +104,7 @@ export default function HomePage() {
       {/* Header */}
       <div className="bg-gradient-to-l from-blue-900 via-blue-800 to-blue-700 text-white">
         <div className="max-w-lg mx-auto px-4 pt-3 flex justify-between items-center">
-          <div className="flex items-center gap-1 bg-blue-700 bg-opacity-60 text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-white border-opacity-30">
+          <div className="flex items-center gap-1 bg-white bg-opacity-10 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-white border-opacity-20">
             {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
           </div>
 
@@ -112,14 +112,14 @@ export default function HomePage() {
             <div className="flex gap-2">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-1 bg-blue-700 bg-opacity-60 hover:bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-white border-opacity-30 transition-all"
+                className="flex items-center gap-1 bg-white bg-opacity-10 hover:bg-opacity-20 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-white border-opacity-20 transition-all"
               >
                 <span>🖥️</span>
                 <span>إضافة</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm"
+                className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 active:scale-95"
               >
                 <span>🚪</span>
                 <span>خروج</span>
@@ -128,8 +128,8 @@ export default function HomePage() {
           )}
         </div>
 
-        <div className="max-w-lg mx-auto px-4 pb-6 text-center mt-3">
-          <h1 className="text-xl font-bold mb-0.5">جمعية العكنة الخيرية</h1>
+        <div className="max-w-lg mx-auto px-4 pb-5 text-center mt-2">
+          <h1 className="text-lg font-bold mb-0.5">جمعية العكنة الخيرية</h1>
           <p className="text-blue-200 text-xs">بوابة المعلومات والخدمات</p>
         </div>
       </div>
@@ -138,34 +138,33 @@ export default function HomePage() {
       <NewsTicker />
 
       {/* البطاقات */}
-      <div className="max-w-lg mx-auto px-3 py-3 space-y-2">
+      <div className="max-w-lg mx-auto px-3 pt-3 pb-4 space-y-3">
         {buttons.map((btn, i) => (
           <button
             key={i}
             onClick={() => router.push(btn.path)}
-            className={`w-full bg-gradient-to-l ${btn.gradient} text-white rounded-xl py-2.5 px-4 flex items-center gap-3 shadow-md ${btn.shadow} hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 cursor-pointer`}
+            className={`w-full bg-gradient-to-l ${btn.gradient} text-white rounded-xl px-4 flex items-center gap-3 shadow-sm ${btn.shadow} hover:brightness-105 active:scale-[0.98] transition-all duration-150 cursor-pointer`}
+            style={{ height: '44px' }}
           >
-            <span className="text-2xl leading-none">{btn.icon}</span>
-            <p className="text-sm font-bold text-right flex-1">{btn.label}</p>
-            <span className="text-white opacity-50 text-base leading-none">←</span>
+            <span style={{ fontSize: '18px', lineHeight: 1 }}>{btn.icon}</span>
+            <p className="text-sm font-bold text-right flex-1 truncate">{btn.label}</p>
+            <span className="text-white opacity-40 text-sm leading-none flex-shrink-0">←</span>
           </button>
         ))}
 
         {/* زر دخول الإداريين */}
         <button
           onClick={() => router.push(isLoggedIn ? '/dashboard' : '/login')}
-          className="w-full bg-white border border-gray-200 text-gray-600 rounded-xl py-2.5 px-4 flex items-center gap-3 hover:border-gray-300 hover:bg-gray-50 transition-all duration-150 cursor-pointer mt-1"
+          className="w-full bg-white border border-gray-200 text-gray-600 rounded-xl px-4 flex items-center gap-3 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+          style={{ height: '44px' }}
         >
-          <span className="text-2xl leading-none">🔐</span>
-          <div className="text-right flex-1">
-            <p className="text-sm font-bold">دخول الإداريين</p>
-            <p className="text-xs text-gray-400">للمستخدمين المصرح لهم فقط</p>
-          </div>
-          <span className="text-gray-400 text-base leading-none">←</span>
+          <span style={{ fontSize: '18px', lineHeight: 1 }}>🔐</span>
+          <p className="text-sm font-bold text-right flex-1">دخول الإداريين</p>
+          <span className="text-gray-400 text-sm leading-none flex-shrink-0">←</span>
         </button>
       </div>
 
-      <footer className="text-center py-4 mt-2">
+      <footer className="text-center pb-5">
         <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة</p>
       </footer>
     </div>
