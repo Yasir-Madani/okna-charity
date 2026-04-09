@@ -8,6 +8,7 @@ export default function HomePage() {
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     getUser()
@@ -20,6 +21,7 @@ export default function HomePage() {
       setUsername(name || '')
       setIsLoggedIn(true)
     }
+    setLoading(false)
   }
 
   const handleLogout = async () => {
@@ -54,27 +56,31 @@ export default function HomePage() {
       {/* ───── Header ───── */}
       <div className="bg-[#0f2a5e] px-4 pt-4 pb-8">
         {/* Top bar */}
-        <div className="flex justify-between items-center mb-5">
-          <div className="flex items-center gap-2 bg-white/10 border border-white/15 text-white text-sm font-bold px-3 py-1.5 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
-            {isLoggedIn ? `${username}` : 'زائر'}
-          </div>
+        <div className="flex justify-between items-center mb-5 min-h-[36px]">
+          {!loading && (
+            <>
+              <div className="flex items-center gap-2 bg-white/10 border border-white/15 text-white text-sm font-bold px-3 py-1.5 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+                {isLoggedIn ? `${username}` : 'زائر'}
+              </div>
 
-          {isLoggedIn && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-1 bg-white/10 border border-white/15 text-white text-xs font-bold px-3 py-1.5 rounded-full"
-              >
-                🖥️ إضافة
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1 bg-red-500/30 border border-red-400/30 text-red-200 text-xs font-bold px-3 py-1.5 rounded-full"
-              >
-                🚪 خروج
-              </button>
-            </div>
+              {isLoggedIn && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => router.push('/dashboard')}
+                    className="flex items-center gap-1 bg-white/10 border border-white/15 text-white text-xs font-bold px-3 py-1.5 rounded-full"
+                  >
+                    🖥️ إضافة
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-1 bg-red-500/30 border border-red-400/30 text-red-200 text-xs font-bold px-3 py-1.5 rounded-full"
+                  >
+                    🚪 خروج
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 
