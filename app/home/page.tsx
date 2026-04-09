@@ -37,56 +37,48 @@ export default function HomePage() {
       icon: '🏛️',
       path: '/home/about',
       gradient: 'from-amber-500 to-amber-700',
-      shadow: 'shadow-amber-100',
     },
     {
       label: 'تواصل واستفسر وتبرع',
       icon: '🤝',
       path: '/home/contact',
       gradient: 'from-teal-600 to-teal-800',
-      shadow: 'shadow-teal-100',
     },
     {
       label: 'إحصائيات السكان',
       icon: '📊',
       path: '/public-dashboard',
       gradient: 'from-indigo-700 to-indigo-900',
-      shadow: 'shadow-indigo-100',
     },
     {
       label: 'إحصائيات عامة',
       icon: '📈',
       path: '/home/general-stats',
       gradient: 'from-indigo-600 to-indigo-800',
-      shadow: 'shadow-indigo-100',
     },
     {
       label: 'ممتلكات الجمعية',
       icon: '🏗️',
       path: '/home/assets',
       gradient: 'from-emerald-600 to-emerald-900',
-      shadow: 'shadow-emerald-100',
     },
     {
       label: 'حوجة الجمعية',
       icon: '📋',
       path: '/home/needs',
       gradient: 'from-rose-500 to-rose-700',
-      shadow: 'shadow-rose-100',
     },
     {
       label: 'إدارة الجمعية',
       icon: '👥',
       path: '/home/members',
       gradient: 'from-purple-600 to-purple-800',
-      shadow: 'shadow-purple-100',
     },
     {
       label: 'أخبار الجمعية',
       icon: '📰',
       path: '/home/news',
       gradient: 'from-teal-600 to-teal-800',
-      shadow: 'shadow-teal-100',
     },
   ]
 
@@ -103,7 +95,7 @@ export default function HomePage() {
 
       {/* Header */}
       <div className="bg-gradient-to-l from-blue-900 via-blue-800 to-blue-700 text-white">
-        <div className="max-w-lg mx-auto px-4 pt-3 flex justify-between items-center">
+        <div className="max-w-lg mx-auto px-5 pt-3 flex justify-between items-center">
           <div className="flex items-center gap-1 bg-white bg-opacity-10 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-white border-opacity-20">
             {isLoggedIn ? `👤 ${username}` : '👤 زائر'}
           </div>
@@ -128,7 +120,7 @@ export default function HomePage() {
           )}
         </div>
 
-        <div className="max-w-lg mx-auto px-4 pb-5 text-center mt-2">
+        <div className="max-w-lg mx-auto px-5 pb-5 text-center mt-2">
           <h1 className="text-lg font-bold mb-0.5">جمعية العكنة الخيرية</h1>
           <p className="text-blue-200 text-xs">بوابة المعلومات والخدمات</p>
         </div>
@@ -137,14 +129,14 @@ export default function HomePage() {
       {/* شريط الأخبار */}
       <NewsTicker />
 
-      {/* البطاقات */}
-      <div className="max-w-lg mx-auto px-3 pt-3 pb-4 space-y-3">
+      {/* البطاقات — هامش جانبي أوسع لتضييق عرضها */}
+      <div className="max-w-lg mx-auto px-6 pt-3 pb-5 space-y-3">
         {buttons.map((btn, i) => (
           <button
             key={i}
             onClick={() => router.push(btn.path)}
-            className={`w-full bg-gradient-to-l ${btn.gradient} text-white rounded-xl px-4 flex items-center gap-3 shadow-sm ${btn.shadow} hover:brightness-105 active:scale-[0.98] transition-all duration-150 cursor-pointer`}
-            style={{ height: '44px' }}
+            className={`w-full bg-gradient-to-l ${btn.gradient} text-white rounded-2xl px-5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 cursor-pointer`}
+            style={{ height: '46px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
           >
             <span style={{ fontSize: '18px', lineHeight: 1 }}>{btn.icon}</span>
             <p className="text-sm font-bold text-right flex-1 truncate">{btn.label}</p>
@@ -155,8 +147,8 @@ export default function HomePage() {
         {/* زر دخول الإداريين */}
         <button
           onClick={() => router.push(isLoggedIn ? '/dashboard' : '/login')}
-          className="w-full bg-white border border-gray-200 text-gray-600 rounded-xl px-4 flex items-center gap-3 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 cursor-pointer"
-          style={{ height: '44px' }}
+          className="w-full bg-white border border-gray-200 text-gray-600 rounded-2xl px-5 flex items-center gap-3 hover:bg-gray-50 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+          style={{ height: '46px' }}
         >
           <span style={{ fontSize: '18px', lineHeight: 1 }}>🔐</span>
           <p className="text-sm font-bold text-right flex-1">دخول الإداريين</p>
