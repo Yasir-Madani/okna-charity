@@ -118,7 +118,7 @@ export default function GeneralStatsPage() {
 
       <div className="max-w-lg mx-auto px-4 py-4 relative min-h-[60vh]">
 
-        {/* شاشة التغطية */}
+        {/* شاشة التغطية للزائر */}
         {!loading && !isAdmin && !isVisible && (
           <div className="absolute inset-0 z-20 flex items-start justify-center pt-6 px-0">
             <div className="absolute inset-0 bg-gray-100 bg-opacity-80 backdrop-blur-sm rounded-2xl" />
@@ -129,9 +129,14 @@ export default function GeneralStatsPage() {
                 <br />
                 ستتوفر للعرض بعد اكتمال عملية الحصر
               </p>
+              <div className="bg-indigo-50 rounded-xl p-3 flex items-center gap-3 mb-5">
+                <p className="text-indigo-600 text-sm text-right flex-1">
+                  نعتذر عن عدم توفر البيانات مؤقتاً
+                </p>
+              </div>
               <button
                 onClick={() => router.push('/home')}
-                className="w-full bg-indigo-700 text-white py-2.5 rounded-xl text-sm font-semibold"
+                className="w-full bg-indigo-700 text-white py-2.5 rounded-xl text-sm font-semibold cursor-pointer hover:bg-indigo-800 transition-colors"
               >
                 العودة للصفحة الرئيسية
               </button>
@@ -139,25 +144,97 @@ export default function GeneralStatsPage() {
           </div>
         )}
 
-        {/* زر إضافة */}
+        {/* التحكم بالرؤية — للأدمن فقط */}
+        {isAdmin && (
+          <div className="mb-4 flex items-center justify-between bg-white border border-gray-100 rounded-xl px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-700">حالة الصفحة للزوار</p>
+              <p className={`text-xs mt-0.5 font-medium ${isVisible ? 'text-green-600' : 'text-red-500'}`}>
+                {isVisible ? '✅ مرئية للزوار' : '🔒 مخفية — تغطية نشطة'}
+              </p>
+            </div>
+            <button
+              onClick={toggleVisibility}
+              disabled={togglingVisibility}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                isVisible
+                  ? 'bg-red-50 text-red-500 hover:bg-red-100'
+                  : 'bg-green-50 text-green-600 hover:bg-green-100'
+              }`}
+            >
+              {togglingVisibility ? '...' : isVisible ? '🔒 إخفاء' : '🔓 إظهار'}
+            </button>
+          </div>
+        )}
+
+        {/* Add Button */}
         {isAdmin && (
           <button
             onClick={() => { resetForm(); setShowForm(!showForm) }}
-            className="w-full bg-indigo-700 text-white rounded-xl py-3 text-sm font-semibold mb-4"
+            className="w-full bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl py-3 text-sm font-semibold mb-4 transition-colors cursor-pointer"
           >
             + إضافة إحصائية
           </button>
         )}
 
-        {/* 🔥 شريط العنوان (إضافة فقط بدون تغيير التصميم) */}
-        {!loading && stats.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 px-4 py-2 mb-2 flex items-center">
-            <div className="flex-1 text-sm font-semibold text-gray-500">الصنف</div>
-            <div className="w-12 text-center text-sm font-semibold text-gray-500">العدد</div>
+        {/* Form */}
+        {showForm && (
+          <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4 shadow-sm">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              {editing ? 'تعديل الإحصائية' : 'إضافة إحصائية جديدة'}
+            </h3>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">اسم الإحصائية *</label>
+                <input
+                  required
+                  value={form.name}
+                  onChange={e => { setForm({ ...form, name: e.target.value }); setDuplicateError('') }}
+                  className={`w-full border rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`}
+                />
+                {duplicateError && (
+                  <p className="text-red-500 text-xs mt-1">⚠️ {duplicateError}</p>
+                )}
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">العدد *</label>
+                <input
+                  required
+                  type="number"
+                  min="0"
+                  value={form.quantity}
+                  onChange={e => setForm({ ...form, quantity: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">ملاحظات</label>
+                <input
+                  value={form.notes}
+                  onChange={e => setForm({ ...form, notes: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 bg-indigo-700 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer hover:bg-indigo-800 transition-colors"
+                >
+                  حفظ
+                </button>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-lg text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
           </div>
         )}
 
-        {/* البيانات */}
+        {/* Loading */}
         {loading ? (
           <div className="flex justify-center py-16">
             <div className="w-7 h-7 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -174,6 +251,7 @@ export default function GeneralStatsPage() {
                 key={stat.id}
                 className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3"
               >
+                {/* Name & Notes */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 truncate">{stat.name}</p>
                   {stat.notes && (
@@ -181,20 +259,34 @@ export default function GeneralStatsPage() {
                   )}
                 </div>
 
+                {/* Divider */}
                 <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
 
+                {/* Quantity */}
                 <div className="text-center flex-shrink-0 min-w-[40px]">
                   <p className="text-lg font-bold text-indigo-700 leading-tight">
-                    {stat.quantity.toLocaleString('en-US')}
+                    {stat.quantity.toLocaleString('ar-EG')}
                   </p>
+                
                 </div>
 
+                {/* Admin Actions */}
                 {isAdmin && (
                   <>
                     <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <button onClick={() => handleEdit(stat)} className="text-xs text-blue-500">تعديل</button>
-                      <button onClick={() => handleDelete(stat.id, stat.name)} className="text-xs text-red-400">حذف</button>
+                      <button
+                        onClick={() => handleEdit(stat)}
+                        className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        onClick={() => handleDelete(stat.id, stat.name)}
+                        className="text-xs text-red-400 hover:text-red-600 cursor-pointer transition-colors"
+                      >
+                        حذف
+                      </button>
                     </div>
                   </>
                 )}
@@ -203,23 +295,16 @@ export default function GeneralStatsPage() {
           </div>
         )}
 
-        {/* 🔥 الإجمالي (محاذاة تحت العدد) */}
+        {/* Summary */}
         {stats.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center gap-3">
-            
-            <div className="flex-1">
+          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center justify-between">
+            <div>
               <p className="text-xs text-gray-400">إجمالي الإحصائيات</p>
               <p className="text-xs text-gray-300 mt-0.5">{stats.length} صنف مسجل</p>
             </div>
-
-            <div className="w-px h-8 bg-gray-100" />
-
-            <div className="text-center min-w-[40px]">
-              <p className="text-2xl font-bold text-indigo-700">
-                {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('en-US')}
-              </p>
-            </div>
-
+            <p className="text-2xl font-bold text-indigo-700">
+              {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar-EG')}
+            </p>
           </div>
         )}
 
