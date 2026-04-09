@@ -63,10 +63,10 @@ export default function NewsTicker() {
       </div>
 
       <style>{`
-        @keyframes ticker-rtl {
-          0%   { transform: translateX(-50%); }
-          100% { transform: translateX(0%); }
-        }
+       @keyframes ticker-rtl {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(50%); }
+}
       `}</style>
     </div>
   )
