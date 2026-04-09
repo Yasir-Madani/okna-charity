@@ -56,7 +56,7 @@ export default function ContactPage() {
               ← رجوع
             </button>
             <h1 className="text-white text-[17px] font-bold">تواصل معنا</h1>
-            <div className="w-[72px]" />
+            <div className="w-[40px]" />
           </div>
 
           
