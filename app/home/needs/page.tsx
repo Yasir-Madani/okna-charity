@@ -285,7 +285,6 @@ export default function GeneralStatsPage() {
                   <p className="text-lg font-bold text-indigo-700 leading-tight">
                     {stat.quantity.toLocaleString('ar-EG')}
                   </p>
-                  <p className="text-xs text-gray-400">وحدة</p>
                 </div>
 
                 {/* Admin Actions */}
