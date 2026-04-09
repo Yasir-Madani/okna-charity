@@ -8,6 +8,12 @@ export default function OverviewPage() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
+  // ✅ دالة اختصار الاسم إلى أول اسمين
+  const getShortName = (name: string) => {
+    if (!name) return ''
+    return name.split(' ').slice(0, 2).join(' ')
+  }
+
   useEffect(() => {
     const checkAndFetch = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -34,7 +40,6 @@ export default function OverviewPage() {
       .order('house_number', { ascending: true })
 
     if (data) {
-      // نفرد كل أسرة في سطر مستقل
       const expanded: any[] = []
       data.forEach((house: any) => {
         if (house.families && house.families.length > 0) {
@@ -43,17 +48,14 @@ export default function OverviewPage() {
               house_number: house.house_number || '—',
               house_name: house.name,
               family_name: family.name,
-              sector: house.sector,
               individual_count: family.individuals?.length || 0,
             })
           })
         } else {
-          // منزل بدون أسر
           expanded.push({
             house_number: house.house_number || '—',
             house_name: house.name,
             family_name: '—',
-            sector: house.sector,
             individual_count: 0,
           })
         }
@@ -87,11 +89,10 @@ export default function OverviewPage() {
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
 
             {/* رأس الجدول */}
-            <div className="grid grid-cols-5 bg-green-700 text-white text-xs font-bold text-center">
+            <div className="grid grid-cols-4 bg-green-700 text-white text-xs font-bold text-center">
               <div className="px-2 py-3 border-l border-green-600">رقم المنزل</div>
               <div className="px-2 py-3 border-l border-green-600">اسم المنزل</div>
               <div className="px-2 py-3 border-l border-green-600">اسم الأسرة</div>
-              <div className="px-2 py-3 border-l border-green-600">المحور</div>
               <div className="px-2 py-3">عدد الأفراد</div>
             </div>
 
@@ -99,24 +100,30 @@ export default function OverviewPage() {
             {rows.map((row, index) => (
               <div
                 key={index}
-                className={`grid grid-cols-5 text-xs text-center border-t border-gray-100 ${
+                className={`grid grid-cols-4 text-xs text-center border-t border-gray-100 ${
                   index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                 }`}
               >
                 <div className="px-2 py-3 border-l border-gray-100 font-bold text-green-700">
                   {row.house_number}
                 </div>
-                <div className="px-2 py-3 border-l border-gray-100 text-gray-800 font-medium truncate">
-                  {row.house_name}
+
+                {/* ✅ اسم المنزل مختصر */}
+                <div
+                  className="px-2 py-3 border-l border-gray-100 text-gray-800 font-medium truncate"
+                  title={row.house_name}
+                >
+                  {getShortName(row.house_name)}
                 </div>
-                <div className="px-2 py-3 border-l border-gray-100 text-gray-600">
-                  {row.family_name}
+
+                {/* ✅ اسم الأسرة مختصر */}
+                <div
+                  className="px-2 py-3 border-l border-gray-100 text-gray-600"
+                  title={row.family_name}
+                >
+                  {getShortName(row.family_name)}
                 </div>
-                <div className="px-2 py-3 border-l border-gray-100">
-                  <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs">
-                    {row.sector}
-                  </span>
-                </div>
+
                 <div className="px-2 py-3 text-purple-600 font-bold">
                   {row.individual_count}
                 </div>
@@ -124,11 +131,10 @@ export default function OverviewPage() {
             ))}
 
             {/* سطر المجموع */}
-            <div className="grid grid-cols-5 bg-green-50 border-t-2 border-green-200 text-xs font-bold text-center">
+            <div className="grid grid-cols-4 bg-green-50 border-t-2 border-green-200 text-xs font-bold text-center">
               <div className="px-2 py-3 border-l border-green-200 text-green-700 col-span-3 text-right pr-4">
                 الإجمالي
               </div>
-              <div className="px-2 py-3 border-l border-green-200"></div>
               <div className="px-2 py-3 text-purple-700">
                 {rows.reduce((s, r) => s + r.individual_count, 0)}
               </div>
