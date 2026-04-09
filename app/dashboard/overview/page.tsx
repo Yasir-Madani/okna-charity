@@ -8,12 +8,6 @@ export default function OverviewPage() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // ✅ دالة اختصار الاسم إلى أول اسمين
-  const getShortName = (name: string) => {
-    if (!name) return ''
-    return name.split(' ').slice(0, 2).join(' ')
-  }
-
   useEffect(() => {
     const checkAndFetch = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -48,6 +42,7 @@ export default function OverviewPage() {
               house_number: house.house_number || '—',
               house_name: house.name,
               family_name: family.name,
+              sector: house.sector,
               individual_count: family.individuals?.length || 0,
             })
           })
@@ -56,6 +51,7 @@ export default function OverviewPage() {
             house_number: house.house_number || '—',
             house_name: house.name,
             family_name: '—',
+            sector: house.sector,
             individual_count: 0,
           })
         }
@@ -86,61 +82,112 @@ export default function OverviewPage() {
         ) : rows.length === 0 ? (
           <p className="text-center text-gray-400 text-sm py-16">لا توجد بيانات</p>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <>
+            {/* 🔥 البطاقات للموبايل */}
+            <div className="md:hidden space-y-4">
+              {rows.map((row, index) => (
+                <div
+                  key={index}
+                  className="relative bg-white rounded-2xl shadow-lg border border-gray-100 p-4 overflow-hidden"
+                >
+                  {/* لمسة جمالية */}
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-green-700"></div>
 
-            {/* رأس الجدول */}
-            <div className="grid grid-cols-4 bg-green-700 text-white text-xs font-bold text-center">
-              <div className="px-2 py-3 border-l border-green-600">رقم المنزل</div>
-              <div className="px-2 py-3 border-l border-green-600">اسم المنزل</div>
-              <div className="px-2 py-3 border-l border-green-600">اسم الأسرة</div>
-              <div className="px-2 py-3">عدد الأفراد</div>
+                  {/* رقم المنزل */}
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs text-gray-400">رقم المنزل</span>
+                    <span className="text-sm font-bold text-green-700">
+                      {row.house_number}
+                    </span>
+                  </div>
+
+                  {/* اسم المنزل */}
+                  <div className="mb-2">
+                    <p className="text-xs text-gray-400">اسم المنزل</p>
+                    <p className="text-sm font-semibold text-gray-800 leading-snug">
+                      {row.house_name}
+                    </p>
+                  </div>
+
+                  {/* اسم الأسرة */}
+                  <div className="mb-3">
+                    <p className="text-xs text-gray-400">اسم الأسرة</p>
+                    <p className="text-sm text-gray-700 leading-snug">
+                      {row.family_name}
+                    </p>
+                  </div>
+
+                  {/* أسفل البطاقة */}
+                  <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+
+                    {/* المحور */}
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
+                      {row.sector}
+                    </span>
+
+                    {/* عدد الأفراد */}
+                    <div className="text-right">
+                      <p className="text-[10px] text-gray-400">عدد الأفراد</p>
+                      <p className="text-base font-bold text-purple-600">
+                        {row.individual_count}
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* صفوف البيانات */}
-            {rows.map((row, index) => (
-              <div
-                key={index}
-                className={`grid grid-cols-4 text-xs text-center border-t border-gray-100 ${
-                  index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                }`}
-              >
-                <div className="px-2 py-3 border-l border-gray-100 font-bold text-green-700">
-                  {row.house_number}
-                </div>
+            {/* ✅ الجدول كما هو (للديسكتوب فقط) */}
+            <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
 
-                {/* ✅ اسم المنزل مختصر */}
+              <div className="grid grid-cols-5 bg-green-700 text-white text-xs font-bold text-center">
+                <div className="px-2 py-3 border-l border-green-600">رقم المنزل</div>
+                <div className="px-2 py-3 border-l border-green-600">اسم المنزل</div>
+                <div className="px-2 py-3 border-l border-green-600">اسم الأسرة</div>
+                <div className="px-2 py-3 border-l border-green-600">المحور</div>
+                <div className="px-2 py-3">عدد الأفراد</div>
+              </div>
+
+              {rows.map((row, index) => (
                 <div
-                  className="px-2 py-3 border-l border-gray-100 text-gray-800 font-medium truncate"
-                  title={row.house_name}
+                  key={index}
+                  className={`grid grid-cols-5 text-xs text-center border-t border-gray-100 ${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  }`}
                 >
-                  {getShortName(row.house_name)}
+                  <div className="px-2 py-3 border-l border-gray-100 font-bold text-green-700">
+                    {row.house_number}
+                  </div>
+                  <div className="px-2 py-3 border-l border-gray-100 text-gray-800 font-medium truncate">
+                    {row.house_name}
+                  </div>
+                  <div className="px-2 py-3 border-l border-gray-100 text-gray-600">
+                    {row.family_name}
+                  </div>
+                  <div className="px-2 py-3 border-l border-gray-100">
+                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs">
+                      {row.sector}
+                    </span>
+                  </div>
+                  <div className="px-2 py-3 text-purple-600 font-bold">
+                    {row.individual_count}
+                  </div>
                 </div>
+              ))}
 
-                {/* ✅ اسم الأسرة مختصر */}
-                <div
-                  className="px-2 py-3 border-l border-gray-100 text-gray-600"
-                  title={row.family_name}
-                >
-                  {getShortName(row.family_name)}
+              <div className="grid grid-cols-5 bg-green-50 border-t-2 border-green-200 text-xs font-bold text-center">
+                <div className="px-2 py-3 border-l border-green-200 text-green-700 col-span-3 text-right pr-4">
+                  الإجمالي
                 </div>
-
-                <div className="px-2 py-3 text-purple-600 font-bold">
-                  {row.individual_count}
+                <div className="px-2 py-3 border-l border-green-200"></div>
+                <div className="px-2 py-3 text-purple-700">
+                  {rows.reduce((s, r) => s + r.individual_count, 0)}
                 </div>
               </div>
-            ))}
 
-            {/* سطر المجموع */}
-            <div className="grid grid-cols-4 bg-green-50 border-t-2 border-green-200 text-xs font-bold text-center">
-              <div className="px-2 py-3 border-l border-green-200 text-green-700 col-span-3 text-right pr-4">
-                الإجمالي
-              </div>
-              <div className="px-2 py-3 text-purple-700">
-                {rows.reduce((s, r) => s + r.individual_count, 0)}
-              </div>
             </div>
-
-          </div>
+          </>
         )}
 
         <p className="text-center text-xs text-gray-400 mt-3 pb-4">
