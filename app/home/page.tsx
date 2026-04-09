@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import NewsTicker from '../../components/NewsTicker'
 
 export default function HomePage() {
   const router = useRouter()
@@ -39,7 +40,6 @@ export default function HomePage() {
       gradient: 'from-amber-500 to-amber-700',
       shadow: 'shadow-amber-200',
     },
-    // ← جديد: التواصل والاستفسار والتبرع (ثاني زر بعد about)
     {
       label: 'تواصل واستفسر وتبرع',
       desc: 'تواصل مع الجمعية',
@@ -56,7 +56,6 @@ export default function HomePage() {
       gradient: 'from-indigo-700 to-indigo-900',
       shadow: 'shadow-indig-200',
     },
-    // ← جديد: إحصائيات عامة (بعد إحصائيات السكان)
     {
       label: 'إحصائيات عامة',
       desc: 'أرقام وإحصائيات عامة',
@@ -73,7 +72,6 @@ export default function HomePage() {
       gradient: 'from-emerald-600 to-emerald-900',
       shadow: 'shadow-emerald-200',
     },
-    // ← جديد: حوجة الجمعية (بعد ممتلكات الجمعية)
     {
       label: 'حوجة الجمعية',
       desc: 'احتياجات الجمعية الحالية',
@@ -137,6 +135,9 @@ export default function HomePage() {
           <p className="text-blue-200 text-sm">بوابة المعلومات والخدمات</p>
         </div>
       </div>
+
+      {/* ✅ شريط الأخبار هنا */}
+      <NewsTicker />
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {buttons.map((btn, i) => (
