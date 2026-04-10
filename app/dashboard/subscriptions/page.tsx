@@ -95,7 +95,6 @@ export default function SubscriptionsPage() {
   const loadMonthData = useCallback(async () => {
     if (houses.length === 0) return
 
-    // جلب بيانات الاشتراكات لهذا الشهر
     const { data } = await supabase
       .from('subscriptions')
       .select('*')
@@ -105,16 +104,8 @@ export default function SubscriptionsPage() {
     if (data) data.forEach(sub => { map[sub.house_id] = sub })
     setMonthlyData(map)
 
-    // تعديل: جلب المبلغ الافتراضي الخاص بهذا الشهر تحديداً من جدول الإعدادات
-    const settingsKey = `default_sub_${selectedMonth}`
-    const { data: settingData } = await supabase
-      .from('settings')
-      .select('value')
-      .eq('key', settingsKey)
-      .maybeSingle()
-
-    if (settingData) {
-      setDefaultAmount(settingData.value)
+    if (data && data.length > 0) {
+      setDefaultAmount(String(data[0].amount))
     } else {
       setDefaultAmount('')
     }
@@ -173,16 +164,10 @@ export default function SubscriptionsPage() {
     }))
   }
 
-  // تعديل: الحفظ باستخدام مفتاح فريد للشهر المحدد
   const saveDefaultAmount = async (value: string) => {
     setDefaultAmount(value)
-    const settingsKey = `default_sub_${selectedMonth}`
     await supabase.from('settings')
-      .upsert({ 
-        key: settingsKey, 
-        value, 
-        updated_at: new Date().toISOString() 
-      })
+      .upsert({ key: 'default_subscription', value, updated_at: new Date().toISOString() })
   }
 
   const fillAllDefault = () => {
@@ -338,6 +323,24 @@ export default function SubscriptionsPage() {
             </div>
           </div>
 
+          {/* أزرار التعبئة */}
+{/*
+<div className="flex gap-2">
+  <button
+    onClick={fillAllDefault}
+    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors"
+  >
+    تعبئة الكل ✓
+  </button>
+  <button
+    onClick={uncheckAll}
+    className="flex-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors"
+  >
+    إلغاء الكل ✗
+  </button>
+</div>
+*/}
+
           {/* فلاتر - قابلة للطي */}
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -392,6 +395,7 @@ export default function SubscriptionsPage() {
                   className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all
                     ${isPaid ? 'border-green-200' : overdue && !entry.checked ? 'border-red-200' : 'border-gray-200'}`}
                 >
+                  {/* رأس البطاقة */}
                   <div className={`px-4 py-3 flex justify-between items-center
                     ${isPaid ? 'bg-green-50' : overdue && !entry.checked ? 'bg-red-50' : 'bg-gray-50'}`}
                   >
@@ -403,6 +407,7 @@ export default function SubscriptionsPage() {
                       </span>
                     </div>
 
+                    {/* الحالة */}
                     {isPaid ? (
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">
                         مدفوع ✓
@@ -418,6 +423,7 @@ export default function SubscriptionsPage() {
                     )}
                   </div>
 
+                  {/* تفاصيل المتأخرات */}
                   {overdue && !entry.checked && (
                     <div className="px-4 py-2 bg-red-50 border-t border-red-100 flex items-center gap-2">
                       <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">
@@ -429,7 +435,10 @@ export default function SubscriptionsPage() {
                     </div>
                   )}
 
+                  {/* صف الإدخال */}
                   <div className="px-4 py-3 flex items-center gap-3">
+
+                    {/* Checkbox كبير للموبايل */}
                     <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
                       <div
                         onClick={() => handleCheck(house.id, !entry.checked)}
@@ -448,6 +457,7 @@ export default function SubscriptionsPage() {
                       <span className="text-xs text-gray-500">دفع</span>
                     </label>
 
+                    {/* حقل المبلغ */}
                     <div className="flex-1">
                       <input
                         type="number"
@@ -482,6 +492,7 @@ export default function SubscriptionsPage() {
         </p>
       </div>
 
+      {/* ===== زر الحفظ ثابت في الأسفل ===== */}
       <div className="fixed bottom-0 right-0 left-0 bg-white border-t border-gray-200 px-4 py-3 z-20 shadow-lg">
         <button
           onClick={saveAll}
@@ -492,8 +503,10 @@ export default function SubscriptionsPage() {
         </button>
       </div>
 
+      {/* مسافة للزر الثابت */}
       <div className="h-20" />
 
+      {/* Toast */}
       {toast && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl text-sm shadow-lg z-50 whitespace-nowrap">
           {toast}

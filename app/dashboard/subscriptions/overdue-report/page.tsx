@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 type House = {
   id: string
   name: string
-  house_number: number   // ✅ الاسم الصحيح من الـ DB
+  house_number: number
   sector: string
 }
 
@@ -31,7 +31,6 @@ function getMonthsSinceStart(): string[] {
   const months: string[] = []
   const start = new Date(2026, 0, 1)
   const now = new Date()
-  // نأخذ حتى الشهر السابق (الشهر الحالي لا يُحسب متأخراً بعد)
   const cursor = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   while (cursor >= start) {
     months.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`)
@@ -40,7 +39,6 @@ function getMonthsSinceStart(): string[] {
   return months
 }
 
-// درجة خطورة التأخير
 function getSeverity(months: number): { label: string; color: string; bg: string; dot: string } {
   if (months >= 6) return { label: 'حرج', color: '#dc2626', bg: '#fef2f2', dot: '#dc2626' }
   if (months >= 3) return { label: 'متوسط', color: '#ea580c', bg: '#fff7ed', dot: '#ea580c' }
@@ -51,22 +49,32 @@ export default function OverdueReportPage() {
   const router = useRouter()
   const [overdueList, setOverdueList] = useState<OverdueHouse[]>([])
   const [loading, setLoading] = useState(true)
-  const [defaultAmount, setDefaultAmount] = useState(50)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [filterSector, setFilterSector] = useState('الكل')
+  const [filterHouse, setFilterHouse] = useState('الكل')
   const [sortBy, setSortBy] = useState<'months' | 'amount' | 'name'>('months')
+  const [allHouses, setAllHouses] = useState<House[]>([])
 
   const load = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/'); return }
 
-    // المبلغ الافتراضي
-    const { data: setting } = await supabase
-      .from('settings').select('value').eq('key', 'default_subscription').single()
-    const defAmt = setting ? parseInt(setting.value) || 50 : 50
-    setDefaultAmount(defAmt)
+    // جلب جميع إعدادات القيم الافتراضية لكل شهر
+    const { data: allSettings } = await supabase
+      .from('settings')
+      .select('key, value')
+      .like('key', 'default_subscription_20%')
 
-    // المنازل - ✅ الحقل الصحيح house_number
+    // بناء خريطة: شهر -> قيمة افتراضية
+    const defaultAmountMap: Record<string, number> = {}
+    if (allSettings) {
+      allSettings.forEach(s => {
+        const month = s.key.replace('default_subscription_', '')
+        defaultAmountMap[month] = parseInt(s.value) || 0
+      })
+    }
+
+    // المنازل
     const { data: houses } = await supabase
       .from('houses')
       .select('id, name, house_number, sector')
@@ -78,6 +86,8 @@ export default function OverdueReportPage() {
 
     if (!houses) { setLoading(false); return }
 
+    setAllHouses(houses)
+
     // بناء خريطة المدفوعات
     const paidMap: Record<string, Set<string>> = {}
     subs?.forEach(s => {
@@ -85,7 +95,6 @@ export default function OverdueReportPage() {
       paidMap[s.house_id].add(s.month)
     })
 
-    // الأشهر منذ بداية 2026 حتى الشهر الماضي
     const allMonths = getMonthsSinceStart()
     const result: OverdueHouse[] = []
 
@@ -93,7 +102,9 @@ export default function OverdueReportPage() {
       const paid = paidMap[house.id] || new Set()
       const overdueMonths = allMonths.filter(m => !paid.has(m))
       if (overdueMonths.length > 0) {
-        result.push({ house, overdueMonths, totalOwed: overdueMonths.length * defAmt })
+        // حساب الإجمالي بناءً على القيمة الافتراضية لكل شهر بشكل منفصل
+        const totalOwed = overdueMonths.reduce((sum, m) => sum + (defaultAmountMap[m] || 0), 0)
+        result.push({ house, overdueMonths, totalOwed })
       }
     })
 
@@ -107,7 +118,11 @@ export default function OverdueReportPage() {
   const sectors = ['الكل', ...Array.from(new Set(overdueList.map(o => o.house.sector)))]
 
   const filtered = overdueList
-    .filter(o => filterSector === 'الكل' || o.house.sector === filterSector)
+    .filter(o => {
+      if (filterSector !== 'الكل' && o.house.sector !== filterSector) return false
+      if (filterHouse !== 'الكل' && o.house.id !== filterHouse) return false
+      return true
+    })
     .sort((a, b) => {
       if (sortBy === 'months') return b.overdueMonths.length - a.overdueMonths.length
       if (sortBy === 'amount') return b.totalOwed - a.totalOwed
@@ -188,12 +203,11 @@ export default function OverdueReportPage() {
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px', position: 'relative', zIndex: 1 }}>
 
-        {/* ===== بطاقات الإحصاء ===== */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
+        {/* ===== بطاقتا الإحصاء (بدون المبلغ/شهر وبدون عدد المنازل المتأخرة) ===== */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 20 }}>
           {[
-            { label: 'منازل متأخرة', value: overdueList.length, suffix: '', accent: '#dc2626' },
             { label: 'إجمالي المتأخرات', value: totalOwedAll.toLocaleString(), suffix: ' ج', accent: '#ea580c' },
-            { label: 'المبلغ / شهر', value: defaultAmount, suffix: ' ج', accent: '#d97706' },
+            { label: 'منازل ظاهرة في الفلتر', value: filtered.length, suffix: '', accent: '#d97706' },
           ].map((stat, i) => (
             <div key={i} style={{
               background: 'rgba(255,255,255,0.04)',
@@ -221,7 +235,8 @@ export default function OverdueReportPage() {
           borderRadius: 14, padding: '14px 16px',
           marginBottom: 16, display: 'flex', gap: 10, flexWrap: 'wrap'
         }}>
-          <div style={{ flex: 1, minWidth: 140 }}>
+          {/* المحور */}
+          <div style={{ flex: 1, minWidth: 130 }}>
             <label style={{ display: 'block', fontSize: 11, color: '#555', marginBottom: 5 }}>المحور</label>
             <select
               value={filterSector}
@@ -236,7 +251,9 @@ export default function OverdueReportPage() {
               {sectors.map(s => <option key={s} value={s} style={{ background: '#1a1a1a' }}>{s}</option>)}
             </select>
           </div>
-          <div style={{ flex: 1, minWidth: 140 }}>
+
+          {/* الترتيب */}
+          <div style={{ flex: 1, minWidth: 130 }}>
             <label style={{ display: 'block', fontSize: 11, color: '#555', marginBottom: 5 }}>الترتيب حسب</label>
             <select
               value={sortBy}
@@ -251,6 +268,28 @@ export default function OverdueReportPage() {
               <option value="months" style={{ background: '#1a1a1a' }}>الأشهر المتأخرة</option>
               <option value="amount" style={{ background: '#1a1a1a' }}>المبلغ المتراكم</option>
               <option value="name" style={{ background: '#1a1a1a' }}>الاسم</option>
+            </select>
+          </div>
+
+          {/* فلتر المنزل */}
+          <div style={{ flex: '1 1 100%' }}>
+            <label style={{ display: 'block', fontSize: 11, color: '#555', marginBottom: 5 }}>المنزل</label>
+            <select
+              value={filterHouse}
+              onChange={e => setFilterHouse(e.target.value)}
+              style={{
+                width: '100%', background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)', color: '#ddd',
+                borderRadius: 9, padding: '8px 12px', fontSize: 13,
+                cursor: 'pointer', fontFamily: 'inherit', outline: 'none'
+              }}
+            >
+              <option value="الكل" style={{ background: '#1a1a1a' }}>الكل</option>
+              {allHouses.map(h => (
+                <option key={h.id} value={h.id} style={{ background: '#1a1a1a' }}>
+                  #{h.house_number} - {h.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -290,7 +329,7 @@ export default function OverdueReportPage() {
                     }} />
                   </div>
 
-                  {/* رأس البطاقة - قابل للضغط */}
+                  {/* رأس البطاقة */}
                   <div
                     onClick={() => setExpandedId(isExpanded ? null : house.id)}
                     style={{
@@ -299,7 +338,6 @@ export default function OverdueReportPage() {
                       gap: 12
                     }}
                   >
-                    {/* معلومات المنزل */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                         <span style={{
@@ -312,8 +350,6 @@ export default function OverdueReportPage() {
                           color: '#4ade80', padding: '2px 8px', borderRadius: 20, fontWeight: 600
                         }}>{house.sector}</span>
                       </div>
-
-                      {/* شارة الخطورة */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{
                           width: 6, height: 6, borderRadius: '50%',
@@ -326,7 +362,6 @@ export default function OverdueReportPage() {
                       </div>
                     </div>
 
-                    {/* المبلغ والأشهر */}
                     <div style={{ textAlign: 'left', flexShrink: 0 }}>
                       <div style={{
                         fontSize: 18, fontWeight: 800, color: severity.color,
@@ -338,7 +373,6 @@ export default function OverdueReportPage() {
                       <div style={{ fontSize: 10, color: '#555' }}>إجمالي المتأخرات</div>
                     </div>
 
-                    {/* سهم التوسيع */}
                     <div style={{
                       width: 24, height: 24, borderRadius: 7,
                       background: `${severity.color}18`,
@@ -379,17 +413,17 @@ export default function OverdueReportPage() {
                         ))}
                       </div>
 
-                      {/* ملخص صغير */}
+                      {/* ملخص: الأشهر فقط بدون المبلغ/شهر */}
                       <div style={{
                         marginTop: 12, padding: '10px 14px',
                         background: 'rgba(0,0,0,0.3)', borderRadius: 10,
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                       }}>
                         <span style={{ fontSize: 12, color: '#555' }}>
-                          {overdueMonths.length} شهر × {defaultAmount} ج
+                          إجمالي {overdueMonths.length} شهر متأخر
                         </span>
                         <span style={{ fontSize: 14, fontWeight: 800, color: severity.color }}>
-                          = {totalOwed.toLocaleString()} ج
+                          {totalOwed.toLocaleString()} ج
                         </span>
                       </div>
                     </div>
@@ -411,7 +445,7 @@ export default function OverdueReportPage() {
             <div>
               <p style={{ margin: 0, fontSize: 12, color: '#888' }}>إجمالي المتأخرات ({filtered.length} منزل)</p>
               <p style={{ margin: '4px 0 0', fontSize: 11, color: '#555' }}>
-                بناءً على {defaultAmount} جنيه / شهر
+                محسوب بناءً على القيمة الافتراضية لكل شهر
               </p>
             </div>
             <div style={{ textAlign: 'left' }}>
