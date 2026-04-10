@@ -87,7 +87,7 @@ export default function HomePage() {
         {/* Logo + title */}
         <div className="text-center">
           <h1 className="text-white text-xl font-extrabold mb-1 tracking-tight">
-            جمعية العكنة الخيرية
+           جمعية نهضة العكنة الخيرية
           </h1>
           <p className="text-white/50 text-xs">بوابة المعلومات والخدمات</p>
         </div>
