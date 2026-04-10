@@ -83,11 +83,11 @@ export default function MembersPage() {
     fetchData()
   }
 
-  const roleConfig: Record<string, { bg: string; color: string; accent: string; icon: string }> = {
-    'رئيس':  { bg: 'rgba(251,146,60,0.12)',  color: '#fb923c', accent: 'rgba(251,146,60,0.3)',  icon: '👑' },
-    'نائب':  { bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa', accent: 'rgba(96,165,250,0.3)',  icon: '🔹' },
-    'أمين':  { bg: 'rgba(52,211,153,0.12)',  color: '#34d399', accent: 'rgba(52,211,153,0.3)',  icon: '🔑' },
-    'عضو':   { bg: 'rgba(148,163,184,0.12)', color: '#94a3b8', accent: 'rgba(148,163,184,0.3)', icon: '👤' },
+  const roleConfig: Record<string, { bg: string; color: string; border: string; icon: string }> = {
+    'رئيس': { bg: '#fff7ed', color: '#9a3412', border: '#fed7aa', icon: '◆' },
+    'نائب': { bg: '#eff6ff', color: '#1e40af', border: '#bfdbfe', icon: '◇' },
+    'أمين': { bg: '#f0fdf4', color: '#14532d', border: '#bbf7d0', icon: '◈' },
+    'عضو': { bg: '#f8fafc', color: '#334155', border: '#e2e8f0', icon: '○' },
   }
 
   const getRoleConfig = (role: string) => {
@@ -105,10 +105,7 @@ export default function MembersPage() {
           font-family: 'Tajawal', sans-serif;
           direction: rtl;
           min-height: 100vh;
-         background: #1f2937;
-          background-image:
-            radial-gradient(ellipse 80% 50% at 50% -10%, rgba(234,88,12,0.15) 0%, transparent 65%),
-            radial-gradient(ellipse 50% 40% at 10% 80%, rgba(234,88,12,0.07) 0%, transparent 60%);
+          background: #f4f6f9;
         }
 
         /* ── HEADER ── */
@@ -116,207 +113,232 @@ export default function MembersPage() {
           position: sticky;
           top: 0;
           z-index: 50;
-          padding: 14px 18px;
+          background: #fff;
+          border-bottom: 2px solid #e2e8f0;
+          padding: 0 20px;
+          height: 58px;
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          background: rgba(10,15,30,0.88);
-          backdrop-filter: blur(20px);
-          border-bottom: 1px solid rgba(234,88,12,0.18);
+          justify-content: space-between;
+          box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+        }
+
+        .mem-header-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .mem-header-accent {
+          width: 4px;
+          height: 28px;
+          background: linear-gradient(180deg, #c2410c, #ea580c);
+          border-radius: 4px;
         }
 
         .mem-header-title {
           font-size: 16px;
           font-weight: 800;
-          color: #fff;
-          letter-spacing: 0.02em;
-          display: flex;
-          align-items: center;
-          gap: 8px;
+          color: #1e293b;
+          letter-spacing: 0.01em;
         }
 
-        .mem-header-title::before {
-          content: '';
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #ea580c;
-          box-shadow: 0 0 10px #ea580c;
+        .mem-header-sub {
+          font-size: 11px;
+          color: #94a3b8;
+          font-weight: 500;
+          margin-top: 1px;
         }
 
         .mem-back-btn {
-          background: rgba(234,88,12,0.12);
-          border: 1px solid rgba(234,88,12,0.3);
-          color: #fb923c;
-          padding: 8px 14px;
-          border-radius: 10px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: #64748b;
+          padding: 7px 14px;
+          border-radius: 8px;
           font-size: 13px;
           font-weight: 700;
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.18s ease;
         }
         .mem-back-btn:hover {
-          background: rgba(234,88,12,0.22);
-          transform: translateX(2px);
+          background: #f1f5f9;
+          border-color: #cbd5e1;
+          color: #334155;
         }
 
         /* ── BODY ── */
         .mem-body {
           max-width: 680px;
           margin: 0 auto;
-          padding: 16px;
+          padding: 20px 16px;
         }
 
         /* ── ADD BUTTON ── */
         .mem-add-btn {
           width: 100%;
-          background: linear-gradient(135deg, #ea580c, #c2410c);
+          background: #1e293b;
           border: none;
           color: #fff;
-          border-radius: 14px;
+          border-radius: 12px;
           padding: 14px;
-          font-size: 15px;
-          font-weight: 800;
+          font-size: 14px;
+          font-weight: 700;
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
-          margin-bottom: 16px;
-          letter-spacing: 0.03em;
+          margin-bottom: 18px;
+          letter-spacing: 0.04em;
           transition: all 0.2s ease;
-          box-shadow: 0 4px 20px rgba(234,88,12,0.3);
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
+          box-shadow: 0 2px 10px rgba(30,41,59,0.15);
         }
         .mem-add-btn:hover {
+          background: #0f172a;
+          box-shadow: 0 4px 16px rgba(30,41,59,0.22);
           transform: translateY(-1px);
-          box-shadow: 0 6px 28px rgba(234,88,12,0.4);
         }
 
         /* ── FORM CARD ── */
         .mem-form-card {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(234,88,12,0.2);
-          border-radius: 18px;
-          padding: 20px;
-          margin-bottom: 16px;
-          animation: fadeDown 0.25s ease;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-top: 3px solid #ea580c;
+          border-radius: 14px;
+          padding: 22px;
+          margin-bottom: 18px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+          animation: fadeDown 0.22s ease;
         }
 
         @keyframes fadeDown {
-          from { opacity: 0; transform: translateY(-10px); }
+          from { opacity: 0; transform: translateY(-8px); }
           to   { opacity: 1; transform: translateY(0); }
         }
 
         .mem-form-title {
           font-size: 15px;
           font-weight: 800;
-          color: #fb923c;
-          margin-bottom: 16px;
+          color: #1e293b;
+          margin-bottom: 18px;
           padding-bottom: 12px;
-          border-bottom: 1px solid rgba(234,88,12,0.15);
+          border-bottom: 1px solid #f1f5f9;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .mem-form-title-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #ea580c;
         }
 
         .mem-field-label {
           display: block;
-          font-size: 11px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.4);
+          font-size: 12px;
+          font-weight: 700;
+          color: #475569;
           margin-bottom: 6px;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
 
         .mem-input {
           width: 100%;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 10px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 9px;
           padding: 11px 13px;
-          color: #fff;
+          color: #1e293b;
           font-size: 14px;
           font-family: 'Tajawal', sans-serif;
           font-weight: 500;
           text-align: right;
           outline: none;
-          transition: border-color 0.2s, box-shadow 0.2s;
+          transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
           margin-bottom: 14px;
         }
         .mem-input:focus {
-          border-color: rgba(234,88,12,0.5);
-          box-shadow: 0 0 0 3px rgba(234,88,12,0.1);
+          background: #fff;
+          border-color: #ea580c;
+          box-shadow: 0 0 0 3px rgba(234,88,12,0.08);
         }
-        .mem-input.error { border-color: rgba(239,68,68,0.6); }
-        .mem-input::placeholder { color: rgba(255,255,255,0.2); }
+        .mem-input.error { border-color: #ef4444; }
+        .mem-input::placeholder { color: #cbd5e1; }
 
         .mem-err {
-          font-size: 11px;
-          color: #f87171;
+          font-size: 12px;
+          color: #dc2626;
           margin-top: -10px;
           margin-bottom: 12px;
-          padding-right: 4px;
+          padding-right: 2px;
+          font-weight: 600;
         }
 
         .mem-form-actions {
           display: flex;
           gap: 10px;
-          margin-top: 4px;
+          margin-top: 6px;
         }
 
         .mem-save-btn {
           flex: 1;
-          background: linear-gradient(135deg, #ea580c, #c2410c);
+          background: #1e293b;
           border: none;
           color: #fff;
           padding: 12px;
-          border-radius: 10px;
+          border-radius: 9px;
           font-size: 14px;
           font-weight: 800;
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
-          transition: all 0.2s;
-          box-shadow: 0 3px 12px rgba(234,88,12,0.3);
+          transition: all 0.18s;
         }
-        .mem-save-btn:hover { transform: translateY(-1px); }
+        .mem-save-btn:hover { background: #0f172a; }
 
         .mem-cancel-btn {
           flex: 1;
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.5);
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
+          color: #64748b;
           padding: 12px;
-          border-radius: 10px;
+          border-radius: 9px;
           font-size: 14px;
           font-family: 'Tajawal', sans-serif;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.18s;
         }
-        .mem-cancel-btn:hover { background: rgba(255,255,255,0.1); }
+        .mem-cancel-btn:hover { background: #e2e8f0; }
 
         /* ── STAT BAR ── */
         .mem-stat {
-          background: rgba(234,88,12,0.08);
-          border: 1px solid rgba(234,88,12,0.2);
-          border-radius: 14px;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-right: 4px solid #1e293b;
+          border-radius: 12px;
           padding: 14px 18px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
+          margin-bottom: 18px;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.04);
         }
 
         .mem-stat-label {
-          font-size: 12px;
-          color: rgba(255,255,255,0.4);
-          font-weight: 500;
+          font-size: 13px;
+          color: #64748b;
+          font-weight: 600;
         }
 
         .mem-stat-num {
-          font-size: 28px;
+          font-size: 30px;
           font-weight: 900;
-          color: #fb923c;
+          color: #1e293b;
           line-height: 1;
         }
 
@@ -324,58 +346,58 @@ export default function MembersPage() {
         .mem-cards {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
         }
 
         .mem-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 18px;
+          background: #fff;
+          border: 1px solid #e8edf2;
+          border-radius: 14px;
           overflow: hidden;
-          transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-          animation: cardIn 0.35s ease both;
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
+          animation: cardIn 0.32s ease both;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
 
         .mem-card:hover {
           transform: translateY(-2px);
-          border-color: rgba(234,88,12,0.25);
-          box-shadow: 0 8px 28px rgba(234,88,12,0.08);
+          box-shadow: 0 6px 20px rgba(0,0,0,0.08);
         }
 
         @keyframes cardIn {
-          from { opacity: 0; transform: translateY(14px); }
+          from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        .mem-card:nth-child(1)  { animation-delay: 0.03s }
-        .mem-card:nth-child(2)  { animation-delay: 0.06s }
-        .mem-card:nth-child(3)  { animation-delay: 0.09s }
-        .mem-card:nth-child(4)  { animation-delay: 0.12s }
-        .mem-card:nth-child(5)  { animation-delay: 0.15s }
-        .mem-card:nth-child(6)  { animation-delay: 0.18s }
-        .mem-card:nth-child(7)  { animation-delay: 0.21s }
-        .mem-card:nth-child(8)  { animation-delay: 0.24s }
+        .mem-card:nth-child(1) { animation-delay: 0.03s }
+        .mem-card:nth-child(2) { animation-delay: 0.06s }
+        .mem-card:nth-child(3) { animation-delay: 0.09s }
+        .mem-card:nth-child(4) { animation-delay: 0.12s }
+        .mem-card:nth-child(5) { animation-delay: 0.15s }
+        .mem-card:nth-child(6) { animation-delay: 0.18s }
+        .mem-card:nth-child(7) { animation-delay: 0.21s }
+        .mem-card:nth-child(8) { animation-delay: 0.24s }
 
         /* card top */
         .mem-card-top {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
           padding: 14px 16px 12px;
         }
 
         .mem-serial {
-          width: 32px;
-          height: 32px;
-          border-radius: 10px;
-          background: linear-gradient(135deg, #ea580c, #c2410c);
+          width: 34px;
+          height: 34px;
+          border-radius: 9px;
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 900;
-          color: #fff;
-          box-shadow: 0 3px 10px rgba(234,88,12,0.4);
+          color: #475569;
           flex-shrink: 0;
         }
 
@@ -387,7 +409,7 @@ export default function MembersPage() {
         .mem-name {
           font-size: 16px;
           font-weight: 800;
-          color: rgba(255,255,255,0.92);
+          color: #0f172a;
           line-height: 1.2;
           white-space: nowrap;
           overflow: hidden;
@@ -397,52 +419,51 @@ export default function MembersPage() {
         .mem-role-badge {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
-          margin-top: 4px;
+          gap: 5px;
+          margin-top: 5px;
           padding: 3px 10px;
-          border-radius: 20px;
+          border-radius: 5px;
           font-size: 11px;
           font-weight: 700;
           border: 1px solid;
+          letter-spacing: 0.03em;
         }
 
         /* card footer */
         .mem-card-footer {
-          border-top: 1px solid rgba(255,255,255,0.05);
-          padding: 10px 16px;
+          border-top: 1px solid #f1f5f9;
+          padding: 9px 16px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: rgba(0,0,0,0.15);
+          background: #fafbfc;
         }
 
         .mem-phone-wrap {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 7px;
         }
 
-        .mem-phone-icon {
-          width: 22px;
-          height: 22px;
-          border-radius: 7px;
-          background: rgba(255,255,255,0.06);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 11px;
+        .mem-phone-label {
+          font-size: 10px;
+          font-weight: 700;
+          color: #94a3b8;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
         }
 
         .mem-phone {
-          font-size: 12px;
-          color: rgba(255,255,255,0.45);
+          font-size: 13px;
+          color: #334155;
           direction: ltr;
-          font-weight: 500;
+          font-weight: 600;
         }
 
         .mem-no-phone {
           font-size: 12px;
-          color: rgba(255,255,255,0.18);
+          color: #cbd5e1;
+          font-weight: 500;
         }
 
         .mem-actions {
@@ -451,32 +472,32 @@ export default function MembersPage() {
         }
 
         .mem-edit-btn {
-          background: rgba(96,165,250,0.1);
-          border: 1px solid rgba(96,165,250,0.2);
-          color: #60a5fa;
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
+          color: #1d4ed8;
           padding: 5px 12px;
-          border-radius: 8px;
+          border-radius: 7px;
           font-size: 12px;
           font-weight: 700;
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.18s;
         }
-        .mem-edit-btn:hover { background: rgba(96,165,250,0.2); }
+        .mem-edit-btn:hover { background: #dbeafe; }
 
         .mem-del-btn {
-          background: rgba(239,68,68,0.1);
-          border: 1px solid rgba(239,68,68,0.2);
-          color: #f87171;
+          background: #fef2f2;
+          border: 1px solid #fecaca;
+          color: #dc2626;
           padding: 5px 12px;
-          border-radius: 8px;
+          border-radius: 7px;
           font-size: 12px;
           font-weight: 700;
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.18s;
         }
-        .mem-del-btn:hover { background: rgba(239,68,68,0.2); }
+        .mem-del-btn:hover { background: #fee2e2; }
 
         /* ── LOADING / EMPTY ── */
         .mem-center {
@@ -485,12 +506,12 @@ export default function MembersPage() {
         }
 
         .mem-spinner {
-          width: 36px;
-          height: 36px;
-          border: 3px solid rgba(234,88,12,0.15);
+          width: 34px;
+          height: 34px;
+          border: 3px solid #e2e8f0;
           border-top-color: #ea580c;
           border-radius: 50%;
-          animation: spin 0.8s linear infinite;
+          animation: spin 0.75s linear infinite;
           margin: 0 auto 12px;
         }
 
@@ -498,7 +519,7 @@ export default function MembersPage() {
 
         .mem-empty-text {
           font-size: 14px;
-          color: rgba(255,255,255,0.22);
+          color: #94a3b8;
           font-weight: 500;
         }
 
@@ -506,9 +527,11 @@ export default function MembersPage() {
         .mem-footer {
           text-align: center;
           font-size: 11px;
-          color: rgba(255,255,255,0.15);
-          padding: 20px 0 28px;
+          color: #cbd5e1;
+          padding: 24px 0 32px;
           font-weight: 500;
+          border-top: 1px solid #f1f5f9;
+          margin-top: 24px;
         }
       `}</style>
 
@@ -516,7 +539,13 @@ export default function MembersPage() {
 
         {/* HEADER */}
         <div className="mem-header">
-          <div className="mem-header-title">إدارة الجمعية</div>
+          <div className="mem-header-left">
+            <div className="mem-header-accent" />
+            <div>
+              <div className="mem-header-title">إدارة الجمعية</div>
+              <div className="mem-header-sub">الأعضاء الإداريون</div>
+            </div>
+          </div>
           <button className="mem-back-btn" onClick={() => router.push('/home')}>
             رجوع ←
           </button>
@@ -527,7 +556,7 @@ export default function MembersPage() {
           {/* ADD BUTTON */}
           {isAdmin && (
             <button className="mem-add-btn" onClick={() => { resetForm(); setShowForm(!showForm) }}>
-              <span style={{ fontSize: 18 }}>＋</span>
+              <span style={{ fontSize: 16 }}>＋</span>
               إضافة عضو جديد
             </button>
           )}
@@ -536,7 +565,8 @@ export default function MembersPage() {
           {showForm && (
             <div className="mem-form-card">
               <div className="mem-form-title">
-                {editing ? '✏️  تعديل بيانات العضو' : '➕  إضافة عضو جديد'}
+                <div className="mem-form-title-dot" />
+                {editing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}
               </div>
               <form onSubmit={handleSubmit}>
                 <label className="mem-field-label">الاسم الكامل *</label>
@@ -547,7 +577,7 @@ export default function MembersPage() {
                   placeholder="مثال: محمد أحمد"
                   onChange={e => { setForm({ ...form, full_name: e.target.value }); setDuplicateError('') }}
                 />
-                {duplicateError && <p className="mem-err">⚠️ {duplicateError}</p>}
+                {duplicateError && <p className="mem-err">⚠ {duplicateError}</p>}
 
                 <label className="mem-field-label">المنصب / الوظيفة *</label>
                 <input
@@ -592,14 +622,14 @@ export default function MembersPage() {
             </div>
           ) : members.length === 0 ? (
             <div className="mem-center">
-              <p style={{ fontSize: 40, marginBottom: 12 }}>👥</p>
+              <p style={{ fontSize: 38, marginBottom: 12 }}>👥</p>
               <p className="mem-empty-text">لا يوجد أعضاء مسجلون بعد</p>
             </div>
           ) : (
             <>
               {/* STAT */}
               <div className="mem-stat">
-                <span className="mem-stat-label">إجمالي أعضاء الجمعية</span>
+                <span className="mem-stat-label">إجمالي الأعضاء الإداريين</span>
                 <span className="mem-stat-num">{members.length}</span>
               </div>
 
@@ -610,31 +640,25 @@ export default function MembersPage() {
                   return (
                     <div className="mem-card" key={member.id}>
 
-                      {/* TOP */}
                       <div className="mem-card-top">
                         <div className="mem-serial">{index + 1}</div>
                         <div className="mem-name-block">
                           <div className="mem-name">{member.full_name}</div>
                           <span
                             className="mem-role-badge"
-                            style={{
-                              background: rc.bg,
-                              color: rc.color,
-                              borderColor: rc.accent,
-                            }}
+                            style={{ background: rc.bg, color: rc.color, borderColor: rc.border }}
                           >
                             {rc.icon} {member.role}
                           </span>
                         </div>
                       </div>
 
-                      {/* FOOTER */}
                       <div className="mem-card-footer">
                         <div className="mem-phone-wrap">
-                          <div className="mem-phone-icon">📞</div>
+                          <span className="mem-phone-label">هاتف</span>
                           {member.phone
                             ? <span className="mem-phone">{member.phone}</span>
-                            : <span className="mem-no-phone">لا يوجد رقم</span>
+                            : <span className="mem-no-phone">غير مسجّل</span>
                           }
                         </div>
 
@@ -653,7 +677,7 @@ export default function MembersPage() {
             </>
           )}
 
-          <p className="mem-footer">© 2026 جمعية العكنة الخيرية</p>
+          <div className="mem-footer">© 2026 جمعية العكنة الخيرية</div>
         </div>
       </div>
     </>
