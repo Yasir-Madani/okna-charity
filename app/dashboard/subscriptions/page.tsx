@@ -324,20 +324,22 @@ export default function SubscriptionsPage() {
           </div>
 
           {/* أزرار التعبئة */}
-          <div className="flex gap-2">
-            <button
-              onClick={fillAllDefault}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors"
-            >
-              تعبئة الكل ✓
-            </button>
-            <button
-              onClick={uncheckAll}
-              className="flex-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors"
-            >
-              إلغاء الكل ✗
-            </button>
-          </div>
+{/*
+<div className="flex gap-2">
+  <button
+    onClick={fillAllDefault}
+    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors"
+  >
+    تعبئة الكل ✓
+  </button>
+  <button
+    onClick={uncheckAll}
+    className="flex-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors"
+  >
+    إلغاء الكل ✗
+  </button>
+</div>
+*/}
 
           {/* فلاتر - قابلة للطي */}
           <button
