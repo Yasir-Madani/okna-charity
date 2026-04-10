@@ -361,12 +361,14 @@ export default function MembersPage() {
         .mem-card:nth-child(8) { animation-delay: 0.24s }
 
         /* ── SERIAL COLUMN (left side) ── */
+       /* ── SERIAL COLUMN (left side) ── */
         .mem-serial-col {
           width: 54px;
           flex-shrink: 0;
           display: flex;
-          align-items: center;
+          align-items: flex-start;        /* ← رفع للأعلى */
           justify-content: center;
+          padding-top: 14px;              /* ← محاذاة مع الاسم */
           background: linear-gradient(180deg, #fff7f3 0%, #fff 100%);
           border-left: 1px solid #f1f5f9;
         }
