@@ -544,7 +544,7 @@ export default function MembersPage() {
         .mem-footer {
           text-align: center;
           font-size: 11px;
-          color: #cbd5e1;
+          color: #000;
           padding: 24px 0 0;
           font-weight: 500;
           border-top: 1px solid #f1f5f9;
