@@ -144,10 +144,10 @@ export default function HomePage() {
       </div>
 
       <footer className="text-center pb-6 pt-1">
-        <p className="text-gray-400 text-xs">
-          © 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة
-        </p>
-      </footer>
+  <p className="text-black text-xs">
+    جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
+  </p>
+</footer>
     </div>
   )
 }
