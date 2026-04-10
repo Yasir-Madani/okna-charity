@@ -106,9 +106,8 @@ export default function HousePage() {
           <p className="text-xs text-green-200">تفاصيل المنزل</p>
           <h1 className="text-sm font-bold truncate">
             منزل {house?.name}
-            {house?.house_number && (
-              <span className="text-green-200 font-normal"> · #{house.house_number}</span>
-            )}
+            
+  
           </h1>
         </div>
         <button
