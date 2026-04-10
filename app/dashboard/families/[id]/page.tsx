@@ -23,6 +23,9 @@ export default function FamilyPage() {
 
   const [selectedDisabilities, setSelectedDisabilities] = useState<string[]>([])
   const [otherDisability, setOtherDisability] = useState('')
+  const [otherDisabilityInput, setOtherDisabilityInput] = useState('')
+  const [otherDisabilitySuccess, setOtherDisabilitySuccess] = useState('')
+  const [addedCustomDisabilities, setAddedCustomDisabilities] = useState<string[]>([])
 
   // ===== حقول تاريخ الميلاد المنفصلة =====
   const [birthDay, setBirthDay] = useState('')
@@ -84,6 +87,9 @@ export default function FamilyPage() {
     setDiseaseInput('')
     setSelectedDisabilities([])
     setOtherDisability('')
+    setOtherDisabilityInput('')
+    setOtherDisabilitySuccess('')
+    setAddedCustomDisabilities([])
     setBirthDay('')
     setBirthMonth('')
     setBirthYear('')
@@ -185,14 +191,45 @@ export default function FamilyPage() {
     const standard = disabTypes.filter((t: string) => standardTypes.includes(t))
     const custom = disabTypes.find((t: string) => !standardTypes.includes(t)) || ''
     setSelectedDisabilities(standard)
+    setAddedCustomDisabilities([])
+    setOtherDisabilityInput('')
+    setOtherDisabilitySuccess('')
     if (custom) {
       setSelectedDisabilities([...standard, 'أخرى'])
       setOtherDisability(custom)
+      setAddedCustomDisabilities([custom])
     }
 
     setEditingIndividual(ind)
     setShowForm(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const addCustomDisabilityHandler = () => {
+    const name = otherDisabilityInput.trim()
+    if (!name) return
+    if (!addedCustomDisabilities.includes(name)) {
+      const updated = [...addedCustomDisabilities, name]
+      setAddedCustomDisabilities(updated)
+      setOtherDisability(name)
+      if (!selectedDisabilities.includes('أخرى')) {
+        setSelectedDisabilities(prev => [...prev, 'أخرى'])
+      }
+    }
+    setOtherDisabilityInput('')
+    setOtherDisabilitySuccess(`✓ تمت إضافة "${name}" بنجاح`)
+    setTimeout(() => setOtherDisabilitySuccess(''), 3000)
+  }
+
+  const removeCustomDisability = (name: string) => {
+    const updated = addedCustomDisabilities.filter(d => d !== name)
+    setAddedCustomDisabilities(updated)
+    if (updated.length === 0) {
+      setSelectedDisabilities(prev => prev.filter(x => x !== 'أخرى'))
+      setOtherDisability('')
+    } else {
+      setOtherDisability(updated[updated.length - 1])
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -259,9 +296,10 @@ export default function FamilyPage() {
       )
     }
 
-    const finalDisabilities = selectedDisabilities.includes('أخرى')
-      ? [...selectedDisabilities.filter(d => d !== 'أخرى'), otherDisability].filter(Boolean)
-      : selectedDisabilities
+    const finalDisabilities = [
+      ...selectedDisabilities.filter(d => d !== 'أخرى'),
+      ...addedCustomDisabilities
+    ].filter(Boolean)
 
     if (finalDisabilities.length > 0) {
       const standardTypes = ['بصرية', 'سمعية', 'حركية', 'عقلية']
@@ -593,12 +631,44 @@ export default function FamilyPage() {
                     </label>
                   </div>
                   {selectedDisabilities.includes('أخرى') && (
-                    <input
-                      value={otherDisability}
-                      onChange={e => setOtherDisability(e.target.value)}
-                      placeholder="حدد نوع الإعاقة..."
-                      className="mt-2 w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
+                    <div className="mt-3 space-y-2">
+                      {/* الإعاقات المضافة */}
+                      {addedCustomDisabilities.length > 0 && (
+                        <div className="space-y-1.5">
+                          {addedCustomDisabilities.map(name => (
+                            <div key={name} className="bg-orange-50 border border-orange-200 rounded-xl px-3 py-2 flex justify-between items-center">
+                              <span className="text-orange-800 font-bold text-sm">{name}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeCustomDisability(name)}
+                                className="text-orange-400 text-lg cursor-pointer leading-none"
+                              >✕</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* حقل الإدخال + زر الإضافة */}
+                      <div className="flex gap-2">
+                        <input
+                          value={otherDisabilityInput}
+                          onChange={e => setOtherDisabilityInput(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomDisabilityHandler() } }}
+                          placeholder="حدد نوع الإعاقة..."
+                          className="flex-1 border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={addCustomDisabilityHandler}
+                          className="bg-green-600 text-white px-4 rounded-xl text-sm cursor-pointer font-bold"
+                        >+</button>
+                      </div>
+                      {/* رسالة النجاح */}
+                      {otherDisabilitySuccess && (
+                        <p className="text-green-700 text-xs bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                          {otherDisabilitySuccess}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
