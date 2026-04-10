@@ -24,6 +24,11 @@ export default function FamilyPage() {
   const [selectedDisabilities, setSelectedDisabilities] = useState<string[]>([])
   const [otherDisability, setOtherDisability] = useState('')
 
+  // ===== حقول تاريخ الميلاد المنفصلة =====
+  const [birthDay, setBirthDay] = useState('')
+  const [birthMonth, setBirthMonth] = useState('')
+  const [birthYear, setBirthYear] = useState('')
+
   // ===== نموذج تعديل الأسرة =====
   const [showFamilyEditForm, setShowFamilyEditForm] = useState(false)
   const [familyForm, setFamilyForm] = useState({ name: '' })
@@ -79,6 +84,9 @@ export default function FamilyPage() {
     setDiseaseInput('')
     setSelectedDisabilities([])
     setOtherDisability('')
+    setBirthDay('')
+    setBirthMonth('')
+    setBirthYear('')
     setEditingIndividual(null)
     setShowForm(false)
     setIndividualError('')
@@ -153,6 +161,18 @@ export default function FamilyPage() {
       relationship: ind.relationship || '',
       notes: ind.notes || ''
     })
+
+    // تقسيم تاريخ الميلاد إلى يوم وشهر وسنة
+    if (ind.birth_date) {
+      const parts = ind.birth_date.split('-')
+      setBirthYear(parts[0] || '')
+      setBirthMonth(parts[1] ? String(parseInt(parts[1])) : '')
+      setBirthDay(parts[2] ? String(parseInt(parts[2])) : '')
+    } else {
+      setBirthDay('')
+      setBirthMonth('')
+      setBirthYear('')
+    }
     const ds = ind.individual_diseases?.map((d: any) => ({
       id: d.disease_id,
       name: d.diseases?.name || d.custom_disease || '',
@@ -193,7 +213,15 @@ export default function FamilyPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const allMembers = [...individuals, { birth_date: form.birth_date }]
+    // بناء تاريخ الميلاد من الحقول المنفصلة
+    let builtBirthDate = ''
+    if (birthYear && birthMonth && birthDay) {
+      const d = String(birthDay).padStart(2, '0')
+      const m = String(birthMonth).padStart(2, '0')
+      builtBirthDate = `${birthYear}-${m}-${d}`
+    }
+
+    const allMembers = [...individuals, { birth_date: builtBirthDate }]
     const breastfeeding = checkBreastfeeding(form.relationship, form.gender, allMembers)
 
     const payload = {
@@ -202,7 +230,7 @@ export default function FamilyPage() {
       national_id: form.national_id || null,
       bank_account: form.bank_account || null,
       gender: form.gender,
-      birth_date: form.birth_date || null,
+      birth_date: builtBirthDate || null,
       relationship: form.relationship || null,
       breastfeeding: breastfeeding || null,
       notes: form.notes || null,
@@ -408,18 +436,58 @@ export default function FamilyPage() {
                     <option value="أنثى">أنثى</option>
                   </select>
                 </div>
-                
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1">صلة القرابة</label>
+                  <input
+                    value={form.relationship}
+                    onChange={e => setForm({ ...form, relationship: e.target.value })}
+                    placeholder="رب أسرة / زوجة..."
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
               </div>
 
-              {/* تاريخ الميلاد */}
+              {/* تاريخ الميلاد - يوم / شهر / سنة */}
               <div>
                 <label className="text-xs text-gray-500 block mb-1">تاريخ الميلاد</label>
-                <input
-                  type="date"
-                  value={form.birth_date}
-                  onChange={e => setForm({ ...form, birth_date: e.target.value })}
-                  className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <input
+                      type="number"
+                      min="1"
+                      max="31"
+                      placeholder="اليوم"
+                      value={birthDay}
+                      onChange={e => setBirthDay(e.target.value)}
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                    />
+                    <p className="text-xs text-gray-400 text-center mt-1">يوم</p>
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      min="1"
+                      max="12"
+                      placeholder="الشهر"
+                      value={birthMonth}
+                      onChange={e => setBirthMonth(e.target.value)}
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                    />
+                    <p className="text-xs text-gray-400 text-center mt-1">شهر</p>
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      min="1900"
+                      max="2100"
+                      placeholder="السنة"
+                      value={birthYear}
+                      onChange={e => setBirthYear(e.target.value)}
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
+                    />
+                    <p className="text-xs text-gray-400 text-center mt-1">سنة</p>
+                  </div>
+                </div>
               </div>
 
               {/* الرقم الوطني + الحساب البنكي */}
