@@ -277,11 +277,7 @@ export default function HousePage() {
                 onClick={() => router.push(`/dashboard/families/${family.id}`)}
                 className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-green-300 active:bg-green-50 transition-all"
               >
-                {/* أيقونة الأسرة */}
-                <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-green-700 text-lg">👨‍👩‍👧</span>
-                </div>
-
+                
                 {/* المعلومات */}
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-gray-800 text-sm">أسرة {family.name}</p>
