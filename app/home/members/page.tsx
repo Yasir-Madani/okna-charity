@@ -694,7 +694,9 @@ export default function MembersPage() {
             </>
           )}
 
-          <div className="mem-footer">© 2026 جمعية العكنة الخيرية</div>
+          <div className="mem-footer text-black">
+  جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
+</div>
         </div>
       </div>
     </>
