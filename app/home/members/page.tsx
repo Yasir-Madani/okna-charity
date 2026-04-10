@@ -105,7 +105,7 @@ export default function MembersPage() {
           font-family: 'Tajawal', sans-serif;
           direction: rtl;
           min-height: 100vh;
-          background: #f5f5f5;
+         background: #1f2937;
           background-image:
             radial-gradient(ellipse 80% 50% at 50% -10%, rgba(234,88,12,0.15) 0%, transparent 65%),
             radial-gradient(ellipse 50% 40% at 10% 80%, rgba(234,88,12,0.07) 0%, transparent 60%);
