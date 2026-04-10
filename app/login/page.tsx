@@ -79,9 +79,8 @@ export default function LoginPage() {
             {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </button>
         </form>
-        <div className="text-center mt-6 text-xs text-gray-400">
-          <p>جمعية نهضة العكنة</p>
-          <p>© 2026 | جميع الحقوق محفوظة</p>
+        <div className="text-center mt-6 text-xs text-black-400">
+          <p>جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
         </div>
       </div>
     </div>

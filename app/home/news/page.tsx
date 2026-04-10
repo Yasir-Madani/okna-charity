@@ -237,7 +237,7 @@ export default function NewsPage() {
 
       {/* Footer مع padding آمن لأجهزة iPhone */}
       <footer className="text-center py-6 mt-4 pb-safe">
-        <p className="text-gray-400 text-xs">© 2026 جمعية العكنة الخيرية</p>
+        <p className="text-black-400 text-xs">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </footer>
     </div>
   )

@@ -24,6 +24,10 @@ export default function FamilyPage() {
   const [selectedDisabilities, setSelectedDisabilities] = useState<string[]>([])
   const [otherDisability, setOtherDisability] = useState('')
 
+  // ===== نموذج تعديل الأسرة =====
+  const [showFamilyEditForm, setShowFamilyEditForm] = useState(false)
+  const [familyForm, setFamilyForm] = useState({ name: '' })
+
   const router = useRouter()
   const { id } = useParams()
 
@@ -51,6 +55,7 @@ export default function FamilyPage() {
     if (!familyData) { router.push('/dashboard'); return }
     setFamily(familyData)
     setHouse(familyData.houses)
+    setFamilyForm({ name: familyData.name || '' })
 
     const { data: inds } = await supabase
       .from('individuals')
@@ -167,7 +172,6 @@ export default function FamilyPage() {
 
     setEditingIndividual(ind)
     setShowForm(true)
-    // تمرير للأعلى لرؤية النموذج
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -261,6 +265,16 @@ export default function FamilyPage() {
     router.push(`/dashboard/houses/${family.house_id}`)
   }
 
+  // ===== حفظ تعديل الأسرة =====
+  const handleFamilyEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmedName = familyForm.name.trim()
+    if (!trimmedName) return
+    await supabase.from('families').update({ name: trimmedName }).eq('id', id)
+    setShowFamilyEditForm(false)
+    fetchData()
+  }
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
       <p className="text-gray-400 text-sm">جاري التحميل...</p>
@@ -300,13 +314,57 @@ export default function FamilyPage() {
               </p>
             </div>
           </div>
-          <button
-            onClick={handleDeleteFamily}
-            className="text-red-400 text-xs border border-red-200 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-red-50"
-          >
-            حذف الأسرة
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowFamilyEditForm(true)}
+              className="text-blue-400 text-xs border border-blue-200 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-blue-50"
+            >
+              تعديل الأسرة
+            </button>
+            <button
+              onClick={handleDeleteFamily}
+              className="text-red-400 text-xs border border-red-200 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-red-50"
+            >
+              حذف الأسرة
+            </button>
+          </div>
         </div>
+
+        {/* ===== نموذج تعديل الأسرة ===== */}
+        {showFamilyEditForm && (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-bold text-gray-800">تعديل اسم الأسرة</h2>
+              <button onClick={() => setShowFamilyEditForm(false)} className="text-gray-400 text-xl cursor-pointer">✕</button>
+            </div>
+            <form onSubmit={handleFamilyEditSubmit} className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">اسم الأسرة *</label>
+                <input
+                  required
+                  value={familyForm.name}
+                  onChange={e => setFamilyForm({ name: e.target.value })}
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 bg-green-700 text-white py-3 rounded-xl font-bold text-sm cursor-pointer"
+                >
+                  حفظ
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowFamilyEditForm(false)}
+                  className="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl text-sm cursor-pointer"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {/* ===== نموذج الإضافة/التعديل ===== */}
         {showForm && (

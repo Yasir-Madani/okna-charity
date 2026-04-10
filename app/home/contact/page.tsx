@@ -140,7 +140,7 @@ export default function ContactPage() {
       </div>
 
       <footer className="text-center pb-6">
-        <p className="text-xs text-gray-300">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
+        <p className="text-xs text-black-300">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </footer>
     </div>
   )

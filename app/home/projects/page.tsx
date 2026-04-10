@@ -312,7 +312,7 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        <p className="text-center text-gray-300 text-xs mt-6">© 2026 جمعية العكنة الخيرية</p>
+        <p className="text-center text-black-300 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </div>
     </div>
   )
