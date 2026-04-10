@@ -98,11 +98,11 @@ export default function MembersPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         .mem-root {
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           direction: rtl;
           min-height: 100vh;
           background: #f0f2f5;
@@ -162,7 +162,7 @@ export default function MembersPage() {
           border-radius: 9px;
           font-size: 13px;
           font-weight: 700;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           transition: all 0.18s ease;
           white-space: nowrap;
@@ -190,7 +190,7 @@ export default function MembersPage() {
           padding: 14px;
           font-size: 14px;
           font-weight: 700;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           margin-bottom: 18px;
           letter-spacing: 0.04em;
@@ -261,7 +261,7 @@ export default function MembersPage() {
           padding: 11px 13px;
           color: #1e293b;
           font-size: 14px;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           font-weight: 500;
           text-align: right;
           outline: none;
@@ -300,7 +300,7 @@ export default function MembersPage() {
           border-radius: 9px;
           font-size: 14px;
           font-weight: 800;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           transition: all 0.18s;
         }
@@ -314,7 +314,7 @@ export default function MembersPage() {
           padding: 12px;
           border-radius: 9px;
           font-size: 14px;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.18s;
@@ -361,14 +361,13 @@ export default function MembersPage() {
         .mem-card:nth-child(8) { animation-delay: 0.24s }
 
         /* ── SERIAL COLUMN (left side) ── */
-       /* ── SERIAL COLUMN (left side) ── */
         .mem-serial-col {
           width: 54px;
           flex-shrink: 0;
           display: flex;
-          align-items: flex-start;        /* ← رفع للأعلى */
+          align-items: flex-start;
           justify-content: center;
-          padding-top: 14px;              /* ← محاذاة مع الاسم */
+          padding-top: 14px;
           background: linear-gradient(180deg, #fff7f3 0%, #fff 100%);
           border-left: 1px solid #f1f5f9;
         }
@@ -463,7 +462,7 @@ export default function MembersPage() {
           border-radius: 7px;
           font-size: 11px;
           font-weight: 700;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           transition: all 0.18s;
           display: flex;
@@ -481,7 +480,7 @@ export default function MembersPage() {
           border-radius: 7px;
           font-size: 11px;
           font-weight: 700;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           transition: all 0.18s;
           display: flex;
