@@ -105,7 +105,7 @@ export default function MembersPage() {
           font-family: 'Tajawal', sans-serif;
           direction: rtl;
           min-height: 100vh;
-          background: #f4f6f9;
+          background: #ffffff;
         }
 
         /* ── HEADER ── */
