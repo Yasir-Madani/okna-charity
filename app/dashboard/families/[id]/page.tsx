@@ -408,15 +408,7 @@ export default function FamilyPage() {
                     <option value="أنثى">أنثى</option>
                   </select>
                 </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">صلة القرابة</label>
-                  <input
-                    value={form.relationship}
-                    onChange={e => setForm({ ...form, relationship: e.target.value })}
-                    placeholder="رب أسرة / زوجة..."
-                    className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
+                
               </div>
 
               {/* تاريخ الميلاد */}
@@ -600,6 +592,8 @@ export default function FamilyPage() {
                   <div className="px-4 py-3 flex justify-between items-center">
                     <div>
                       <p className="font-bold text-gray-800 text-sm">{ind.full_name}</p>
+
+                      {/* ===== مخفي مؤقتاً: badges الجنس وصلة القرابة وتاريخ الميلاد =====
                       <div className="flex flex-wrap gap-1.5 mt-1">
                         {ind.gender && (
                           <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">
@@ -617,6 +611,8 @@ export default function FamilyPage() {
                           </span>
                         )}
                       </div>
+                      ===== نهاية المخفي ===== */}
+
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -634,7 +630,7 @@ export default function FamilyPage() {
                     </div>
                   </div>
 
-                  {/* الأمراض والإعاقات */}
+                  {/* ===== مخفي مؤقتاً: قسم الأمراض والإعاقات =====
                   {(indDiseases.length > 0 || indDisabilities.length > 0) && (
                     <div className="px-4 pb-3 border-t border-gray-100 pt-2 space-y-1.5">
                       {indDiseases.length > 0 && (
@@ -658,6 +654,7 @@ export default function FamilyPage() {
                       )}
                     </div>
                   )}
+                  ===== نهاية المخفي ===== */}
 
                   {/* ملاحظات */}
                   {ind.notes && (

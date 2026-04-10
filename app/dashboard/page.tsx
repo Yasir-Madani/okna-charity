@@ -182,7 +182,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* سهم */}
-                <span className="text-gray-300 text-lg flex-shrink-0">← عرض</span>
+                <span className="text-black-300 text-lg flex-shrink-0">← عرض</span>
               </div>
             ))}
           </div>
