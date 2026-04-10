@@ -83,11 +83,11 @@ export default function MembersPage() {
     fetchData()
   }
 
-  const roleConfig: Record<string, { bg: string; color: string; border: string; icon: string }> = {
-    'رئيس': { bg: '#fff7ed', color: '#9a3412', border: '#fed7aa', icon: '◆' },
-    'نائب': { bg: '#eff6ff', color: '#1e40af', border: '#bfdbfe', icon: '◇' },
-    'أمين': { bg: '#f0fdf4', color: '#14532d', border: '#bbf7d0', icon: '◈' },
-    'عضو': { bg: '#f8fafc', color: '#334155', border: '#e2e8f0', icon: '○' },
+  const roleConfig: Record<string, { bg: string; color: string; border: string }> = {
+    'رئيس': { bg: '#fff7ed', color: '#9a3412', border: '#fed7aa' },
+    'نائب': { bg: '#eff6ff', color: '#1e40af', border: '#bfdbfe' },
+    'أمين': { bg: '#f0fdf4', color: '#14532d', border: '#bbf7d0' },
+    'عضو': { bg: '#f8fafc', color: '#334155', border: '#e2e8f0' },
   }
 
   const getRoleConfig = (role: string) => {
@@ -114,53 +114,58 @@ export default function MembersPage() {
           top: 0;
           z-index: 50;
           background: #fff;
-          border-bottom: 2px solid #e2e8f0;
-          padding: 0 20px;
-          height: 58px;
+          border-bottom: 1px solid #e8edf2;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .mem-header-inner {
+          padding: 14px 20px 14px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          box-shadow: 0 1px 8px rgba(0,0,0,0.06);
         }
 
         .mem-header-left {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
         }
 
         .mem-header-accent {
           width: 4px;
-          height: 28px;
-          background: linear-gradient(180deg, #c2410c, #ea580c);
+          height: 32px;
+          background: linear-gradient(180deg, #ea580c, #c2410c);
           border-radius: 4px;
+          flex-shrink: 0;
         }
 
         .mem-header-title {
-          font-size: 16px;
+          font-size: 17px;
           font-weight: 800;
           color: #1e293b;
           letter-spacing: 0.01em;
+          line-height: 1.2;
         }
 
         .mem-header-sub {
           font-size: 11px;
           color: #94a3b8;
           font-weight: 500;
-          margin-top: 1px;
+          margin-top: 2px;
         }
 
         .mem-back-btn {
           background: #f8fafc;
           border: 1px solid #e2e8f0;
           color: #64748b;
-          padding: 7px 14px;
-          border-radius: 8px;
+          padding: 8px 16px;
+          border-radius: 9px;
           font-size: 13px;
           font-weight: 700;
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
           transition: all 0.18s ease;
+          white-space: nowrap;
         }
         .mem-back-btn:hover {
           background: #f1f5f9;
@@ -172,7 +177,7 @@ export default function MembersPage() {
         .mem-body {
           max-width: 680px;
           margin: 0 auto;
-          padding: 20px 16px;
+          padding: 20px 16px 32px;
         }
 
         /* ── ADD BUTTON ── */
@@ -194,11 +199,11 @@ export default function MembersPage() {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          box-shadow: 0 2px 10px rgba(30,41,59,0.15);
+          box-shadow: 0 2px 10px rgba(30,41,59,0.14);
         }
         .mem-add-btn:hover {
           background: #0f172a;
-          box-shadow: 0 4px 16px rgba(30,41,59,0.22);
+          box-shadow: 0 4px 18px rgba(30,41,59,0.2);
           transform: translateY(-1px);
         }
 
@@ -236,6 +241,7 @@ export default function MembersPage() {
           height: 8px;
           border-radius: 50%;
           background: #ea580c;
+          flex-shrink: 0;
         }
 
         .mem-field-label {
@@ -315,33 +321,6 @@ export default function MembersPage() {
         }
         .mem-cancel-btn:hover { background: #e2e8f0; }
 
-        /* ── STAT BAR ── */
-        .mem-stat {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-right: 4px solid #1e293b;
-          border-radius: 12px;
-          padding: 14px 18px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 18px;
-          box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-        }
-
-        .mem-stat-label {
-          font-size: 13px;
-          color: #64748b;
-          font-weight: 600;
-        }
-
-        .mem-stat-num {
-          font-size: 30px;
-          font-weight: 900;
-          color: #1e293b;
-          line-height: 1;
-        }
-
         /* ── MEMBER CARDS ── */
         .mem-cards {
           display: flex;
@@ -361,7 +340,7 @@ export default function MembersPage() {
 
         .mem-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+          box-shadow: 0 6px 22px rgba(0,0,0,0.08);
         }
 
         @keyframes cardIn {
@@ -378,39 +357,60 @@ export default function MembersPage() {
         .mem-card:nth-child(7) { animation-delay: 0.21s }
         .mem-card:nth-child(8) { animation-delay: 0.24s }
 
-        /* card top */
-        .mem-card-top {
+        /* ── CARD INNER LAYOUT ── */
+        .mem-card-inner {
+          display: flex;
+          align-items: stretch;
+          min-height: 72px;
+        }
+
+        /* serial column */
+        .mem-serial-col {
+          width: 52px;
+          flex-shrink: 0;
           display: flex;
           align-items: center;
-          gap: 14px;
-          padding: 14px 16px 12px;
+          justify-content: center;
+          border-left: 1px solid #f1f5f9;
+          background: #fafbfc;
         }
 
         .mem-serial {
           width: 34px;
           height: 34px;
-          border-radius: 9px;
-          background: #f1f5f9;
-          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #ea580c, #c2410c);
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 13px;
           font-weight: 900;
-          color: #475569;
+          color: #fff;
+          box-shadow: 0 2px 8px rgba(234,88,12,0.28);
           flex-shrink: 0;
         }
 
+        /* main content column */
+        .mem-card-content {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          padding: 0 16px;
+          gap: 12px;
+        }
+
+        /* name + role block */
         .mem-name-block {
           flex: 1;
           min-width: 0;
         }
 
         .mem-name {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 800;
           color: #0f172a;
-          line-height: 1.2;
+          line-height: 1.25;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -419,37 +419,30 @@ export default function MembersPage() {
         .mem-role-badge {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
+          gap: 4px;
           margin-top: 5px;
           padding: 3px 10px;
           border-radius: 5px;
           font-size: 11px;
           font-weight: 700;
           border: 1px solid;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.02em;
         }
 
-        /* card footer */
-        .mem-card-footer {
-          border-top: 1px solid #f1f5f9;
-          padding: 9px 16px;
+        /* phone block — same column level */
+        .mem-phone-block {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          background: #fafbfc;
-        }
-
-        .mem-phone-wrap {
-          display: flex;
-          align-items: center;
-          gap: 7px;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 2px;
+          flex-shrink: 0;
         }
 
         .mem-phone-label {
           font-size: 10px;
           font-weight: 700;
           color: #94a3b8;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.07em;
           text-transform: uppercase;
         }
 
@@ -466,22 +459,30 @@ export default function MembersPage() {
           font-weight: 500;
         }
 
-        .mem-actions {
+        /* actions column */
+        .mem-actions-col {
           display: flex;
-          gap: 8px;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 12px 14px;
+          border-right: 1px solid #f1f5f9;
+          flex-shrink: 0;
         }
 
         .mem-edit-btn {
           background: #eff6ff;
           border: 1px solid #bfdbfe;
           color: #1d4ed8;
-          padding: 5px 12px;
+          padding: 4px 12px;
           border-radius: 7px;
           font-size: 12px;
           font-weight: 700;
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
           transition: all 0.18s;
+          white-space: nowrap;
         }
         .mem-edit-btn:hover { background: #dbeafe; }
 
@@ -489,15 +490,43 @@ export default function MembersPage() {
           background: #fef2f2;
           border: 1px solid #fecaca;
           color: #dc2626;
-          padding: 5px 12px;
+          padding: 4px 12px;
           border-radius: 7px;
           font-size: 12px;
           font-weight: 700;
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
           transition: all 0.18s;
+          white-space: nowrap;
         }
         .mem-del-btn:hover { background: #fee2e2; }
+
+        /* ── STAT STRIP (bottom) ── */
+        .mem-stat {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-right: 4px solid #ea580c;
+          border-radius: 12px;
+          padding: 14px 18px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 18px;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        }
+
+        .mem-stat-label {
+          font-size: 13px;
+          color: #64748b;
+          font-weight: 600;
+        }
+
+        .mem-stat-num {
+          font-size: 28px;
+          font-weight: 900;
+          color: #ea580c;
+          line-height: 1;
+        }
 
         /* ── LOADING / EMPTY ── */
         .mem-center {
@@ -528,7 +557,7 @@ export default function MembersPage() {
           text-align: center;
           font-size: 11px;
           color: #cbd5e1;
-          padding: 24px 0 32px;
+          padding: 24px 0 0;
           font-weight: 500;
           border-top: 1px solid #f1f5f9;
           margin-top: 24px;
@@ -539,16 +568,18 @@ export default function MembersPage() {
 
         {/* HEADER */}
         <div className="mem-header">
-          <div className="mem-header-left">
-            <div className="mem-header-accent" />
-            <div>
-              <div className="mem-header-title">إدارة الجمعية</div>
-              <div className="mem-header-sub">الأعضاء الإداريون</div>
+          <div className="mem-header-inner">
+            <div className="mem-header-left">
+              <div className="mem-header-accent" />
+              <div>
+                <div className="mem-header-title">إدارة الجمعية</div>
+                <div className="mem-header-sub">الأعضاء الإداريون</div>
+              </div>
             </div>
+            <button className="mem-back-btn" onClick={() => router.push('/home')}>
+              رجوع ←
+            </button>
           </div>
-          <button className="mem-back-btn" onClick={() => router.push('/home')}>
-            رجوع ←
-          </button>
         </div>
 
         <div className="mem-body">
@@ -627,52 +658,60 @@ export default function MembersPage() {
             </div>
           ) : (
             <>
-              {/* STAT */}
-              <div className="mem-stat">
-                <span className="mem-stat-label">إجمالي الأعضاء الإداريين</span>
-                <span className="mem-stat-num">{members.length}</span>
-              </div>
-
               {/* CARDS */}
               <div className="mem-cards">
                 {members.map((member, index) => {
                   const rc = getRoleConfig(member.role)
                   return (
                     <div className="mem-card" key={member.id}>
+                      <div className="mem-card-inner">
 
-                      <div className="mem-card-top">
-                        <div className="mem-serial">{index + 1}</div>
-                        <div className="mem-name-block">
-                          <div className="mem-name">{member.full_name}</div>
-                          <span
-                            className="mem-role-badge"
-                            style={{ background: rc.bg, color: rc.color, borderColor: rc.border }}
-                          >
-                            {rc.icon} {member.role}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mem-card-footer">
-                        <div className="mem-phone-wrap">
-                          <span className="mem-phone-label">هاتف</span>
-                          {member.phone
-                            ? <span className="mem-phone">{member.phone}</span>
-                            : <span className="mem-no-phone">غير مسجّل</span>
-                          }
+                        {/* SERIAL */}
+                        <div className="mem-serial-col">
+                          <div className="mem-serial">{index + 1}</div>
                         </div>
 
+                        {/* MAIN CONTENT */}
+                        <div className="mem-card-content">
+                          {/* name + role */}
+                          <div className="mem-name-block">
+                            <div className="mem-name">{member.full_name}</div>
+                            <span
+                              className="mem-role-badge"
+                              style={{ background: rc.bg, color: rc.color, borderColor: rc.border }}
+                            >
+                              {member.role}
+                            </span>
+                          </div>
+
+                          {/* phone — محاذاة عمودية مع الاسم */}
+                          <div className="mem-phone-block">
+                            <span className="mem-phone-label">هاتف</span>
+                            {member.phone
+                              ? <span className="mem-phone">{member.phone}</span>
+                              : <span className="mem-no-phone">—</span>
+                            }
+                          </div>
+                        </div>
+
+                        {/* ACTIONS */}
                         {isAdmin && (
-                          <div className="mem-actions">
+                          <div className="mem-actions-col">
                             <button className="mem-edit-btn" onClick={() => handleEdit(member)}>تعديل</button>
                             <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)}>حذف</button>
                           </div>
                         )}
-                      </div>
 
+                      </div>
                     </div>
                   )
                 })}
+              </div>
+
+              {/* STAT — أسفل القائمة */}
+              <div className="mem-stat">
+                <span className="mem-stat-label">إجمالي الأعضاء الإداريين</span>
+                <span className="mem-stat-num">{members.length}</span>
               </div>
             </>
           )}
