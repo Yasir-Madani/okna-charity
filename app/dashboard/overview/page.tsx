@@ -543,7 +543,7 @@ export default function OverviewPage() {
                               <polyline points="9 22 9 12 15 12 15 22"/>
                             </svg>
                           </div>
-                          <span className="ov-info-label">اسم المنزل</span>
+                          <span className="ov-info-label">المنزل</span>
                         </div>
                         <div className="ov-info-divider" />
                         <span className="ov-info-value">{row.house_name}</span>
@@ -560,7 +560,7 @@ export default function OverviewPage() {
                               <path d="M16 3.13a4 4 0 010 7.75"/>
                             </svg>
                           </div>
-                          <span className="ov-info-label">اسم الأسرة</span>
+                          <span className="ov-info-label">الأسرة</span>
                         </div>
                         <div className="ov-info-divider" />
                         <span className="ov-info-value">{row.family_name}</span>
