@@ -57,6 +57,10 @@ function getCurrentMonth(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 }
 
+function getSettingKey(month: string): string {
+  return `default_subscription_${month}`
+}
+
 export default function SubscriptionsPage() {
   const router = useRouter()
 
@@ -65,12 +69,16 @@ export default function SubscriptionsPage() {
   const [monthlyData, setMonthlyData] = useState<Record<string, Subscription>>({})
   const [overdueMap, setOverdueMap] = useState<Record<string, OverdueInfo>>({})
   const [defaultAmount, setDefaultAmount] = useState('')
+  const [defaultSaved, setDefaultSaved] = useState(false)
+  const [defaultAmountDirty, setDefaultAmountDirty] = useState(false)
   const [entries, setEntries] = useState<Record<string, PaymentEntry>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [savingDefault, setSavingDefault] = useState(false)
   const [toast, setToast] = useState('')
   const [filterSector, setFilterSector] = useState('الكل')
   const [filterStatus, setFilterStatus] = useState('الكل')
+  const [filterHouse, setFilterHouse] = useState('الكل')
   const [showFilters, setShowFilters] = useState(false)
 
   const months = getValidMonths()
@@ -92,8 +100,23 @@ export default function SubscriptionsPage() {
     if (data) setHouses(data)
   }
 
+  const loadDefaultAmountForMonth = async (month: string): Promise<string> => {
+    const key = getSettingKey(month)
+    const { data } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', key)
+      .single()
+    return data ? data.value : ''
+  }
+
   const loadMonthData = useCallback(async () => {
     if (houses.length === 0) return
+
+    const defAmt = await loadDefaultAmountForMonth(selectedMonth)
+    setDefaultAmount(defAmt)
+    setDefaultSaved(!!defAmt)
+    setDefaultAmountDirty(false)
 
     const { data } = await supabase
       .from('subscriptions')
@@ -104,12 +127,6 @@ export default function SubscriptionsPage() {
     if (data) data.forEach(sub => { map[sub.house_id] = sub })
     setMonthlyData(map)
 
-    if (data && data.length > 0) {
-      setDefaultAmount(String(data[0].amount))
-    } else {
-      setDefaultAmount('')
-    }
-
     const newEntries: Record<string, PaymentEntry> = {}
     houses.forEach(h => {
       const existing = map[h.id]
@@ -118,16 +135,32 @@ export default function SubscriptionsPage() {
         : { amount: '', checked: false }
     })
     setEntries(newEntries)
-    await computeOverdue(map)
+    await computeOverdue()
   }, [houses, selectedMonth])
 
   useEffect(() => { loadMonthData() }, [loadMonthData])
 
-  const computeOverdue = async (currentMap: Record<string, Subscription>) => {
+  // كل شهر له قيمته المستقلة — لا يوجد fallback بين الشهور
+  const computeOverdue = useCallback(async () => {
     if (houses.length === 0) return
+
     const { data: allSubs } = await supabase
       .from('subscriptions')
       .select('house_id, month, amount')
+
+    const { data: allSettings } = await supabase
+      .from('settings')
+      .select('key, value')
+      .like('key', 'default_subscription_20%')
+
+    // كل شهر له قيمته الخاصة فقط — إذا لم تُحفظ القيمة فالشهر = 0
+    const defaultAmountMap: Record<string, number> = {}
+    if (allSettings) {
+      allSettings.forEach(s => {
+        const month = s.key.replace('default_subscription_', '')
+        defaultAmountMap[month] = parseInt(s.value) || 0
+      })
+    }
 
     const paidMap: Record<string, Set<string>> = {}
     if (allSubs) {
@@ -139,7 +172,6 @@ export default function SubscriptionsPage() {
 
     const [selYear, selMonthNum] = selectedMonth.split('-').map(Number)
     const overdue: Record<string, OverdueInfo> = {}
-    const defAmt = parseInt(defaultAmount) || 0
     const startDate = new Date(2026, 0, 1)
 
     houses.forEach(h => {
@@ -149,29 +181,54 @@ export default function SubscriptionsPage() {
       const cursor = new Date(selYear, selMonthNum - 2, 1)
       while (cursor >= startDate) {
         const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`
-        if (!paid.has(key)) { overdueMonths++; overdueTotal += defAmt }
+        if (!paid.has(key)) {
+          overdueMonths++
+          overdueTotal += defaultAmountMap[key] || 0
+        }
         cursor.setMonth(cursor.getMonth() - 1)
       }
       if (overdueMonths > 0) overdue[h.id] = { months: overdueMonths, total: overdueTotal }
     })
     setOverdueMap(overdue)
-  }
+  }, [houses, selectedMonth])
 
   const handleCheck = (houseId: string, checked: boolean) => {
     setEntries(prev => ({
       ...prev,
-      [houseId]: { amount: checked ? defaultAmount : '', checked }
+      [houseId]: { amount: checked ? (prev[houseId]?.amount || defaultAmount) : '', checked }
     }))
   }
 
-  const saveDefaultAmount = async (value: string) => {
-    setDefaultAmount(value)
-    await supabase.from('settings')
-      .upsert({ key: 'default_subscription', value, updated_at: new Date().toISOString() })
+  // حفظ المبلغ الافتراضي للشهر المحدد فقط — بزر صريح
+  const saveDefaultAmount = async () => {
+    if (!defaultAmount || isNaN(Number(defaultAmount)) || Number(defaultAmount) <= 0) {
+      showToast('⚠️ أدخل مبلغاً صحيحاً أكبر من صفر')
+      return
+    }
+    setSavingDefault(true)
+    const key = getSettingKey(selectedMonth)
+    const { error } = await supabase.from('settings')
+      .upsert({ key, value: defaultAmount, updated_at: new Date().toISOString() })
+    if (!error) {
+      setDefaultSaved(true)
+      setDefaultAmountDirty(false)
+      showToast(`✓ تم حفظ ${Number(defaultAmount).toLocaleString()} جنيه كمبلغ افتراضي لـ ${formatMonth(selectedMonth)}`)
+      await computeOverdue()
+    } else {
+      showToast('❌ حدث خطأ أثناء الحفظ')
+    }
+    setSavingDefault(false)
   }
 
   const fillAllDefault = () => {
-    if (!defaultAmount) { showToast('أدخل المبلغ الافتراضي أولاً'); return }
+    if (!defaultAmount || Number(defaultAmount) <= 0) {
+      showToast('⚠️ أدخل المبلغ الافتراضي واحفظه أولاً')
+      return
+    }
+    if (!defaultSaved) {
+      showToast('⚠️ احفظ المبلغ الافتراضي أولاً قبل التعبئة')
+      return
+    }
     const newEntries = { ...entries }
     houses.forEach(h => {
       if (!newEntries[h.id]?.checked)
@@ -226,7 +283,7 @@ export default function SubscriptionsPage() {
 
   const showToast = (msg: string) => {
     setToast(msg)
-    setTimeout(() => setToast(''), 3000)
+    setTimeout(() => setToast(''), 3500)
   }
 
   const filteredHouses = houses.filter(h => {
@@ -234,6 +291,7 @@ export default function SubscriptionsPage() {
     if (filterStatus === 'مدفوع' && !monthlyData[h.id]) return false
     if (filterStatus === 'غير مدفوع' && monthlyData[h.id]) return false
     if (filterStatus === 'متأخر' && !overdueMap[h.id]) return false
+    if (filterHouse !== 'الكل' && h.id !== filterHouse) return false
     return true
   })
 
@@ -309,37 +367,62 @@ export default function SubscriptionsPage() {
                 ))}
               </select>
             </div>
+
             <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">المبلغ الافتراضي</label>
-              <input
-                type="number"
-                min="0"
-                value={defaultAmount}
-                placeholder="أدخل المبلغ"
-                onChange={e => setDefaultAmount(e.target.value)}
-                onBlur={e => saveDefaultAmount(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-center"
-              />
+              <label className="text-xs text-gray-400 block mb-1">
+                المبلغ الافتراضي لـ {formatMonth(selectedMonth)}
+              </label>
+              <div className="flex gap-1">
+                <input
+                  type="number"
+                  min="0"
+                  value={defaultAmount}
+                  placeholder="أدخل المبلغ"
+                  onChange={e => {
+                    setDefaultAmount(e.target.value)
+                    setDefaultSaved(false)
+                    setDefaultAmountDirty(true)
+                  }}
+                  className={`flex-1 min-w-0 border rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-center
+                    ${defaultAmountDirty ? 'border-orange-400 bg-orange-50' : defaultSaved ? 'border-green-300 bg-green-50' : 'border-gray-300'}`}
+                />
+                <button
+                  onClick={saveDefaultAmount}
+                  disabled={savingDefault || !defaultAmountDirty && defaultSaved}
+                  className={`px-3 py-2.5 rounded-lg text-sm font-bold transition-colors cursor-pointer whitespace-nowrap flex-shrink-0
+                    ${defaultSaved && !defaultAmountDirty
+                      ? 'bg-green-100 text-green-700 border border-green-300'
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                    } disabled:opacity-50`}
+                >
+                  {savingDefault ? '...' : defaultSaved && !defaultAmountDirty ? '✓ محفوظ' : 'حفظ'}
+                </button>
+              </div>
+              {/* تحذير إذا لم يتم حفظ المبلغ */}
+              {defaultAmountDirty && (
+                <p className="text-xs text-orange-500 mt-1">⚠️ لم يتم حفظ المبلغ بعد</p>
+              )}
+              {!defaultAmount && !defaultAmountDirty && (
+                <p className="text-xs text-red-400 mt-1">⚠️ لا يوجد مبلغ افتراضي لهذا الشهر</p>
+              )}
             </div>
           </div>
 
-          {/* أزرار التعبئة */}
-{/*
-<div className="flex gap-2">
-  <button
-    onClick={fillAllDefault}
-    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors"
-  >
-    تعبئة الكل ✓
-  </button>
-  <button
-    onClick={uncheckAll}
-    className="flex-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 py-2.5 rounded-lg text-sm font-bold cursor-pointer transition-colors"
-  >
-    إلغاء الكل ✗
-  </button>
-</div>
-*/}
+          {/* أزرار التعبئة السريعة */}
+          <div className="flex gap-2">
+            <button
+              onClick={fillAllDefault}
+              className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors"
+            >
+              تعبئة الكل بالافتراضي
+            </button>
+            <button
+              onClick={uncheckAll}
+              className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors"
+            >
+              إلغاء تحديد الكل
+            </button>
+          </div>
 
           {/* فلاتر - قابلة للطي */}
           <button
@@ -350,26 +433,41 @@ export default function SubscriptionsPage() {
           </button>
 
           {showFilters && (
-            <div className="flex gap-2 pt-1 border-t border-gray-100">
-              <div className="flex-1">
-                <label className="text-xs text-gray-400 block mb-1">المحور</label>
-                <select
-                  value={filterSector}
-                  onChange={e => setFilterSector(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  {sectors.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
+            <div className="flex flex-col gap-2 pt-1 border-t border-gray-100">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="text-xs text-gray-400 block mb-1">المحور</label>
+                  <select
+                    value={filterSector}
+                    onChange={e => setFilterSector(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    {sectors.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-gray-400 block mb-1">الحالة</label>
+                  <select
+                    value={filterStatus}
+                    onChange={e => setFilterStatus(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    {['الكل', 'مدفوع', 'غير مدفوع', 'متأخر'].map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="flex-1">
-                <label className="text-xs text-gray-400 block mb-1">الحالة</label>
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">المنزل</label>
                 <select
-                  value={filterStatus}
-                  onChange={e => setFilterStatus(e.target.value)}
+                  value={filterHouse}
+                  onChange={e => setFilterHouse(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
-                  {['الكل', 'مدفوع', 'غير مدفوع', 'متأخر'].map(s => (
-                    <option key={s} value={s}>{s}</option>
+                  <option value="الكل">الكل</option>
+                  {houses.map(h => (
+                    <option key={h.id} value={h.id}>#{h.house_number} - {h.name}</option>
                   ))}
                 </select>
               </div>
