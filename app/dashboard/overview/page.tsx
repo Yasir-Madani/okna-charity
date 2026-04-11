@@ -159,12 +159,12 @@ export default function OverviewPage() {
         }
 
         .ov-stat-label {
-          font-size: 10px;
-          font-weight: 500;
-          color: rgba(255,255,255,0.4);
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-        }
+  font-size: 10px;
+  font-weight: 500;
+  color: #fff; /* كان سابقاً rgba(255,255,255,0.4) */
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
 
         .ov-stat-value {
           font-size: 24px;
@@ -258,7 +258,7 @@ export default function OverviewPage() {
 
         .ov-house-label {
           font-size: 9px;
-          color: rgba(255,255,255,0.3);
+          color: #fff; /* كان سابقاً rgba(255,255,255,0.3) */
           font-weight: 500;
           letter-spacing: 0.07em;
           text-transform: uppercase;
@@ -302,7 +302,7 @@ export default function OverviewPage() {
 
         .ov-info-label {
           font-size: 9px;
-          color: rgba(255,255,255,0.28);
+          color: #fff; /* كان سابقاً rgba(255,255,255,0.28) */
           font-weight: 500;
           letter-spacing: 0.08em;
           text-transform: uppercase;
@@ -312,7 +312,7 @@ export default function OverviewPage() {
         }
 
         .ov-info-label svg {
-          opacity: 0.6;
+          opacity: 1;
         }
 
         .ov-info-value {
@@ -334,7 +334,7 @@ export default function OverviewPage() {
 
         .ov-footer-label {
           font-size: 11px;
-          color: rgba(255,255,255,0.35);
+          color: #fff; /* كان سابقاً rgba(255,255,255,0.35) */
           font-weight: 500;
         }
 
@@ -371,7 +371,7 @@ export default function OverviewPage() {
 
         .ov-count-unit {
           font-size: 10px;
-          color: rgba(255,255,255,0.3);
+          color: #fff; /* كان سابقاً rgba(255,255,255,0.3) */
           font-weight: 500;
         }
 
