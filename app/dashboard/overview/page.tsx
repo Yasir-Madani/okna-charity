@@ -175,8 +175,7 @@ export default function OverviewPage() {
 
         .ov-stat-sub {
           font-size: 10px;
-          color: rgba(255,255,255,0.3);
-        }
+color: #ffffff; /* تم تغييرها من rgba(255,255,255,0.3) إلى الأبيض الصريح */        }
 
         /* ── CARDS CONTAINER ── */
         .ov-cards {
@@ -324,7 +323,7 @@ export default function OverviewPage() {
 
         /* ── CARD FOOTER ── */
         .ov-card-footer {
-          border-top: 1px solid rgba(255,255,255,0.05);
+          border-top: 1px solid color: #fff; /* كان سابقاً rgba(255,255,255,0.35) */;
           padding: 10px 14px;
           display: flex;
           align-items: center;
