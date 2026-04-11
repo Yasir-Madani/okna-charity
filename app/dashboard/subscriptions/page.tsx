@@ -79,7 +79,9 @@ export default function SubscriptionsPage() {
   const [filterSector, setFilterSector] = useState('الكل')
   const [filterStatus, setFilterStatus] = useState('الكل')
   const [filterHouse, setFilterHouse] = useState('الكل')
+  const [searchName, setSearchName] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [expandedOverdue, setExpandedOverdue] = useState<Record<string, boolean>>({})
 
   const months = getValidMonths()
 
@@ -140,7 +142,6 @@ export default function SubscriptionsPage() {
 
   useEffect(() => { loadMonthData() }, [loadMonthData])
 
-  // كل شهر له قيمته المستقلة — لا يوجد fallback بين الشهور
   const computeOverdue = useCallback(async () => {
     if (houses.length === 0) return
 
@@ -153,7 +154,6 @@ export default function SubscriptionsPage() {
       .select('key, value')
       .like('key', 'default_subscription_20%')
 
-    // كل شهر له قيمته الخاصة فقط — إذا لم تُحفظ القيمة فالشهر = 0
     const defaultAmountMap: Record<string, number> = {}
     if (allSettings) {
       allSettings.forEach(s => {
@@ -199,7 +199,10 @@ export default function SubscriptionsPage() {
     }))
   }
 
-  // حفظ المبلغ الافتراضي للشهر المحدد فقط — بزر صريح
+  const toggleOverdue = (houseId: string) => {
+    setExpandedOverdue(prev => ({ ...prev, [houseId]: !prev[houseId] }))
+  }
+
   const saveDefaultAmount = async () => {
     if (!defaultAmount || isNaN(Number(defaultAmount)) || Number(defaultAmount) <= 0) {
       showToast('⚠️ أدخل مبلغاً صحيحاً أكبر من صفر')
@@ -276,7 +279,7 @@ export default function SubscriptionsPage() {
       return
     }
 
-    showToast(`تم الحفظ ✓`)
+    showToast('تم الحفظ ✓')
     await loadMonthData()
     setSaving(false)
   }
@@ -292,6 +295,7 @@ export default function SubscriptionsPage() {
     if (filterStatus === 'غير مدفوع' && monthlyData[h.id]) return false
     if (filterStatus === 'متأخر' && !overdueMap[h.id]) return false
     if (filterHouse !== 'الكل' && h.id !== filterHouse) return false
+    if (searchName.trim() !== '' && !h.name.includes(searchName.trim())) return false
     return true
   })
 
@@ -353,7 +357,6 @@ export default function SubscriptionsPage() {
         {/* ===== شريط التحكم الرئيسي ===== */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 space-y-3">
 
-          {/* الشهر + المبلغ الافتراضي */}
           <div className="flex gap-2">
             <div className="flex-1">
               <label className="text-xs text-gray-400 block mb-1">الشهر</label>
@@ -388,7 +391,7 @@ export default function SubscriptionsPage() {
                 />
                 <button
                   onClick={saveDefaultAmount}
-                  disabled={savingDefault || !defaultAmountDirty && defaultSaved}
+                  disabled={savingDefault || (!defaultAmountDirty && defaultSaved)}
                   className={`px-3 py-2.5 rounded-lg text-sm font-bold transition-colors cursor-pointer whitespace-nowrap flex-shrink-0
                     ${defaultSaved && !defaultAmountDirty
                       ? 'bg-green-100 text-green-700 border border-green-300'
@@ -398,7 +401,6 @@ export default function SubscriptionsPage() {
                   {savingDefault ? '...' : defaultSaved && !defaultAmountDirty ? '✓ محفوظ' : 'حفظ'}
                 </button>
               </div>
-              {/* تحذير إذا لم يتم حفظ المبلغ */}
               {defaultAmountDirty && (
                 <p className="text-xs text-orange-500 mt-1">⚠️ لم يتم حفظ المبلغ بعد</p>
               )}
@@ -424,7 +426,7 @@ export default function SubscriptionsPage() {
             </button>
           </div>
 
-          {/* فلاتر - قابلة للطي */}
+          {/* فلاتر */}
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="w-full text-xs text-gray-400 flex items-center justify-center gap-1 py-1 cursor-pointer"
@@ -434,6 +436,19 @@ export default function SubscriptionsPage() {
 
           {showFilters && (
             <div className="flex flex-col gap-2 pt-1 border-t border-gray-100">
+
+              {/* بحث بالاسم */}
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">بحث باسم المنزل</label>
+                <input
+                  type="text"
+                  value={searchName}
+                  placeholder="اكتب أي جزء من الاسم..."
+                  onChange={e => setSearchName(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
               <div className="flex gap-2">
                 <div className="flex-1">
                   <label className="text-xs text-gray-400 block mb-1">المحور</label>
@@ -458,6 +473,7 @@ export default function SubscriptionsPage() {
                   </select>
                 </div>
               </div>
+
               <div>
                 <label className="text-xs text-gray-400 block mb-1">المنزل</label>
                 <select
@@ -475,7 +491,7 @@ export default function SubscriptionsPage() {
           )}
         </div>
 
-        {/* ===== قائمة المنازل - بطاقات ===== */}
+        {/* ===== قائمة المنازل ===== */}
         <div className="space-y-2">
           {filteredHouses.length === 0 ? (
             <div className="text-center py-12 text-gray-400 text-sm">لا توجد نتائج</div>
@@ -486,6 +502,7 @@ export default function SubscriptionsPage() {
               const entry = entries[house.id] || { amount: '', checked: false }
               const isPaid = saved && entry.checked
               const isReadyToSave = !saved && entry.checked
+              const isOverdueExpanded = expandedOverdue[house.id] || false
 
               return (
                 <div
@@ -497,7 +514,7 @@ export default function SubscriptionsPage() {
                   <div className={`px-4 py-3 flex justify-between items-center
                     ${isPaid ? 'bg-green-50' : overdue && !entry.checked ? 'bg-red-50' : 'bg-gray-50'}`}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs font-bold text-gray-400">#{house.house_number}</span>
                       <span className="font-bold text-gray-800 text-sm">{house.name}</span>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
@@ -505,29 +522,50 @@ export default function SubscriptionsPage() {
                       </span>
                     </div>
 
-                    {/* الحالة */}
-                    {isPaid ? (
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">
-                        مدفوع ✓
-                      </span>
-                    ) : isReadyToSave ? (
-                      <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold">
-                        جاهز ◎
-                      </span>
-                    ) : (
-                      <span className="text-xs text-gray-400 px-2 py-1 rounded-full border border-gray-200">
-                        لم يُدفع
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {/* زر المتأخرات — يظهر دائماً إذا وجدت، بغض النظر عن حالة الدفع */}
+                      {overdue && (
+                        <button
+                          onClick={() => toggleOverdue(house.id)}
+                          className={`text-xs px-2 py-1 rounded-full font-bold border transition-colors cursor-pointer flex items-center gap-1
+                            ${isPaid
+                              ? 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100'
+                              : 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200'
+                            }`}
+                        >
+                          <span>{overdue.months} شهر متأخر</span>
+                          <span>{isOverdueExpanded ? '▲' : '▼'}</span>
+                        </button>
+                      )}
+
+                      {/* الحالة */}
+                      {isPaid ? (
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">
+                          مدفوع ✓
+                        </span>
+                      ) : isReadyToSave ? (
+                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold">
+                          جاهز ◎
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-400 px-2 py-1 rounded-full border border-gray-200">
+                          لم يُدفع
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* تفاصيل المتأخرات */}
-                  {overdue && !entry.checked && (
-                    <div className="px-4 py-2 bg-red-50 border-t border-red-100 flex items-center gap-2">
-                      <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">
+                  {/* تفاصيل المتأخرات — accordion */}
+                  {overdue && isOverdueExpanded && (
+                    <div className={`px-4 py-2 border-t flex items-center gap-3
+                      ${isPaid ? 'bg-orange-50 border-orange-100' : 'bg-red-50 border-red-100'}`}
+                    >
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-bold
+                        ${isPaid ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}`}>
                         {overdue.months} شهر متأخر
                       </span>
-                      <span className="text-xs text-red-600 font-bold">
+                      <span className={`text-xs font-bold
+                        ${isPaid ? 'text-orange-600' : 'text-red-600'}`}>
                         {overdue.total.toLocaleString()} جنيه متراكم
                       </span>
                     </div>
@@ -535,16 +573,11 @@ export default function SubscriptionsPage() {
 
                   {/* صف الإدخال */}
                   <div className="px-4 py-3 flex items-center gap-3">
-
-                    {/* Checkbox كبير للموبايل */}
                     <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
                       <div
                         onClick={() => handleCheck(house.id, !entry.checked)}
                         className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer
-                          ${entry.checked
-                            ? 'bg-green-600 border-green-600'
-                            : 'bg-white border-gray-300'
-                          }`}
+                          ${entry.checked ? 'bg-green-600 border-green-600' : 'bg-white border-gray-300'}`}
                       >
                         {entry.checked && (
                           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -555,7 +588,6 @@ export default function SubscriptionsPage() {
                       <span className="text-xs text-gray-500">دفع</span>
                     </label>
 
-                    {/* حقل المبلغ */}
                     <div className="flex-1">
                       <input
                         type="number"
@@ -601,7 +633,6 @@ export default function SubscriptionsPage() {
         </button>
       </div>
 
-      {/* مسافة للزر الثابت */}
       <div className="h-20" />
 
       {/* Toast */}
