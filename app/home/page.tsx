@@ -39,7 +39,7 @@ export default function HomePage() {
     { label: 'ممتلكات الجمعية',      icon: '🏗️', path: '/home/assets',        iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600',bar: 'bg-emerald-400', sub: 'الأصول والعقار' },
     { label: 'حوجة الجمعية',         icon: '📋', path: '/home/needs',         iconBg: 'bg-rose-50',    iconColor: 'text-rose-600',   bar: 'bg-rose-400',    sub: 'الاحتياجات'    },
     { label: 'إدارة الجمعية',        icon: '👥', path: '/home/members',       iconBg: 'bg-purple-50',  iconColor: 'text-purple-600', bar: 'bg-purple-400',  sub: 'الهيئة الإدارية'},
-    { label: 'أسماء المنازل والأسر', icon: '🏘️', path: '/overview',           iconBg: 'bg-orange-50',  iconColor: 'text-orange-600', bar: 'bg-orange-400',  sub: 'دليل الأسر والمنازل' },
+    { label: 'أسماء المنازل والأسر', icon: '🏘️', path: '/home/overview',           iconBg: 'bg-orange-50',  iconColor: 'text-orange-600', bar: 'bg-orange-400',  sub: 'دليل الأسر والمنازل' },
   ]
 
   return (
