@@ -24,6 +24,12 @@ type OverdueInfo = {
   total: number
 }
 
+type PaidHistoryInfo = {
+  months: number
+  total: number
+  details: { month: string; amount: number }[]
+}
+
 type PaymentEntry = {
   amount: string
   checked: boolean
@@ -68,6 +74,7 @@ export default function SubscriptionsPage() {
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth())
   const [monthlyData, setMonthlyData] = useState<Record<string, Subscription>>({})
   const [overdueMap, setOverdueMap] = useState<Record<string, OverdueInfo>>({})
+  const [paidHistoryMap, setPaidHistoryMap] = useState<Record<string, PaidHistoryInfo>>({})
   const [defaultAmount, setDefaultAmount] = useState('')
   const [defaultSaved, setDefaultSaved] = useState(false)
   const [defaultAmountDirty, setDefaultAmountDirty] = useState(false)
@@ -82,6 +89,7 @@ export default function SubscriptionsPage() {
   const [searchName, setSearchName] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [expandedOverdue, setExpandedOverdue] = useState<Record<string, boolean>>({})
+  const [expandedPaid, setExpandedPaid] = useState<Record<string, boolean>>({})
 
   const months = getValidMonths()
 
@@ -137,12 +145,12 @@ export default function SubscriptionsPage() {
         : { amount: '', checked: false }
     })
     setEntries(newEntries)
-    await computeOverdue()
+    await computeOverdueAndPaid()
   }, [houses, selectedMonth])
 
   useEffect(() => { loadMonthData() }, [loadMonthData])
 
-  const computeOverdue = useCallback(async () => {
+  const computeOverdueAndPaid = useCallback(async () => {
     if (houses.length === 0) return
 
     const { data: allSubs } = await supabase
@@ -162,34 +170,52 @@ export default function SubscriptionsPage() {
       })
     }
 
-    const paidMap: Record<string, Set<string>> = {}
+    // خريطة المدفوعات: house_id -> { month -> amount }
+    const paidMap: Record<string, Map<string, number>> = {}
     if (allSubs) {
       allSubs.forEach(s => {
-        if (!paidMap[s.house_id]) paidMap[s.house_id] = new Set()
-        paidMap[s.house_id].add(s.month)
+        if (!paidMap[s.house_id]) paidMap[s.house_id] = new Map()
+        paidMap[s.house_id].set(s.month, s.amount)
       })
     }
 
     const [selYear, selMonthNum] = selectedMonth.split('-').map(Number)
     const overdue: Record<string, OverdueInfo> = {}
+    const paidHistory: Record<string, PaidHistoryInfo> = {}
     const startDate = new Date(2026, 0, 1)
 
     houses.forEach(h => {
       let overdueMonths = 0
       let overdueTotal = 0
-      const paid = paidMap[h.id] || new Set()
+      const paidDetails: { month: string; amount: number }[] = []
+      let paidTotal = 0
+
+      const paid = paidMap[h.id] || new Map()
       const cursor = new Date(selYear, selMonthNum - 2, 1)
+
       while (cursor >= startDate) {
         const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`
-        if (!paid.has(key)) {
+        if (paid.has(key)) {
+          const amt = paid.get(key) || 0
+          paidDetails.push({ month: key, amount: amt })
+          paidTotal += amt
+        } else {
           overdueMonths++
           overdueTotal += defaultAmountMap[key] || 0
         }
         cursor.setMonth(cursor.getMonth() - 1)
       }
-      if (overdueMonths > 0) overdue[h.id] = { months: overdueMonths, total: overdueTotal }
+
+      if (overdueMonths > 0) {
+        overdue[h.id] = { months: overdueMonths, total: overdueTotal }
+      }
+      if (paidDetails.length > 0) {
+        paidHistory[h.id] = { months: paidDetails.length, total: paidTotal, details: paidDetails }
+      }
     })
+
     setOverdueMap(overdue)
+    setPaidHistoryMap(paidHistory)
   }, [houses, selectedMonth])
 
   const handleCheck = (houseId: string, checked: boolean) => {
@@ -201,6 +227,10 @@ export default function SubscriptionsPage() {
 
   const toggleOverdue = (houseId: string) => {
     setExpandedOverdue(prev => ({ ...prev, [houseId]: !prev[houseId] }))
+  }
+
+  const togglePaid = (houseId: string) => {
+    setExpandedPaid(prev => ({ ...prev, [houseId]: !prev[houseId] }))
   }
 
   const saveDefaultAmount = async () => {
@@ -216,7 +246,7 @@ export default function SubscriptionsPage() {
       setDefaultSaved(true)
       setDefaultAmountDirty(false)
       showToast(`✓ تم حفظ ${Number(defaultAmount).toLocaleString()} جنيه كمبلغ افتراضي لـ ${formatMonth(selectedMonth)}`)
-      await computeOverdue()
+      await computeOverdueAndPaid()
     } else {
       showToast('❌ حدث خطأ أثناء الحفظ')
     }
@@ -313,7 +343,6 @@ export default function SubscriptionsPage() {
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
 
-      {/* ===== شريط العنوان ===== */}
       <div className="bg-green-700 text-white px-4 py-3 flex justify-between items-center sticky top-0 z-20 shadow-md">
         <h1 className="text-base font-bold">الاشتراكات الشهرية</h1>
         <div className="flex gap-2">
@@ -334,7 +363,7 @@ export default function SubscriptionsPage() {
 
       <div className="max-w-2xl mx-auto px-3 py-3 space-y-3">
 
-        {/* ===== بطاقات الإحصاء ===== */}
+        {/* إحصاءات */}
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-white rounded-xl border border-gray-200 p-3 shadow-sm">
             <p className="text-xs text-gray-400">إجمالي المنازل</p>
@@ -354,9 +383,8 @@ export default function SubscriptionsPage() {
           </div>
         </div>
 
-        {/* ===== شريط التحكم الرئيسي ===== */}
+        {/* شريط التحكم */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 space-y-3">
-
           <div className="flex gap-2">
             <div className="flex-1">
               <label className="text-xs text-gray-400 block mb-1">الشهر</label>
@@ -365,9 +393,7 @@ export default function SubscriptionsPage() {
                 onChange={e => setSelectedMonth(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                {months.map(m => (
-                  <option key={m} value={m}>{formatMonth(m)}</option>
-                ))}
+                {months.map(m => <option key={m} value={m}>{formatMonth(m)}</option>)}
               </select>
             </div>
 
@@ -410,34 +436,21 @@ export default function SubscriptionsPage() {
             </div>
           </div>
 
-          {/* أزرار التعبئة السريعة */}
           <div className="flex gap-2">
-            <button
-              onClick={fillAllDefault}
-              className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors"
-            >
+            <button onClick={fillAllDefault} className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors">
               تعبئة الكل بالافتراضي
             </button>
-            <button
-              onClick={uncheckAll}
-              className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors"
-            >
+            <button onClick={uncheckAll} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors">
               إلغاء تحديد الكل
             </button>
           </div>
 
-          {/* فلاتر */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="w-full text-xs text-gray-400 flex items-center justify-center gap-1 py-1 cursor-pointer"
-          >
+          <button onClick={() => setShowFilters(!showFilters)} className="w-full text-xs text-gray-400 flex items-center justify-center gap-1 py-1 cursor-pointer">
             {showFilters ? 'إخفاء الفلاتر ▲' : 'إظهار الفلاتر ▼'}
           </button>
 
           {showFilters && (
             <div className="flex flex-col gap-2 pt-1 border-t border-gray-100">
-
-              {/* بحث بالاسم */}
               <div>
                 <label className="text-xs text-gray-400 block mb-1">بحث باسم المنزل</label>
                 <input
@@ -448,50 +461,32 @@ export default function SubscriptionsPage() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
-
               <div className="flex gap-2">
                 <div className="flex-1">
                   <label className="text-xs text-gray-400 block mb-1">المحور</label>
-                  <select
-                    value={filterSector}
-                    onChange={e => setFilterSector(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
-                  >
+                  <select value={filterSector} onChange={e => setFilterSector(e.target.value)} className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500">
                     {sectors.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div className="flex-1">
                   <label className="text-xs text-gray-400 block mb-1">الحالة</label>
-                  <select
-                    value={filterStatus}
-                    onChange={e => setFilterStatus(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
-                  >
-                    {['الكل', 'مدفوع', 'غير مدفوع', 'متأخر'].map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
+                  <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500">
+                    {['الكل', 'مدفوع', 'غير مدفوع', 'متأخر'].map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
               </div>
-
               <div>
                 <label className="text-xs text-gray-400 block mb-1">المنزل</label>
-                <select
-                  value={filterHouse}
-                  onChange={e => setFilterHouse(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
+                <select value={filterHouse} onChange={e => setFilterHouse(e.target.value)} className="w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500">
                   <option value="الكل">الكل</option>
-                  {houses.map(h => (
-                    <option key={h.id} value={h.id}>#{h.house_number} - {h.name}</option>
-                  ))}
+                  {houses.map(h => <option key={h.id} value={h.id}>#{h.house_number} - {h.name}</option>)}
                 </select>
               </div>
             </div>
           )}
         </div>
 
-        {/* ===== قائمة المنازل ===== */}
+        {/* قائمة المنازل */}
         <div className="space-y-2">
           {filteredHouses.length === 0 ? (
             <div className="text-center py-12 text-gray-400 text-sm">لا توجد نتائج</div>
@@ -499,10 +494,12 @@ export default function SubscriptionsPage() {
             filteredHouses.map(house => {
               const saved = monthlyData[house.id]
               const overdue = overdueMap[house.id]
+              const paidHistory = paidHistoryMap[house.id]
               const entry = entries[house.id] || { amount: '', checked: false }
               const isPaid = saved && entry.checked
               const isReadyToSave = !saved && entry.checked
               const isOverdueExpanded = expandedOverdue[house.id] || false
+              const isPaidExpanded = expandedPaid[house.id] || false
 
               return (
                 <div
@@ -511,19 +508,31 @@ export default function SubscriptionsPage() {
                     ${isPaid ? 'border-green-200' : overdue && !entry.checked ? 'border-red-200' : 'border-gray-200'}`}
                 >
                   {/* رأس البطاقة */}
-                  <div className={`px-4 py-3 flex justify-between items-center
+                  <div className={`px-4 py-3 flex justify-between items-center gap-2
                     ${isPaid ? 'bg-green-50' : overdue && !entry.checked ? 'bg-red-50' : 'bg-gray-50'}`}
                   >
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold text-gray-400">#{house.house_number}</span>
-                      <span className="font-bold text-gray-800 text-sm">{house.name}</span>
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      <span className="text-xs font-bold text-gray-400 flex-shrink-0">#{house.house_number}</span>
+                      <span className="font-bold text-gray-800 text-sm truncate">{house.name}</span>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex-shrink-0">
                         {house.sector}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      {/* زر المتأخرات — يظهر دائماً إذا وجدت، بغض النظر عن حالة الدفع */}
+                    <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
+
+                      {/* زر المدفوعات السابقة */}
+                      {paidHistory && (
+                        <button
+                          onClick={() => togglePaid(house.id)}
+                          className="text-xs px-2 py-1 rounded-full font-bold border transition-colors cursor-pointer flex items-center gap-1 bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
+                        >
+                          <span>{paidHistory.months} شهر مدفوع</span>
+                          <span>{isPaidExpanded ? '▲' : '▼'}</span>
+                        </button>
+                      )}
+
+                      {/* زر المتأخرات */}
                       {overdue && (
                         <button
                           onClick={() => toggleOverdue(house.id)}
@@ -540,22 +549,36 @@ export default function SubscriptionsPage() {
 
                       {/* الحالة */}
                       {isPaid ? (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">
-                          مدفوع ✓
-                        </span>
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">مدفوع ✓</span>
                       ) : isReadyToSave ? (
-                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold">
-                          جاهز ◎
-                        </span>
+                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold">جاهز ◎</span>
                       ) : (
-                        <span className="text-xs text-gray-400 px-2 py-1 rounded-full border border-gray-200">
-                          لم يُدفع
-                        </span>
+                        <span className="text-xs text-gray-400 px-2 py-1 rounded-full border border-gray-200">لم يُدفع</span>
                       )}
                     </div>
                   </div>
 
-                  {/* تفاصيل المتأخرات — accordion */}
+                  {/* accordion المدفوعات السابقة */}
+                  {paidHistory && isPaidExpanded && (
+                    <div className="px-4 py-2.5 border-t border-blue-100 bg-blue-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-blue-700">سجل المدفوعات</span>
+                        <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
+                          إجمالي: {paidHistory.total.toLocaleString()} جنيه
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {paidHistory.details.map(d => (
+                          <div key={d.month} className="flex justify-between items-center text-xs">
+                            <span className="text-blue-700 font-medium">{formatMonth(d.month)}</span>
+                            <span className="text-blue-600 font-bold">{d.amount.toLocaleString()} جنيه</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* accordion المتأخرات */}
                   {overdue && isOverdueExpanded && (
                     <div className={`px-4 py-2 border-t flex items-center gap-3
                       ${isPaid ? 'bg-orange-50 border-orange-100' : 'bg-red-50 border-red-100'}`}
@@ -564,8 +587,7 @@ export default function SubscriptionsPage() {
                         ${isPaid ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}`}>
                         {overdue.months} شهر متأخر
                       </span>
-                      <span className={`text-xs font-bold
-                        ${isPaid ? 'text-orange-600' : 'text-red-600'}`}>
+                      <span className={`text-xs font-bold ${isPaid ? 'text-orange-600' : 'text-red-600'}`}>
                         {overdue.total.toLocaleString()} جنيه متراكم
                       </span>
                     </div>
@@ -622,7 +644,6 @@ export default function SubscriptionsPage() {
         </p>
       </div>
 
-      {/* ===== زر الحفظ ثابت في الأسفل ===== */}
       <div className="fixed bottom-0 right-0 left-0 bg-white border-t border-gray-200 px-4 py-3 z-20 shadow-lg">
         <button
           onClick={saveAll}
@@ -635,7 +656,6 @@ export default function SubscriptionsPage() {
 
       <div className="h-20" />
 
-      {/* Toast */}
       {toast && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl text-sm shadow-lg z-50 whitespace-nowrap">
           {toast}
