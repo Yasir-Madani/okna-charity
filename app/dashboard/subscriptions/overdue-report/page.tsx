@@ -569,7 +569,7 @@ function btnStyle(bg: string): React.CSSProperties {
 }
 
 const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: 11, color: '#555', marginBottom: 5, fontWeight: 600
+  display: 'block', fontSize: 11, color: '#fff', marginBottom: 5, fontWeight: 600
 }
 
 const inputStyle: React.CSSProperties = {
