@@ -390,7 +390,7 @@ export default function OverdueReportPage() {
             <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${s.accent}28`, borderRadius: 14, padding: '14px', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: -10, left: -10, width: 55, height: 55, borderRadius: '50%', background: `${s.accent}14` }} />
               <div style={{ fontSize: 18, marginBottom: 5 }}>{s.icon}</div>
-              <p style={{ margin: '0 0 3px', fontSize: 19, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{s.value}</p>
+              <p style={{ margin: '0 0 3px', fontSize: 19, fontWeight: 900, color: s.accent, lineHeight: 1 }}>{s.value}</p>
               <p style={{ margin: 0, fontSize: 10, color: '#555' }}>{s.label}</p>
             </div>
           ))}

@@ -22,7 +22,7 @@ type Subscription = {
 type OverdueInfo = {
   months: number
   total: number
-  details: { month: string; amount: number }[] // تم إضافة التفاصيل هنا
+  details: { month: string; amount: number }[]
 }
 
 type PaidHistoryInfo = {
@@ -171,7 +171,6 @@ export default function SubscriptionsPage() {
       })
     }
 
-    // خريطة المدفوعات: house_id -> { month -> amount }
     const paidMap: Record<string, Map<string, number>> = {}
     if (allSubs) {
       allSubs.forEach(s => {
@@ -188,7 +187,7 @@ export default function SubscriptionsPage() {
     houses.forEach(h => {
       let overdueMonths = 0
       let overdueTotal = 0
-      const overdueDetails: { month: string; amount: number }[] = [] // مصفوفة تفاصيل المتأخرات
+      const overdueDetails: { month: string; amount: number }[] = []
       const paidDetails: { month: string; amount: number }[] = []
       let paidTotal = 0
 
@@ -205,7 +204,7 @@ export default function SubscriptionsPage() {
           overdueMonths++
           const overdueAmt = defaultAmountMap[key] || 0
           overdueTotal += overdueAmt
-          overdueDetails.push({ month: key, amount: overdueAmt }) // إضافة تفاصيل الشهر المتأخر
+          overdueDetails.push({ month: key, amount: overdueAmt })
         }
         cursor.setMonth(cursor.getMonth() - 1)
       }
@@ -389,55 +388,56 @@ export default function SubscriptionsPage() {
 
         {/* شريط التحكم */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 space-y-3">
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">الشهر</label>
-              <select
-                value={selectedMonth}
-                onChange={e => setSelectedMonth(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
-              >
-                {months.map(m => <option key={m} value={m}>{formatMonth(m)}</option>)}
-              </select>
-            </div>
 
-            <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">
-                المبلغ الافتراضي لـ {formatMonth(selectedMonth)}
-              </label>
-              <div className="flex gap-1">
-                <input
-                  type="number"
-                  min="0"
-                  value={defaultAmount}
-                  placeholder="أدخل المبلغ"
-                  onChange={e => {
-                    setDefaultAmount(e.target.value)
-                    setDefaultSaved(false)
-                    setDefaultAmountDirty(true)
-                  }}
-                  className={`flex-1 min-w-0 border rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-center
-                    ${defaultAmountDirty ? 'border-orange-400 bg-orange-50' : defaultSaved ? 'border-green-300 bg-green-50' : 'border-gray-300'}`}
-                />
-                <button
-                  onClick={saveDefaultAmount}
-                  disabled={savingDefault || (!defaultAmountDirty && defaultSaved)}
-                  className={`px-3 py-2.5 rounded-lg text-sm font-bold transition-colors cursor-pointer whitespace-nowrap flex-shrink-0
-                    ${defaultSaved && !defaultAmountDirty
-                      ? 'bg-green-100 text-green-700 border border-green-300'
-                      : 'bg-green-600 hover:bg-green-700 text-white'
-                    } disabled:opacity-50`}
-                >
-                  {savingDefault ? '...' : defaultSaved && !defaultAmountDirty ? '✓ محفوظ' : 'حفظ'}
-                </button>
-              </div>
-              {defaultAmountDirty && (
-                <p className="text-xs text-orange-500 mt-1">⚠️ لم يتم حفظ المبلغ بعد</p>
-              )}
-              {!defaultAmount && !defaultAmountDirty && (
-                <p className="text-xs text-red-400 mt-1">⚠️ لا يوجد مبلغ افتراضي لهذا الشهر</p>
-              )}
+          {/* ✅ إصلاح 1: فلتر الشهر في سطر كامل */}
+          <div className="w-full">
+            <label className="text-xs text-gray-400 block mb-1">الشهر</label>
+            <select
+              value={selectedMonth}
+              onChange={e => setSelectedMonth(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {months.map(m => <option key={m} value={m}>{formatMonth(m)}</option>)}
+            </select>
+          </div>
+
+          {/* ✅ إصلاح 2: المبلغ الافتراضي في سطر كامل */}
+          <div className="w-full">
+            <label className="text-xs text-gray-400 block mb-1">
+              المبلغ الافتراضي لـ {formatMonth(selectedMonth)}
+            </label>
+            <div className="flex gap-1">
+              <input
+                type="number"
+                min="0"
+                value={defaultAmount}
+                placeholder="أدخل المبلغ"
+                onChange={e => {
+                  setDefaultAmount(e.target.value)
+                  setDefaultSaved(false)
+                  setDefaultAmountDirty(true)
+                }}
+                className={`flex-1 min-w-0 border rounded-lg px-2 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-center
+                  ${defaultAmountDirty ? 'border-orange-400 bg-orange-50' : defaultSaved ? 'border-green-300 bg-green-50' : 'border-gray-300'}`}
+              />
+              <button
+                onClick={saveDefaultAmount}
+                disabled={savingDefault || (!defaultAmountDirty && defaultSaved)}
+                className={`px-3 py-2.5 rounded-lg text-sm font-bold transition-colors cursor-pointer whitespace-nowrap flex-shrink-0
+                  ${defaultSaved && !defaultAmountDirty
+                    ? 'bg-green-100 text-green-700 border border-green-300'
+                    : 'bg-green-600 hover:bg-green-700 text-white'
+                  } disabled:opacity-50`}
+              >
+                {savingDefault ? '...' : defaultSaved && !defaultAmountDirty ? '✓ محفوظ' : 'حفظ'}
+              </button>
             </div>
+            {defaultAmountDirty && (
+              <p className="text-xs text-orange-500 mt-1">⚠️ لم يتم حفظ المبلغ بعد</p>
+            )}
+            {!defaultAmount && !defaultAmountDirty && (
+              <p className="text-xs text-red-400 mt-1">⚠️ لا يوجد مبلغ افتراضي لهذا الشهر</p>
+            )}
           </div>
 
           <div className="flex gap-2">
@@ -511,19 +511,21 @@ export default function SubscriptionsPage() {
                   className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all
                     ${isPaid ? 'border-green-200' : overdue && !entry.checked ? 'border-red-200' : 'border-gray-200'}`}
                 >
-                  {/* رأس البطاقة */}
-                  <div className={`px-4 py-3 flex justify-between items-center gap-2
+                  {/* ✅ إصلاح 3: رأس البطاقة في سطرين */}
+                  <div className={`px-4 py-3 flex flex-col gap-2
                     ${isPaid ? 'bg-green-50' : overdue && !entry.checked ? 'bg-red-50' : 'bg-gray-50'}`}
                   >
-                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                    {/* السطر الأول: رقم المنزل + الاسم كاملاً + المحور */}
+                    <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-gray-400 flex-shrink-0">#{house.house_number}</span>
-                      <span className="font-bold text-gray-800 text-sm truncate">{house.name}</span>
+                      <span className="font-bold text-gray-800 text-sm">{house.name}</span>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex-shrink-0">
                         {house.sector}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
+                    {/* السطر الثاني: الأزرار */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
 
                       {/* زر المدفوعات السابقة */}
                       {paidHistory && (
@@ -582,7 +584,7 @@ export default function SubscriptionsPage() {
                     </div>
                   )}
 
-                  {/* accordion المتأخرات - تم تعديل هذا الجزء ليطابق المدفوعات */}
+                  {/* accordion المتأخرات */}
                   {overdue && isOverdueExpanded && (
                     <div className={`px-4 py-2.5 border-t
                       ${isPaid ? 'bg-orange-50 border-orange-100' : 'bg-red-50 border-red-100'}`}
