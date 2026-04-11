@@ -296,10 +296,9 @@ export default function OverviewPage() {
         .ov-info-block {
           padding: 10px 16px 10px;
           display: flex;
-          flex-direction: row;      /* ✅ الأيقونة + التسمية في صف، والقيمة بجانبها */
+          flex-direction: row;
           align-items: center;
-          justify-content: space-between;
-          gap: 8px;
+          gap: 10px;
         }
 
         /* فاصل بين السطرين */
@@ -332,14 +331,25 @@ export default function OverviewPage() {
           color: #fff;
           font-weight: 600;
           letter-spacing: 0.04em;
+          white-space: nowrap;
         }
 
+        /* الفاصل الشكلي بعد العنوان */
+        .ov-info-divider {
+          flex: 0 0 auto;
+          width: 1px;
+          height: 18px;
+          background: linear-gradient(to bottom, transparent, rgba(20,180,100,0.5), transparent);
+          margin: 0 2px;
+        }
+
+        /* القيمة في المنتصف */
         .ov-info-value {
+          flex: 1;
           font-size: 14px;
           font-weight: 700;
           color: rgba(255,255,255,0.88);
-          text-align: left;
-          direction: rtl;
+          text-align: center;       /* ✅ في المنتصف */
         }
 
         /* ── CARD FOOTER ── */
@@ -535,6 +545,7 @@ export default function OverviewPage() {
                           </div>
                           <span className="ov-info-label">اسم المنزل</span>
                         </div>
+                        <div className="ov-info-divider" />
                         <span className="ov-info-value">{row.house_name}</span>
                       </div>
 
@@ -551,6 +562,7 @@ export default function OverviewPage() {
                           </div>
                           <span className="ov-info-label">اسم الأسرة</span>
                         </div>
+                        <div className="ov-info-divider" />
                         <span className="ov-info-value">{row.family_name}</span>
                       </div>
 
