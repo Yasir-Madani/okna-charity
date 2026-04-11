@@ -22,6 +22,7 @@ type Subscription = {
 type OverdueInfo = {
   months: number
   total: number
+  details: { month: string; amount: number }[] // تم إضافة التفاصيل هنا
 }
 
 type PaidHistoryInfo = {
@@ -187,6 +188,7 @@ export default function SubscriptionsPage() {
     houses.forEach(h => {
       let overdueMonths = 0
       let overdueTotal = 0
+      const overdueDetails: { month: string; amount: number }[] = [] // مصفوفة تفاصيل المتأخرات
       const paidDetails: { month: string; amount: number }[] = []
       let paidTotal = 0
 
@@ -201,13 +203,15 @@ export default function SubscriptionsPage() {
           paidTotal += amt
         } else {
           overdueMonths++
-          overdueTotal += defaultAmountMap[key] || 0
+          const overdueAmt = defaultAmountMap[key] || 0
+          overdueTotal += overdueAmt
+          overdueDetails.push({ month: key, amount: overdueAmt }) // إضافة تفاصيل الشهر المتأخر
         }
         cursor.setMonth(cursor.getMonth() - 1)
       }
 
       if (overdueMonths > 0) {
-        overdue[h.id] = { months: overdueMonths, total: overdueTotal }
+        overdue[h.id] = { months: overdueMonths, total: overdueTotal, details: overdueDetails }
       }
       if (paidDetails.length > 0) {
         paidHistory[h.id] = { months: paidDetails.length, total: paidTotal, details: paidDetails }
@@ -578,18 +582,33 @@ export default function SubscriptionsPage() {
                     </div>
                   )}
 
-                  {/* accordion المتأخرات */}
+                  {/* accordion المتأخرات - تم تعديل هذا الجزء ليطابق المدفوعات */}
                   {overdue && isOverdueExpanded && (
-                    <div className={`px-4 py-2 border-t flex items-center gap-3
+                    <div className={`px-4 py-2.5 border-t
                       ${isPaid ? 'bg-orange-50 border-orange-100' : 'bg-red-50 border-red-100'}`}
                     >
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-bold
-                        ${isPaid ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}`}>
-                        {overdue.months} شهر متأخر
-                      </span>
-                      <span className={`text-xs font-bold ${isPaid ? 'text-orange-600' : 'text-red-600'}`}>
-                        {overdue.total.toLocaleString()} جنيه متراكم
-                      </span>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`text-xs font-bold ${isPaid ? 'text-orange-700' : 'text-red-700'}`}>
+                          سجل المتأخرات
+                        </span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full
+                          ${isPaid ? 'text-orange-600 bg-orange-100' : 'text-red-600 bg-red-100'}`}
+                        >
+                          إجمالي: {overdue.total.toLocaleString()} جنيه
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {overdue.details.map(d => (
+                          <div key={d.month} className="flex justify-between items-center text-xs">
+                            <span className={`font-medium ${isPaid ? 'text-orange-700' : 'text-red-700'}`}>
+                              {formatMonth(d.month)}
+                            </span>
+                            <span className={`font-bold ${isPaid ? 'text-orange-600' : 'text-red-600'}`}>
+                              {d.amount.toLocaleString()} جنيه
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
