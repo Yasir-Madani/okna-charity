@@ -53,7 +53,7 @@ export default function InstallPrompt() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700;800&display=swap');
         .pwa-overlay {
           position: fixed; inset: 0;
           background: rgba(0,0,0,0.55);
@@ -65,7 +65,7 @@ export default function InstallPrompt() {
         .pwa-sheet {
           position: fixed; bottom: 0; left: 0; right: 0;
           z-index: 9999;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           direction: rtl;
           background: #0f1a2e;
           border-top: 1px solid rgba(20,180,100,0.25);
@@ -88,15 +88,17 @@ export default function InstallPrompt() {
           color: rgba(255,255,255,0.75);
           padding: 10px 0 22px;
           letter-spacing: 0.03em;
+            font-family: 'Cairo', sans-serif;  /* ← أضف هذا */
+
         }
         .pwa-steps { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px 16px; margin-bottom:18px; display:flex; flex-direction:column; gap:10px; }
         .pwa-step { display:flex; align-items:center; gap:10px; }
         .pwa-step-num { width:22px; height:22px; border-radius:50%; background:rgba(20,180,100,0.2); border:1px solid rgba(20,180,100,0.4); color:#14b464; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .pwa-step-text { font-size:13px; color:rgba(255,255,255,0.75); font-weight:500; }
         .pwa-step-text strong { color:#fff; }
-        .pwa-btn-install { width:100%; padding:15px; border-radius:14px; background:linear-gradient(135deg,#14b464,#0d8045); color:#fff; font-family:'Tajawal',sans-serif; font-size:16px; font-weight:800; border:none; cursor:pointer; margin-bottom:10px; box-shadow:0 4px 20px rgba(20,180,100,0.35); transition:transform 0.15s ease; letter-spacing:0.02em; }
+        .pwa-btn-install { width:100%; padding:15px; border-radius:14px; background:linear-gradient(135deg,#14b464,#0d8045); color:#fff; font-family:'Cairo',sans-serif; font-size:16px; font-weight:800; border:none; cursor:pointer; margin-bottom:10px; box-shadow:0 4px 20px rgba(20,180,100,0.35); transition:transform 0.15s ease; letter-spacing:0.02em; }
         .pwa-btn-install:active { transform:scale(0.98); }
-        .pwa-btn-dismiss { width:100%; padding:13px; border-radius:14px; background:transparent; color:rgba(255,255,255,0.35); font-family:'Tajawal',sans-serif; font-size:14px; font-weight:500; border:1px solid rgba(255,255,255,0.08); cursor:pointer; }
+        .pwa-btn-dismiss { width:100%; padding:13px; border-radius:14px; background:transparent; color:rgba(255,255,255,0.35); font-family:'Cairo',sans-serif; font-size:14px; font-weight:500; border:1px solid rgba(255,255,255,0.08); cursor:pointer; }
         .pwa-btn-dismiss:hover { color:rgba(255,255,255,0.6); border-color:rgba(255,255,255,0.2); }
       `}</style>
 

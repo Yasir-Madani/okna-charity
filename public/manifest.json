@@ -1,10 +1,10 @@
 {
-  "name": "جمعية نهضة العكنة",
+  "name": "جمعية نهضة العكنة الخيرية",
   "short_name": "العكنة",
   "description": "نظام الإحصاء السكاني والاشتراكات",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0f1e",
+  "background_color": "#ffffff",
   "theme_color": "#14b464",
   "orientation": "portrait",
   "icons": [
