@@ -79,8 +79,8 @@ export default function InstallPrompt() {
         .pwa-top { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
         .pwa-icon { width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,#14b464,#0a7a3e); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 20px rgba(20,180,100,0.4); }
         .pwa-icon svg { width:28px; height:28px; color:#fff; }
-        .pwa-texts h3 { font-size:18px; font-weight:800; color:#fff; margin-bottom:4px; }
-        .pwa-texts p { font-size:13px; color:rgba(255,255,255,0.55); font-weight:400; line-height:1.5; }
+        .pwa-texts h3 { font-size:18px; font-weight:800; color:#fff; margin-bottom:4px; font-family:'Cairo',sans-serif; }
+.pwa-texts p { font-size:13px; color:rgba(255,255,255,0.55); font-weight:400; line-height:1.5; font-family:'Cairo',sans-serif; }
         .pwa-name {
           text-align: center;
           font-size: 15px;
