@@ -89,7 +89,7 @@ export default function HomePage() {
           <h1 className="text-white text-xl font-extrabold mb-1 tracking-tight">
            جمعية نهضة العكنة الخيرية
           </h1>
-          <p className="text-white/50 text-xs">بوابة المعلومات والخدمات</p>
+          <p className="text-white/50 text-xs">بوابة الإحصاء والمعلومات</p>
         </div>
       </div>
 
