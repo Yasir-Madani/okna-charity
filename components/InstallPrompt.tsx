@@ -280,21 +280,17 @@ export default function InstallPrompt() {
         </div>
 
         {/* مميزات */}
-        <div className="pwa-features">
-          <div className="pwa-feat">
-            <div className="pwa-feat-icon">⚡</div>
-            <div className="pwa-feat-label">أسرع</div>
-          </div>
-          <div className="pwa-feat">
-            <div className="pwa-feat-icon">📴</div>
-            <div className="pwa-feat-label">بدون نت</div>
-          </div>
-          <div className="pwa-feat">
-            <div className="pwa-feat-icon">🔔</div>
-            <div className="pwa-feat-label">إشعارات</div>
-          </div>
-        </div>
 
+<div style={{
+  textAlign: 'center',
+  fontSize: '15px',
+  fontWeight: '700',
+  color: '#14b464',
+  padding: '10px 0 22px',
+  letterSpacing: '0.03em'
+}}>
+  جمعية نهضة العكنة الخيرية
+</div>
         {/* iOS: خطوات يدوية */}
         {isIOS && (
           <div className="pwa-steps">
