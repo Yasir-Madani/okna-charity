@@ -217,7 +217,7 @@ export default function ProjectsPage() {
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
                   placeholder="اكتب وصفاً موجزاً للمشروع وأهدافه..."
-                  className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none leading-relaxed"
+                  className="w-full border border-black-500 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none leading-relaxed"
                 />
               </div>
               <div className="flex gap-2 pt-1">
