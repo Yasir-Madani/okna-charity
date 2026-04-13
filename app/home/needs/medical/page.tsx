@@ -135,73 +135,65 @@ export default function MedicalNeedsPage() {
     setExporting(null)
   }
 
-  // ── تصدير PDF عبر طباعة المتصفح (دعم كامل للعربية) ──
-  const exportPDF = () => {
-    const date = new Date().toLocaleDateString('ar-EG')
-    const rows = needs.map(n => `
-      <tr>
-        <td style="text-align:center;padding:8px 10px;border-bottom:1px solid #e2e8f0;">${n.number}</td>
-        <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;">${n.category}</td>
-        <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;color:#4b5563;">${n.description}</td>
-        <td style="text-align:center;padding:8px 10px;border-bottom:1px solid #e2e8f0;font-weight:700;color:#0f766e;">${n.quantity}</td>
-      </tr>`).join('')
+  // ── تصدير PDF — تنزيل مباشر بدون نافذة طباعة ──
+  const exportPDF = async () => {
+    setExporting('pdf')
+    try {
+      const html2pdf = (await import('html2pdf.js')).default
+      const date = new Date().toLocaleDateString('ar-EG')
 
-    const html = `
-      <!DOCTYPE html>
-      <html dir="rtl" lang="ar">
-      <head>
-        <meta charset="UTF-8"/>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-        <title>الحوجات الطبية</title>
-        <style>
-          * { margin:0; padding:0; box-sizing:border-box; }
-          body { font-family:'Cairo',sans-serif; direction:rtl; padding:24px; color:#1e293b; }
-          .header { text-align:center; margin-bottom:20px; }
-          .header h1 { font-size:20px; font-weight:800; color:#0f2a5e; margin-bottom:4px; }
-          .header p  { font-size:12px; color:#64748b; }
-          .divider { height:3px; background:linear-gradient(to left,#0f766e,#0f2a5e); border-radius:4px; margin-bottom:20px; }
-          table { width:100%; border-collapse:collapse; font-size:13px; }
-          thead tr { background:#0f766e; color:#fff; }
-          thead th { padding:10px 12px; font-weight:700; text-align:right; }
-          thead th:first-child { text-align:center; width:40px; }
-          thead th:last-child  { text-align:center; width:90px; }
-          tbody tr:nth-child(even) { background:#f0fdfa; }
-          .footer { margin-top:24px; text-align:center; font-size:11px; color:#94a3b8; }
-          .badge { display:inline-block; background:#ccfbf1; color:#0f766e; padding:2px 10px; border-radius:20px; font-weight:700; font-size:12px; }
-          .total-row { margin-top:14px; background:#0f2a5e; color:#fff; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; }
-          @media print { body { padding:16px; } }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>الحوجات الطبية — جمعية نهضة العكنة الخيرية</h1>
-          <p>تاريخ الطباعة: ${date}</p>
-        </div>
-        <div class="divider"></div>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>الصنف</th>
-              <th>الوصف</th>
-              <th>العدد</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-        <div class="total-row">
-          <span>إجمالي الحوجات الطبية المسجلة</span>
-          <span class="badge">${needs.length} صنف</span>
-        </div>
-        <div class="footer">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</div>
-        <script>
-          window.onload = () => { window.print(); window.onafterprint = () => window.close(); }
-        </script>
-      </body>
-      </html>`
+      const rows = needs.map(n => `
+        <tr>
+          <td style="text-align:center;padding:8px 10px;border-bottom:1px solid #e2e8f0;">${n.number}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;">${n.category}</td>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;color:#4b5563;">${n.description}</td>
+          <td style="text-align:center;padding:8px 10px;border-bottom:1px solid #e2e8f0;font-weight:700;color:#0f766e;">${n.quantity}</td>
+        </tr>`).join('')
 
-    const win = window.open('', '_blank')
-    if (win) { win.document.write(html); win.document.close() }
+      const el = document.createElement('div')
+      el.innerHTML = `
+        <div style="font-family:Arial,sans-serif;direction:rtl;padding:24px;color:#1e293b;">
+          <div style="text-align:center;margin-bottom:16px;">
+            <h1 style="font-size:18px;font-weight:800;color:#0f2a5e;margin-bottom:4px;">
+              الحوجات الطبية — جمعية نهضة العكنة الخيرية
+            </h1>
+            <p style="font-size:11px;color:#64748b;">تاريخ التصدير: ${date}</p>
+          </div>
+          <div style="height:3px;background:#0f766e;border-radius:4px;margin-bottom:18px;"></div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:#0f766e;color:#fff;">
+                <th style="padding:9px 10px;text-align:center;width:36px;">#</th>
+                <th style="padding:9px 10px;text-align:right;">الصنف</th>
+                <th style="padding:9px 10px;text-align:right;">الوصف</th>
+                <th style="padding:9px 10px;text-align:center;width:80px;">العدد</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div style="margin-top:14px;background:#0f2a5e;color:#fff;padding:10px 14px;border-radius:8px;display:flex;justify-content:space-between;">
+            <span style="font-size:12px;">إجمالي الحوجات الطبية المسجلة</span>
+            <span style="background:#ccfbf1;color:#0f766e;padding:2px 12px;border-radius:20px;font-weight:700;font-size:12px;">${needs.length} صنف</span>
+          </div>
+          <div style="margin-top:20px;text-align:center;font-size:10px;color:#94a3b8;">
+            جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
+          </div>
+        </div>`
+
+      await html2pdf()
+        .set({
+          margin: 8,
+          filename: 'الحوجات_الطبية.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        })
+        .from(el)
+        .save()
+    } catch {
+      alert('تعذّر تصدير PDF، تأكد من تثبيت مكتبة html2pdf.js')
+    }
+    setExporting(null)
   }
 
   return (
@@ -236,10 +228,10 @@ export default function MedicalNeedsPage() {
             </button>
             <button
               onClick={exportPDF}
-              disabled={needs.length === 0}
+              disabled={exporting !== null || needs.length === 0}
               className="flex items-center gap-1 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
             >
-              📄 PDF
+              {exporting === 'pdf' ? '...' : '📄 PDF'}
             </button>
           </div>
         </div>
