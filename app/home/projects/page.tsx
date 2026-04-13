@@ -268,7 +268,7 @@ export default function ProjectsPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-black-800 leading-snug">{project.name}</p>
                     {project.description && (
-                      <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-gray-1000 mt-1.5 leading-relaxed">
                         {project.description}
                       </p>
                     )}
@@ -299,7 +299,7 @@ export default function ProjectsPage() {
 
         {/* ملخص */}
         {projects.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-900 px-4 py-3 mt-4 flex items-center justify-between">
+          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-gray-900">إجمالي المشاريع</p>
               <p className="text-xs text-gray-900 mt-0.5">
