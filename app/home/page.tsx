@@ -39,7 +39,7 @@ export default function HomePage() {
   { label: 'مشاريع الجمعية',       icon: '🏗️', path: '/home/projects',      iconBg: 'bg-blue-50',    iconColor: 'text-blue-600',   bar: 'bg-blue-400',    sub: 'إنجازاتنا ومبادراتنا' },
   { label: 'ممتلكات الجمعية',      icon: '🏗️', path: '/home/assets',        iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600',bar: 'bg-emerald-400', sub: 'الأصول والعقار' },
   { label: 'إدارة الجمعية',        icon: '👥', path: '/home/members',       iconBg: 'bg-purple-50',  iconColor: 'text-purple-600', bar: 'bg-purple-400',  sub: 'الهيئة الإدارية'},
-  { label: 'أسماء المنازل والأسر', icon: '🏘️', path: '/dashboard/overview', iconBg: 'bg-orange-50',  iconColor: 'text-orange-600', bar: 'bg-orange-400',  sub: 'دليل الأسر والمنازل' },
+  { label: 'المنازل والأسر',        icon: '🏘️', path: '/dashboard/overview', iconBg: 'bg-orange-50',  iconColor: 'text-orange-600', bar: 'bg-orange-400',  sub: 'دليل الأسر والمنازل' },
 ]
 
   return (
