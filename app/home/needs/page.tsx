@@ -20,19 +20,21 @@ export default function NeedsHubPage() {
         <div className="absolute -top-10 -left-10 w-40 h-40 rounded-full bg-white/5" />
         <div className="absolute top-4 left-20 w-16 h-16 rounded-full bg-white/5" />
 
-        <div className="flex items-center justify-between mb-4">
+        {/* زر الرجوع */}
+        <div className="mb-2">
           <button
             onClick={() => router.push('/home')}
             className="text-white/70 text-sm flex items-center gap-1 hover:text-white transition-colors"
           >
             ← رجوع
           </button>
-          <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-lg">
-            📋
-          </div>
         </div>
 
-        <div>
+        {/* القسم الأوسط: الأيقونة والعناوين */}
+        <div className="flex flex-col items-center text-center mt-2">
+          <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-lg mb-3">
+            📋
+          </div>
           <h1 className="text-white text-lg font-extrabold tracking-tight">حوجة الجمعية</h1>
           <p className="text-white/50 text-xs mt-0.5">اختر نوع الاحتياجات</p>
         </div>
