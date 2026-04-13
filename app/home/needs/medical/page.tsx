@@ -8,40 +8,54 @@ interface MedicalNeed {
   number: number
   category: string
   description: string
-  quantity: string // نص يقبل "غير محدد" وأرقام
+  quantity: string
+  created_by?: string
+  created_at?: string
 }
 
 export default function MedicalNeedsPage() {
   const [needs, setNeeds] = useState<MedicalNeed[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
+  const [togglingVisibility, setTogglingVisibility] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<MedicalNeed | null>(null)
   const [form, setForm] = useState({ category: '', description: '', quantity: '' })
+  const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    checkAdmin()
-    loadNeeds()
-  }, [])
+  useEffect(() => { fetchData() }, [])
 
-  const checkAdmin = async () => {
+  const fetchData = async () => {
+    setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (user) setIsAdmin(true)
+
+    const { data: visData } = await supabase
+      .from('page_visibility')
+      .select('is_visible')
+      .eq('page_key', 'medical_needs')
+      .single()
+    if (visData) setIsVisible(visData.is_visible)
+
+    const { data } = await supabase
+      .from('medical_needs')
+      .select('*')
+      .order('number', { ascending: true })
+    if (data) setNeeds(data)
+    setLoading(false)
   }
 
-  // ── تخزين محلي فقط (بدون قاعدة بيانات) ──
-  const STORAGE_KEY = 'medical_needs_data'
-
-  const loadNeeds = () => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) setNeeds(JSON.parse(stored))
-    } catch {}
-  }
-
-  const saveNeeds = (updated: MedicalNeed[]) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    setNeeds(updated)
+  const toggleVisibility = async () => {
+    setTogglingVisibility(true)
+    const newVal = !isVisible
+    await supabase
+      .from('page_visibility')
+      .update({ is_visible: newVal, updated_at: new Date().toISOString() })
+      .eq('page_key', 'medical_needs')
+    setIsVisible(newVal)
+    setTogglingVisibility(false)
   }
 
   const resetForm = () => {
@@ -50,29 +64,37 @@ export default function MedicalNeedsPage() {
     setShowForm(false)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // إعادة ترقيم تلقائي بعد كل تعديل
+  const reorderNumbers = async (items: MedicalNeed[]) => {
+    const updates = items.map((item, i) => ({ id: item.id, number: i + 1 }))
+    for (const u of updates) {
+      await supabase.from('medical_needs').update({ number: u.number }).eq('id', u.id)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
     if (editing) {
-      const updated = needs.map(n =>
-        n.id === editing.id
-          ? { ...n, category: form.category.trim(), description: form.description.trim(), quantity: form.quantity.trim() }
-          : n
-      )
-      saveNeeds(updated)
-    } else {
-      const newItem: MedicalNeed = {
-        id: Date.now().toString(),
-        number: needs.length + 1,
+      await supabase.from('medical_needs').update({
         category: form.category.trim(),
         description: form.description.trim(),
         quantity: form.quantity.trim(),
-      }
-      const updated = [...needs, newItem]
-      // إعادة ترقيم
-      const reNumbered = updated.map((n, i) => ({ ...n, number: i + 1 }))
-      saveNeeds(reNumbered)
+      }).eq('id', editing.id)
+    } else {
+      const nextNumber = needs.length + 1
+      await supabase.from('medical_needs').insert({
+        number: nextNumber,
+        category: form.category.trim(),
+        description: form.description.trim(),
+        quantity: form.quantity.trim(),
+        created_by: user.id,
+      })
     }
     resetForm()
+    fetchData()
   }
 
   const handleEdit = (need: MedicalNeed) => {
@@ -81,10 +103,68 @@ export default function MedicalNeedsPage() {
     setShowForm(true)
   }
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return
-    const updated = needs.filter(n => n.id !== id).map((n, i) => ({ ...n, number: i + 1 }))
-    saveNeeds(updated)
+    await supabase.from('medical_needs').delete().eq('id', id)
+    // إعادة ترقيم
+    const remaining = needs.filter(n => n.id !== id)
+    await reorderNumbers(remaining)
+    fetchData()
+  }
+
+  // ── تصدير Excel ──
+  const exportExcel = async () => {
+    setExporting('excel')
+    try {
+      const { utils, writeFile } = await import('xlsx')
+      const rows = needs.map(n => ({
+        'الرقم': n.number,
+        'الصنف': n.category,
+        'الوصف': n.description,
+        'العدد': n.quantity,
+      }))
+      const ws = utils.json_to_sheet(rows, { skipHeader: false })
+      // عرض الأعمدة
+      ws['!cols'] = [{ wch: 8 }, { wch: 22 }, { wch: 35 }, { wch: 14 }]
+      const wb = utils.book_new()
+      utils.book_append_sheet(wb, ws, 'الحوجات الطبية')
+      writeFile(wb, 'الحوجات_الطبية.xlsx')
+    } catch {
+      alert('تعذّر تصدير Excel، تأكد من تثبيت مكتبة xlsx')
+    }
+    setExporting(null)
+  }
+
+  // ── تصدير PDF ──
+  const exportPDF = async () => {
+    setExporting('pdf')
+    try {
+      const { default: jsPDF } = await import('jspdf')
+      const { default: autoTable } = await import('jspdf-autotable')
+
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+      // عنوان (لا دعم عربي مدمج في jsPDF - نستخدم الأحرف كما هي)
+      doc.setFontSize(16)
+      doc.text('Medical Needs - الحوجات الطبية', 105, 18, { align: 'center' })
+      doc.setFontSize(10)
+      doc.text(`جمعية نهضة العكنة الخيرية  |  ${new Date().toLocaleDateString('ar-EG')}`, 105, 26, { align: 'center' })
+
+      autoTable(doc, {
+        startY: 32,
+        head: [['#', 'Category / الصنف', 'Description / الوصف', 'Qty / العدد']],
+        body: needs.map(n => [n.number, n.category, n.description, n.quantity]),
+        styles: { font: 'helvetica', fontSize: 10, halign: 'left' },
+        headStyles: { fillColor: [15, 118, 110], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [240, 253, 250] },
+        columnStyles: { 0: { cellWidth: 12, halign: 'center' }, 3: { cellWidth: 28, halign: 'center' } },
+      })
+
+      doc.save('الحوجات_الطبية.pdf')
+    } catch {
+      alert('تعذّر تصدير PDF، تأكد من تثبيت jspdf و jspdf-autotable')
+    }
+    setExporting(null)
   }
 
   return (
@@ -108,23 +188,87 @@ export default function MedicalNeedsPage() {
             ← رجوع
           </button>
           <h1 className="text-base font-semibold tracking-wide">الحوجات الطبية</h1>
-          <div className="w-12" />
+          {/* أزرار التصدير */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={exportExcel}
+              disabled={exporting !== null || needs.length === 0}
+              className="flex items-center gap-1 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
+            >
+              {exporting === 'excel' ? '...' : '📊 Excel'}
+            </button>
+            <button
+              onClick={exportPDF}
+              disabled={exporting !== null || needs.length === 0}
+              className="flex items-center gap-1 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
+            >
+              {exporting === 'pdf' ? '...' : '📄 PDF'}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-4">
+      <div className="max-w-lg mx-auto px-4 py-4 relative min-h-[60vh]">
 
-        {/* Add Button */}
+        {/* ── شاشة التغطية للزائر ── */}
+        {!loading && !isAdmin && !isVisible && (
+          <div className="absolute inset-0 z-20 flex items-start justify-center pt-6 px-0">
+            <div className="absolute inset-0 bg-gray-100 bg-opacity-80 backdrop-blur-sm rounded-2xl" />
+            <div className="relative bg-white rounded-2xl border border-gray-100 p-8 text-center w-full shadow-sm">
+              <p className="text-4xl mb-4">🏥</p>
+              <h2 className="text-base font-semibold text-gray-800 mb-2">البيانات قيد الإدخال</h2>
+              <p className="text-gray-400 text-sm leading-loose mb-5">
+                يتم حالياً إدخال وتدقيق البيانات
+                <br />
+                ستتوفر للعرض بعد اكتمال عملية الإدخال
+              </p>
+              <div className="bg-teal-50 rounded-xl p-3 mb-5">
+                <p className="text-teal-600 text-sm">نعتذر عن عدم توفر البيانات مؤقتاً</p>
+              </div>
+              <button
+                onClick={() => router.push('/home/needs')}
+                className="w-full bg-teal-700 text-white py-2.5 rounded-xl text-sm font-semibold cursor-pointer hover:bg-teal-800 transition-colors"
+              >
+                العودة للصفحة السابقة
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── التحكم بالرؤية (أدمن) ── */}
+        {isAdmin && (
+          <div className="mb-4 flex items-center justify-between bg-white border border-gray-100 rounded-xl px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-700">حالة الصفحة للزوار</p>
+              <p className={`text-xs mt-0.5 font-medium ${isVisible ? 'text-green-600' : 'text-red-500'}`}>
+                {isVisible ? '✅ مرئية للزوار' : '🔒 مخفية — تغطية نشطة'}
+              </p>
+            </div>
+            <button
+              onClick={toggleVisibility}
+              disabled={togglingVisibility}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
+                isVisible
+                  ? 'bg-red-50 text-red-500 hover:bg-red-100'
+                  : 'bg-green-50 text-green-600 hover:bg-green-100'
+              }`}
+            >
+              {togglingVisibility ? '...' : isVisible ? '🔒 إخفاء' : '🔓 إظهار'}
+            </button>
+          </div>
+        )}
+
+        {/* ── زر إضافة ── */}
         {isAdmin && (
           <button
             onClick={() => { resetForm(); setShowForm(!showForm) }}
             className="w-full bg-teal-700 hover:bg-teal-800 text-white rounded-xl py-3 text-sm font-semibold mb-4 transition-colors cursor-pointer"
           >
-            + إضافة حوجة طبية
+            {showForm && !editing ? '✕ إغلاق النموذج' : '+ إضافة حوجة طبية'}
           </button>
         )}
 
-        {/* Form */}
+        {/* ── نموذج الإضافة/التعديل ── */}
         {showForm && (
           <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4 shadow-sm">
             <h3 className="text-sm font-bold text-gray-700 mb-4">
@@ -180,26 +324,28 @@ export default function MedicalNeedsPage() {
           </div>
         )}
 
-        {/* Empty State */}
-        {needs.length === 0 ? (
+        {/* ── Loading ── */}
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-7 h-7 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : needs.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-5xl mb-4">🏥</p>
             <p className="text-gray-400 text-sm font-medium">لا توجد حوجات طبية مسجلة بعد</p>
-            {isAdmin && (
-              <p className="text-gray-300 text-xs mt-1">اضغط "إضافة حوجة طبية" للبدء</p>
-            )}
+            {isAdmin && <p className="text-gray-300 text-xs mt-1">اضغط "إضافة حوجة طبية" للبدء</p>}
           </div>
         ) : (
           <>
-            {/* Column Headers */}
+            {/* ── رؤوس الأعمدة ── */}
             <div className="grid grid-cols-12 gap-2 px-3 pb-1">
               <div className="col-span-1 text-center">
                 <p className="text-xs font-bold text-gray-400">#</p>
               </div>
-              <div className="col-span-4">
+              <div className="col-span-3">
                 <p className="text-xs font-bold text-gray-400">الصنف</p>
               </div>
-              <div className="col-span-4">
+              <div className="col-span-5">
                 <p className="text-xs font-bold text-gray-400">الوصف</p>
               </div>
               <div className="col-span-3 text-center">
@@ -207,7 +353,7 @@ export default function MedicalNeedsPage() {
               </div>
             </div>
 
-            {/* List */}
+            {/* ── قائمة الحوجات ── */}
             <div className="space-y-2">
               {needs.map(need => (
                 <div
@@ -216,24 +362,17 @@ export default function MedicalNeedsPage() {
                   style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
                 >
                   <div className="grid grid-cols-12 gap-2 items-center">
-                    {/* Number */}
                     <div className="col-span-1 flex justify-center">
                       <span className="w-6 h-6 rounded-full bg-teal-50 text-teal-700 text-xs font-bold flex items-center justify-center">
                         {need.number}
                       </span>
                     </div>
-
-                    {/* Category */}
-                    <div className="col-span-4">
+                    <div className="col-span-3">
                       <p className="text-sm font-bold text-gray-800 leading-tight">{need.category}</p>
                     </div>
-
-                    {/* Description */}
-                    <div className="col-span-4">
+                    <div className="col-span-5">
                       <p className="text-xs text-gray-500 leading-tight">{need.description}</p>
                     </div>
-
-                    {/* Quantity */}
                     <div className="col-span-3 text-center">
                       <span className="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-2 py-1 rounded-lg">
                         {need.quantity}
@@ -241,7 +380,6 @@ export default function MedicalNeedsPage() {
                     </div>
                   </div>
 
-                  {/* Admin actions */}
                   {isAdmin && (
                     <div className="flex gap-3 justify-end mt-2 pt-2 border-t border-gray-50">
                       <button
@@ -262,7 +400,7 @@ export default function MedicalNeedsPage() {
               ))}
             </div>
 
-            {/* Summary */}
+            {/* ── ملخص ── */}
             <div className="bg-teal-700 rounded-2xl px-4 py-3 mt-4 flex items-center justify-between">
               <p className="text-white/80 text-xs font-medium">إجمالي الحوجات الطبية</p>
               <span className="bg-white text-teal-700 text-sm font-extrabold px-3 py-1 rounded-full">
