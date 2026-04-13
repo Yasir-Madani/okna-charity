@@ -86,7 +86,7 @@ export default function NeedsHubPage() {
       </div>
 
       <footer className="text-center pb-6">
-        <p className="text-gray-400 text-xs">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
+        <p className="text-black-400 text-xs">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </footer>
     </div>
   )

@@ -326,7 +326,7 @@ export default function GeneralNeedsPage() {
           </div>
         )}
 
-        <p className="text-center text-gray-300 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
+        <p className="text-center text-black-300 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </div>
     </div>
   )

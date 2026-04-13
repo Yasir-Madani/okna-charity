@@ -114,7 +114,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-gray-900">{item.label}</p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
+                  <p className="text-xs text-gray-800 mt-0.5 leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -130,7 +130,7 @@ export default function ContactPage() {
           </div>
           <div className="flex-1 text-right">
             <p className="text-sm font-bold text-gray-900">أوقات التواصل</p>
-            <p className="text-xs text-gray-400 mt-0.5">من السبت إلى الخميس</p>
+            <p className="text-xs text-gray-800 mt-0.5">من السبت إلى الخميس</p>
           </div>
           <div className="bg-[#eaf6f1] text-[#0d7a60] text-sm font-bold px-3.5 py-1.5 rounded-[10px]">
             8ص — 10م

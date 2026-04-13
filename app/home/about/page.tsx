@@ -84,7 +84,7 @@ export default function AboutPage() {
                   value={editContent}
                   onChange={e => setEditContent(e.target.value)}
                   rows={12}
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-700 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full border border-black-200 rounded-xl p-3 text-sm text-gray-700 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
                   placeholder="اكتب نبذة عن الجمعية هنا..."
                 />
                 <div className="flex gap-2 mt-3">
@@ -93,7 +93,7 @@ export default function AboutPage() {
                     {saving ? 'جاري الحفظ...' : 'حفظ'}
                   </button>
                   <button onClick={() => { setEditing(false); setEditContent(content) }}
-                    className="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-gray-200 transition-all">
+                    className="flex-1 bg-black-100 text-gray-600 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-gray-200 transition-all">
                     إلغاء
                   </button>
                 </div>
