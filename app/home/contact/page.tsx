@@ -53,7 +53,7 @@ export default function ContactPage() {
               onClick={() => router.push('/home')}
               className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
             >
-              ← رجوع
+              رجوع
             </button>
             <h1 className="text-white text-[17px] font-bold">تواصل معنا</h1>
             <div className="w-[72px]" />

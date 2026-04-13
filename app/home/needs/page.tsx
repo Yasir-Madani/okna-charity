@@ -26,7 +26,7 @@ export default function NeedsHubPage() {
             onClick={() => router.push('/home')}
             className="text-white/70 text-sm flex items-center gap-1 hover:text-white transition-colors"
           >
-            ← رجوع
+            رجوع
           </button>
         </div>
 
@@ -36,7 +36,7 @@ export default function NeedsHubPage() {
             📋
           </div>
           <h1 className="text-white text-lg font-extrabold tracking-tight">حوجة الجمعية</h1>
-          <p className="text-white/50 text-xs mt-0.5">اختر نوع الاحتياجات</p>
+          <p className="text-white/150 text-xs mt-0.5">اختر نوع الاحتياجات</p>
         </div>
       </div>
 
@@ -54,7 +54,7 @@ export default function NeedsHubPage() {
           </div>
           <div className="flex-1">
             <p className="text-base font-extrabold text-gray-800">الحوجات الطبية</p>
-            <p className="text-xs text-gray-400 mt-0.5 font-medium">
+            <p className="text-xs text-gray-800 mt-0.5 font-medium">
               الاحتياجات الصحية والطبية للجمعية
             </p>
           </div>
@@ -74,7 +74,7 @@ export default function NeedsHubPage() {
           </div>
           <div className="flex-1">
             <p className="text-base font-extrabold text-gray-800">الحوجات العامة</p>
-            <p className="text-xs text-gray-400 mt-0.5 font-medium">
+            <p className="text-xs text-gray-800 mt-0.5 font-medium">
               احتياجات الجمعية من مواد ومستلزمات
             </p>
           </div>

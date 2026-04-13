@@ -158,13 +158,13 @@ export default function NewsPage() {
                 )}
               </div>
               <div className="mb-3">
-                <label className="text-sm text-gray-600 block mb-1">تاريخ الخبر *</label>
+                <label className="text-sm text-gray-900 block mb-1">تاريخ الخبر *</label>
                 <input type="date" required value={form.news_date}
                   onChange={e => setForm({ ...form, news_date: e.target.value })}
                   className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
               </div>
               <div className="mb-4">
-                <label className="text-sm text-gray-600 block mb-1">تفاصيل الخبر *</label>
+                <label className="text-sm text-gray-900 block mb-1">تفاصيل الخبر *</label>
                 <textarea required value={form.content}
                   onChange={e => setForm({ ...form, content: e.target.value })}
                   rows={5}

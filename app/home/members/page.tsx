@@ -565,7 +565,7 @@ export default function MembersPage() {
               </div>
             </div>
             <button className="mem-back-btn" onClick={() => router.push('/home')}>
-              رجوع ←
+               رجوع
             </button>
           </div>
         </div>

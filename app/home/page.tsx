@@ -119,7 +119,7 @@ export default function HomePage() {
             </p>
 
             {/* sub-label */}
-            <p className="text-xs text-gray-400 font-medium pr-1 -mt-1">
+            <p className="text-xs text-gray-600 font-medium pr-1 -mt-1">
               {btn.sub}
             </p>
           </button>

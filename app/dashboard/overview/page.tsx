@@ -476,7 +476,7 @@ export default function OverviewPage() {
         <div className="ov-header">
           <div className="ov-header-title">نظرة عامة — المنازل والأسر</div>
           <button className="ov-back-btn" onClick={() => router.push('/dashboard')}>
-            الرئيسية ←
+            رجوع
           </button>
         </div>
 
