@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 export default function OverviewPage() {
   const [rows, setRows] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [houseFilter, setHouseFilter] = useState('')
+  const [familyFilter, setFamilyFilter] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -61,7 +63,16 @@ export default function OverviewPage() {
     setLoading(false)
   }
 
+  const filteredRows = rows.filter(row => {
+    const matchHouse = row.house_name?.toLowerCase().includes(houseFilter.toLowerCase()) ||
+                       String(row.house_number).includes(houseFilter)
+    const matchFamily = row.family_name?.toLowerCase().includes(familyFilter.toLowerCase())
+    return matchHouse && matchFamily
+  })
+
   const totalIndividuals = rows.reduce((s, r) => s + r.individual_count, 0)
+  const filteredTotal = filteredRows.reduce((s, r) => s + r.individual_count, 0)
+  const isFiltering = houseFilter !== '' || familyFilter !== ''
 
   return (
     <>
@@ -155,7 +166,7 @@ export default function OverviewPage() {
           padding: 12px 14px;
           display: flex;
           flex-direction: column;
-          align-items: center;      /* ✅ توسيط أفقي */
+          align-items: center;
           gap: 2px;
         }
 
@@ -165,7 +176,7 @@ export default function OverviewPage() {
           color: #fff;
           text-transform: uppercase;
           letter-spacing: 0.08em;
-          text-align: center;       /* ✅ توسيط النص */
+          text-align: center;
         }
 
         .ov-stat-value {
@@ -173,13 +184,86 @@ export default function OverviewPage() {
           font-weight: 900;
           color: #14b464;
           line-height: 1;
-          text-align: center;       /* ✅ توسيط الرقم */
+          text-align: center;
         }
 
         .ov-stat-sub {
           font-size: 10px;
           color: #ffffff;
-          text-align: center;       /* ✅ توسيط النص الفرعي */
+          text-align: center;
+        }
+
+        /* ── SEARCH FILTERS ── */
+        .ov-filters {
+          max-width: 700px;
+          margin: 0 auto;
+          padding: 14px 16px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 9px;
+        }
+
+        .ov-filter-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(20,180,100,0.22);
+          border-radius: 13px;
+          padding: 0 12px;
+          transition: border-color 0.2s, background 0.2s;
+        }
+
+        .ov-filter-wrapper:focus-within {
+          border-color: rgba(20,180,100,0.6);
+          background: rgba(20,180,100,0.08);
+        }
+
+        .ov-filter-icon {
+          color: #14b464;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+        }
+
+        .ov-filter-input {
+          flex: 1;
+          background: transparent;
+          border: none;
+          outline: none;
+          color: #fff;
+          font-family: 'Tajawal', sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          padding: 12px 4px;
+          direction: rtl;
+          min-width: 0;
+        }
+
+        .ov-filter-input::placeholder {
+          color: rgba(255,255,255,0.32);
+          font-size: 13px;
+        }
+
+        .ov-filter-clear {
+          background: none;
+          border: none;
+          color: rgba(255,255,255,0.3);
+          font-size: 18px;
+          cursor: pointer;
+          padding: 0 2px;
+          line-height: 1;
+          transition: color 0.15s;
+          flex-shrink: 0;
+        }
+        .ov-filter-clear:hover { color: rgba(255,255,255,0.8); }
+
+        .ov-results-count {
+          text-align: center;
+          font-size: 12px;
+          color: rgba(20,180,100,0.85);
+          font-weight: 600;
+          padding: 8px 0 2px;
         }
 
         /* ── CARDS CONTAINER ── */
@@ -213,7 +297,6 @@ export default function OverviewPage() {
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* stagger */
         .ov-card:nth-child(1)  { animation-delay: 0.03s }
         .ov-card:nth-child(2)  { animation-delay: 0.06s }
         .ov-card:nth-child(3)  { animation-delay: 0.09s }
@@ -286,10 +369,10 @@ export default function OverviewPage() {
           letter-spacing: 0.03em;
         }
 
-        /* ── CARD BODY — سطرين بدل عمودين ── */
+        /* ── CARD BODY ── */
         .ov-card-body {
           display: flex;
-          flex-direction: column;   /* ✅ عمود واحد — سطر فوق سطر */
+          flex-direction: column;
           gap: 0;
         }
 
@@ -301,7 +384,6 @@ export default function OverviewPage() {
           gap: 10px;
         }
 
-        /* فاصل بين السطرين */
         .ov-info-block + .ov-info-block {
           border-top: 1px solid rgba(255,255,255,0.05);
         }
@@ -334,7 +416,6 @@ export default function OverviewPage() {
           white-space: nowrap;
         }
 
-        /* الفاصل الشكلي بعد العنوان */
         .ov-info-divider {
           flex: 0 0 auto;
           width: 1px;
@@ -343,13 +424,12 @@ export default function OverviewPage() {
           margin: 0 2px;
         }
 
-        /* القيمة في المنتصف */
         .ov-info-value {
           flex: 1;
           font-size: 14px;
           font-weight: 700;
           color: rgba(255,255,255,0.88);
-          text-align: center;       /* ✅ في المنتصف */
+          text-align: center;
         }
 
         /* ── CARD FOOTER ── */
@@ -443,6 +523,15 @@ export default function OverviewPage() {
           font-weight: 500;
         }
 
+        /* ── NO RESULTS ── */
+        .ov-no-results {
+          text-align: center;
+          padding: 40px 20px;
+          color: rgba(255,255,255,0.3);
+          font-size: 14px;
+          font-weight: 500;
+        }
+
         /* ── LOADING / EMPTY ── */
         .ov-empty {
           text-align: center;
@@ -512,93 +601,155 @@ export default function OverviewPage() {
               </div>
             </div>
 
-            {/* CARDS */}
-            <div className="ov-cards">
-              {rows.map((row, index) => {
-                const maxDots = Math.min(row.individual_count, 8)
-                return (
-                  <div className="ov-card" key={index}>
+            {/* FILTERS */}
+            <div className="ov-filters">
+              {/* فلتر المنزل */}
+              <div className="ov-filter-wrapper">
+                <div className="ov-filter-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                </div>
+                <input
+                  className="ov-filter-input"
+                  type="text"
+                  placeholder="ابحث باسم المنزل أو رقمه..."
+                  value={houseFilter}
+                  onChange={e => setHouseFilter(e.target.value)}
+                />
+                {houseFilter && (
+                  <button className="ov-filter-clear" onClick={() => setHouseFilter('')}>×</button>
+                )}
+              </div>
 
-                    {/* TOP */}
-                    <div className="ov-card-top">
-                      <div className="ov-card-serial">
-                        <div className="ov-serial-badge">{index + 1}</div>
-                        <div className="ov-house-badge">
-                          <span className="ov-house-label">رقم المنزل</span>
-                          <span className="ov-house-num">{row.house_number}</span>
-                        </div>
-                      </div>
-                      <div className="ov-sector-pill">{row.sector}</div>
-                    </div>
+              {/* فلتر الأسرة */}
+              <div className="ov-filter-wrapper">
+                <div className="ov-filter-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                  </svg>
+                </div>
+                <input
+                  className="ov-filter-input"
+                  type="text"
+                  placeholder="ابحث باسم الأسرة..."
+                  value={familyFilter}
+                  onChange={e => setFamilyFilter(e.target.value)}
+                />
+                {familyFilter && (
+                  <button className="ov-filter-clear" onClick={() => setFamilyFilter('')}>×</button>
+                )}
+              </div>
 
-                    {/* BODY — سطر لاسم المنزل + سطر لاسم الأسرة */}
-                    <div className="ov-card-body">
-
-                      {/* سطر اسم المنزل */}
-                      <div className="ov-info-block">
-                        <div className="ov-info-left">
-                          <div className="ov-info-icon">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                              <polyline points="9 22 9 12 15 12 15 22"/>
-                            </svg>
-                          </div>
-                          <span className="ov-info-label">المنزل</span>
-                        </div>
-                        <div className="ov-info-divider" />
-                        <span className="ov-info-value">{row.house_name}</span>
-                      </div>
-
-                      {/* سطر اسم الأسرة */}
-                      <div className="ov-info-block">
-                        <div className="ov-info-left">
-                          <div className="ov-info-icon">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                              <circle cx="9" cy="7" r="4"/>
-                              <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-                              <path d="M16 3.13a4 4 0 010 7.75"/>
-                            </svg>
-                          </div>
-                          <span className="ov-info-label">الأسرة</span>
-                        </div>
-                        <div className="ov-info-divider" />
-                        <span className="ov-info-value">{row.family_name}</span>
-                      </div>
-
-                    </div>
-
-                    {/* FOOTER */}
-                    <div className="ov-card-footer">
-                      <span className="ov-footer-label">عدد الأفراد</span>
-                      <div className="ov-count-chip">
-                        <div className="ov-count-dots">
-                          {Array.from({ length: Math.min(maxDots, 5) }).map((_, i) => (
-                            <div key={i} className="ov-dot active" />
-                          ))}
-                          {row.individual_count > 5 && (
-                            <div className="ov-dot" style={{ opacity: 0.4 }} />
-                          )}
-                        </div>
-                        <span className="ov-count-num">{row.individual_count}</span>
-                        <span className="ov-count-unit">فرد</span>
-                      </div>
-                    </div>
-
-                  </div>
-                )
-              })}
+              {/* عداد نتائج الفلتر */}
+              {isFiltering && (
+                <p className="ov-results-count">
+                  {filteredRows.length === 0
+                    ? 'لا توجد نتائج'
+                    : `${filteredRows.length} نتيجة — ${filteredTotal} فرد`}
+                </p>
+              )}
             </div>
+
+            {/* CARDS */}
+            {filteredRows.length === 0 ? (
+              <div className="ov-no-results">🔍 لا توجد نتائج مطابقة للبحث</div>
+            ) : (
+              <div className="ov-cards">
+                {filteredRows.map((row, index) => {
+                  const maxDots = Math.min(row.individual_count, 8)
+                  return (
+                    <div className="ov-card" key={index}>
+
+                      {/* TOP */}
+                      <div className="ov-card-top">
+                        <div className="ov-card-serial">
+                          <div className="ov-serial-badge">{index + 1}</div>
+                          <div className="ov-house-badge">
+                            <span className="ov-house-label">رقم المنزل</span>
+                            <span className="ov-house-num">{row.house_number}</span>
+                          </div>
+                        </div>
+                        <div className="ov-sector-pill">{row.sector}</div>
+                      </div>
+
+                      {/* BODY */}
+                      <div className="ov-card-body">
+                        <div className="ov-info-block">
+                          <div className="ov-info-left">
+                            <div className="ov-info-icon">
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                              </svg>
+                            </div>
+                            <span className="ov-info-label">المنزل</span>
+                          </div>
+                          <div className="ov-info-divider" />
+                          <span className="ov-info-value">{row.house_name}</span>
+                        </div>
+
+                        <div className="ov-info-block">
+                          <div className="ov-info-left">
+                            <div className="ov-info-icon">
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 010 7.75"/>
+                              </svg>
+                            </div>
+                            <span className="ov-info-label">الأسرة</span>
+                          </div>
+                          <div className="ov-info-divider" />
+                          <span className="ov-info-value">{row.family_name}</span>
+                        </div>
+                      </div>
+
+                      {/* FOOTER */}
+                      <div className="ov-card-footer">
+                        <span className="ov-footer-label">عدد الأفراد</span>
+                        <div className="ov-count-chip">
+                          <div className="ov-count-dots">
+                            {Array.from({ length: Math.min(maxDots, 5) }).map((_, i) => (
+                              <div key={i} className="ov-dot active" />
+                            ))}
+                            {row.individual_count > 5 && (
+                              <div className="ov-dot" style={{ opacity: 0.4 }} />
+                            )}
+                          </div>
+                          <span className="ov-count-num">{row.individual_count}</span>
+                          <span className="ov-count-unit">فرد</span>
+                        </div>
+                      </div>
+
+                    </div>
+                  )
+                })}
+              </div>
+            )}
 
             {/* TOTAL */}
             <div className="ov-total">
               <div className="ov-total-inner">
-                <span className="ov-total-text">المجموع الكلي للأفراد</span>
-                <span className="ov-total-num">{totalIndividuals}</span>
+                <span className="ov-total-text">
+                  {isFiltering ? 'مجموع أفراد نتائج البحث' : 'المجموع الكلي للأفراد'}
+                </span>
+                <span className="ov-total-num">
+                  {isFiltering ? filteredTotal : totalIndividuals}
+                </span>
               </div>
             </div>
 
-            <p className="ov-meta">{rows.length} سجل</p>
+            <p className="ov-meta">
+              {isFiltering
+                ? `${filteredRows.length} من ${rows.length} سجل`
+                : `${rows.length} سجل`}
+            </p>
           </>
         )}
       </div>

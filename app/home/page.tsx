@@ -34,10 +34,10 @@ export default function HomePage() {
   const buttons = [
   { label: 'عن الجمعية',           icon: '🏛️', path: '/home/about',        iconBg: 'bg-amber-50',   iconColor: 'text-amber-600',  bar: 'bg-amber-400',   sub: 'تعرف علينا'    },
   { label: 'حوجة الجمعية',         icon: '📋', path: '/home/needs',         iconBg: 'bg-rose-50',    iconColor: 'text-rose-600',   bar: 'bg-rose-400',    sub: 'الاحتياجات'    },
+   { label: 'تواصل وتبرع',          icon: '🤝', path: '/home/contact',       iconBg: 'bg-teal-50',    iconColor: 'text-teal-600',   bar: 'bg-teal-400',    sub: 'ساهم معنا'     },
   { label: 'إحصائيات السكان',      icon: '📊', path: '/public-dashboard',   iconBg: 'bg-indigo-50',  iconColor: 'text-indigo-600', bar: 'bg-indigo-400',  sub: 'بيانات المجتمع' },
   { label: 'مشاريع الجمعية',       icon: '🏗️', path: '/home/projects',      iconBg: 'bg-blue-50',    iconColor: 'text-blue-600',   bar: 'bg-blue-400',    sub: 'إنجازاتنا ومبادراتنا' },
   { label: 'ممتلكات الجمعية',      icon: '🏗️', path: '/home/assets',        iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600',bar: 'bg-emerald-400', sub: 'الأصول والعقار' },
-  { label: 'تواصل وتبرع',          icon: '🤝', path: '/home/contact',       iconBg: 'bg-teal-50',    iconColor: 'text-teal-600',   bar: 'bg-teal-400',    sub: 'ساهم معنا'     },
   { label: 'إدارة الجمعية',        icon: '👥', path: '/home/members',       iconBg: 'bg-purple-50',  iconColor: 'text-purple-600', bar: 'bg-purple-400',  sub: 'الهيئة الإدارية'},
   { label: 'أسماء المنازل والأسر', icon: '🏘️', path: '/dashboard/overview', iconBg: 'bg-orange-50',  iconColor: 'text-orange-600', bar: 'bg-orange-400',  sub: 'دليل الأسر والمنازل' },
 ]
@@ -139,7 +139,7 @@ export default function HomePage() {
           </div>
           <div className="flex-1 text-right pr-1">
             <p className="text-sm font-bold text-gray-800">أخبار الجمعية</p>
-            <p className="text-xs text-gray-400 font-medium">آخر المستجدات</p>
+            <p className="text-xs text-gray-800 font-medium">آخر المستجدات</p>
           </div>
           <span className="text-gray-300 text-sm">←</span>
         </button>
