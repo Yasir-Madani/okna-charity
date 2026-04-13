@@ -128,8 +128,8 @@ export default function PublicDashboard() {
           alignItems: 'center',
         }}>
           <div>
-            <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0, letterSpacing: '0.05em' }}>
-              جمعية العكنة الخيرية
+            <p style={{ fontSize: 11, color: '#D1D5DB', margin: 0, letterSpacing: '0.05em' }}>
+              جمعية نهضة العكنة الخيرية
             </p>
             <h1 style={{ fontSize: 16, fontWeight: 700, color: '#F9FAFB', margin: '2px 0 0' }}>
               لوحة الإحصاء السكاني
