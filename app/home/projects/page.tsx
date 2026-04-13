@@ -198,7 +198,7 @@ export default function ProjectsPage() {
             </h3>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="text-xs text-gray-500 block mb-1">اسم المشروع *</label>
+                <label className="text-xs text-gray-800 block mb-1">اسم المشروع *</label>
                 <input
                   required
                   value={form.name}
@@ -299,7 +299,7 @@ export default function ProjectsPage() {
 
         {/* ملخص */}
         {projects.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center justify-between">
+          <div className="bg-white rounded-xl border border-gray-900 px-4 py-3 mt-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-gray-900">إجمالي المشاريع</p>
               <p className="text-xs text-gray-900 mt-0.5">
