@@ -118,10 +118,7 @@ export default function PublicDashboard() {
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
       {/* Header */}
-      <div style={{
-        background: '#111827',
-        padding: '0 16px',
-      }}>
+      <div style={{ background: '#111827', padding: '0 16px' }}>
         <div style={{
           maxWidth: 680,
           margin: '0 auto',
@@ -334,8 +331,12 @@ export default function PublicDashboard() {
                   <p style={{ fontSize: 22, fontWeight: 800, color: '#111827', margin: 0 }}>
                     {count.toLocaleString('ar')}
                   </p>
-                  <p style={{ fontSize: 11, color: '#6B7280', margin: '3px 0 0' }}>محور {sector}</p>
-                  <p style={{ fontSize: 10, color: '#9CA3AF', margin: '2px 0 0' }}>
+                  {/* ← نص المحور أسود */}
+                  <p style={{ fontSize: 11, color: '#111827', margin: '3px 0 0', fontWeight: 600 }}>
+                    محور {sector}
+                  </p>
+                  {/* ← النسبة المئوية سوداء */}
+                  <p style={{ fontSize: 10, color: '#111827', margin: '2px 0 0', fontWeight: 500 }}>
                     {stats.totalIndividuals > 0 ? Math.round((count / stats.totalIndividuals) * 100) : 0}٪
                   </p>
                 </div>
@@ -360,8 +361,10 @@ export default function PublicDashboard() {
                     display: 'flex', alignItems: 'center', gap: 10,
                     marginBottom: i < ageItems.length - 1 ? 10 : 0,
                   }}>
+                    {/* ← تسمية الفئة العمرية سوداء */}
                     <span style={{
-                      fontSize: 12, color: '#6B7280',
+                      fontSize: 12, color: '#111827',
+                      fontWeight: 600,
                       width: 90, flexShrink: 0, textAlign: 'right',
                     }}>
                       {item.label}
@@ -380,7 +383,12 @@ export default function PublicDashboard() {
                         background: item.color,
                       }} />
                     </div>
-                    <span style={{ fontSize: 11, color: '#9CA3AF', width: 26, textAlign: 'left' }}>
+                    {/* ← النسبة المئوية سوداء */}
+                    <span style={{
+                      fontSize: 11, color: '#111827',
+                      fontWeight: 600,
+                      width: 26, textAlign: 'left',
+                    }}>
                       {pct}٪
                     </span>
                   </div>
@@ -396,12 +404,7 @@ export default function PublicDashboard() {
         padding: '20px 16px',
         borderTop: '0.5px solid #E5E7EB',
       }}>
-        <p style={{ fontSize: 11, color: '#9CA3AF', margin: 0 }}>
-          © 2026 جمعية العكنة الخيرية — جميع الحقوق محفوظة
-        </p>
-        <p style={{ fontSize: 10, color: '#D1D5DB', margin: '3px 0 0' }}>
-          نظام الإحصاء السكاني — بيانات عامة
-        </p>
+        <p className="text-xs text-black-300">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </footer>
     </div>
   )
@@ -460,11 +463,12 @@ function StatCard({
       }}>
         {value.toLocaleString('ar')}
       </p>
+      {/* ← النص الوصفي أسود */}
       <p style={{
         fontSize: 11,
-        color: '#6B7280',
+        color: '#111827',
         margin: '5px 0 0',
-        fontWeight: 500,
+        fontWeight: 600,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
