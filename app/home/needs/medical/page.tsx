@@ -209,39 +209,29 @@ export default function MedicalNeedsPage() {
 
       {/* ── Header ── */}
       <div className="bg-teal-700 text-white sticky top-0 z-10">
-        <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between gap-2">
+        <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
           <button
             onClick={() => router.push('/home/needs')}
-            className="text-sm text-white/80 hover:text-white transition-colors cursor-pointer flex-shrink-0"
+            className="text-sm text-white/80 hover:text-white transition-colors cursor-pointer"
           >
             ← رجوع
           </button>
-          <h1 className="text-sm font-semibold tracking-wide text-center flex-1 truncate">الحوجات الطبية</h1>
-          {/* أزرار التصدير — أيقونة فقط على الموبايل */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <h1 className="text-base font-semibold tracking-wide">الحوجات الطبية</h1>
+          {/* أزرار التصدير */}
+          <div className="flex items-center gap-1.5">
             <button
               onClick={exportExcel}
               disabled={exporting !== null || needs.length === 0}
-              title="تصدير Excel"
-              className="flex items-center gap-1 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-2 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
+              className="flex items-center gap-1 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
             >
-              {exporting === 'excel' ? (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
-              ) : (
-                <span>📊 <span className="hidden sm:inline">Excel</span></span>
-              )}
+              {exporting === 'excel' ? '...' : '📊 Excel'}
             </button>
             <button
               onClick={exportPDF}
               disabled={exporting !== null || needs.length === 0}
-              title="تصدير PDF"
-              className="flex items-center gap-1 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-2 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
+              className="flex items-center gap-1 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-40 cursor-pointer"
             >
-              {exporting === 'pdf' ? (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" />
-              ) : (
-                <span>📄 <span className="hidden sm:inline">PDF</span></span>
-              )}
+              {exporting === 'pdf' ? '...' : '📄 PDF'}
             </button>
           </div>
         </div>
@@ -376,51 +366,62 @@ export default function MedicalNeedsPage() {
           </div>
         ) : (
           <>
-            {/* ── قائمة الحوجات — تصميم عمودي للموبايل ── */}
-            <div className="space-y-3">
+            {/* ── رؤوس الأعمدة ── */}
+            <div className="grid grid-cols-12 gap-2 px-3 pb-1">
+              <div className="col-span-1 text-center">
+                <p className="text-xs font-bold text-gray-400">#</p>
+              </div>
+              <div className="col-span-3">
+                <p className="text-xs font-bold text-gray-400">الصنف</p>
+              </div>
+              <div className="col-span-5">
+                <p className="text-xs font-bold text-gray-400">الوصف</p>
+              </div>
+              <div className="col-span-3 text-center">
+                <p className="text-xs font-bold text-gray-400">العدد</p>
+              </div>
+            </div>
+
+            {/* ── قائمة الحوجات ── */}
+            <div className="space-y-2">
               {needs.map(need => (
                 <div
                   key={need.id}
-                  className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
-                  style={{ boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}
+                  className="bg-white rounded-2xl border border-gray-100 px-3 py-3.5"
+                  style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
                 >
-                  {/* شريط علوي: رقم + صنف + badge العدد */}
-                  <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
-                    {/* رقم */}
-                    <span className="w-7 h-7 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-                      {need.number}
-                    </span>
-                    {/* صنف */}
-                    <p className="text-sm font-bold text-gray-800 flex-1 leading-tight">
-                      {need.category}
-                    </p>
-                    {/* العدد */}
-                    <span className="bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full flex-shrink-0 max-w-[100px] text-center truncate">
-                      {need.quantity}
-                    </span>
+                  <div className="grid grid-cols-12 gap-2 items-center">
+                    <div className="col-span-1 flex justify-center">
+                      <span className="w-6 h-6 rounded-full bg-teal-50 text-teal-700 text-xs font-bold flex items-center justify-center">
+                        {need.number}
+                      </span>
+                    </div>
+                    <div className="col-span-3">
+                      <p className="text-sm font-bold text-gray-800 leading-tight">{need.category}</p>
+                    </div>
+                    <div className="col-span-5">
+                      <p className="text-xs text-gray-500 leading-tight">{need.description}</p>
+                    </div>
+                    <div className="col-span-3 text-center">
+                      <span className="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-2 py-1 rounded-lg">
+                        {need.quantity}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* وصف */}
-                  <div className="px-4 pb-3">
-                    <p className="text-xs text-gray-400 leading-relaxed pr-10">
-                      {need.description}
-                    </p>
-                  </div>
-
-                  {/* أزرار الأدمن */}
                   {isAdmin && (
-                    <div className="flex gap-4 justify-end px-4 py-2 bg-gray-50 border-t border-gray-100">
+                    <div className="flex gap-3 justify-end mt-2 pt-2 border-t border-gray-50">
                       <button
                         onClick={() => handleEdit(need)}
-                        className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors font-medium"
+                        className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
                       >
-                        ✏️ تعديل
+                        تعديل
                       </button>
                       <button
                         onClick={() => handleDelete(need.id, need.category)}
-                        className="text-xs text-red-400 hover:text-red-600 cursor-pointer transition-colors font-medium"
+                        className="text-xs text-red-400 hover:text-red-600 cursor-pointer transition-colors"
                       >
-                        🗑️ حذف
+                        حذف
                       </button>
                     </div>
                   )}
