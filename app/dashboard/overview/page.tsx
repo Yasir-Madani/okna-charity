@@ -232,6 +232,8 @@ export default function OverviewPage() {
           border: none;
           outline: none;
           color: #fff;
+          -webkit-text-fill-color: #fff;  /* ← أضف هذا */
+  opacity: 1;                     /* ← وهذا */
           font-family: 'Tajawal', sans-serif;
           font-size: 14px;
           font-weight: 500;
@@ -564,7 +566,7 @@ export default function OverviewPage() {
         {/* HEADER */}
         <div className="ov-header">
           <div className="ov-header-title">نظرة عامة — المنازل والأسر</div>
-          <button className="ov-back-btn" onClick={() => router.push('/dashboard')}>
+          <button className="ov-back-btn" onClick={() => router.push('/home')}>
             رجوع
           </button>
         </div>
