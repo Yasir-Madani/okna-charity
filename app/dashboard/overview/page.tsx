@@ -227,20 +227,29 @@ export default function OverviewPage() {
         }
 
         .ov-filter-input {
-          flex: 1;
-          background: transparent;
-          border: none;
-          outline: none;
-          color: #fff;
-          -webkit-text-fill-color: #fff;  /* ← أضف هذا */
-  opacity: 1;                     /* ← وهذا */
-          font-family: 'Tajawal', sans-serif;
-          font-size: 14px;
-          font-weight: 500;
-          padding: 12px 4px;
-          direction: rtl;
-          min-width: 0;
-        }
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 4px;
+  direction: rtl;
+  min-width: 0;
+  caret-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+}
+
+.ov-filter-input:-webkit-autofill,
+.ov-filter-input:-webkit-autofill:hover,
+.ov-filter-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0d1a2a inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
 
         .ov-filter-input::placeholder {
           color: rgba(255,255,255,0.32);
