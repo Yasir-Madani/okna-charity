@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
 
@@ -8,6 +8,8 @@ export default function OverviewPage() {
   const [loading, setLoading] = useState(true)
   const [houseFilter, setHouseFilter] = useState('')
   const [familyFilter, setFamilyFilter] = useState('')
+  const houseRef = useRef<HTMLDivElement>(null)
+  const familyRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -63,6 +65,16 @@ export default function OverviewPage() {
     setLoading(false)
   }
 
+  const clearHouse = () => {
+    setHouseFilter('')
+    if (houseRef.current) houseRef.current.textContent = ''
+  }
+
+  const clearFamily = () => {
+    setFamilyFilter('')
+    if (familyRef.current) familyRef.current.textContent = ''
+  }
+
   const filteredRows = rows.filter(row => {
     const matchHouse = row.house_name?.toLowerCase().includes(houseFilter.toLowerCase()) ||
                        String(row.house_number).includes(houseFilter)
@@ -74,22 +86,19 @@ export default function OverviewPage() {
   const filteredTotal = filteredRows.reduce((s, r) => s + r.individual_count, 0)
   const isFiltering = houseFilter !== '' || familyFilter !== ''
 
-  // ← الحل النهائي: style مباشر على كل input يتجاوز أي تدخل من المتصفح
-  const inputStyle: React.CSSProperties = {
+  const editableStyle: React.CSSProperties = {
     flex: 1,
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
     color: '#ffffff',
-    WebkitTextFillColor: '#ffffff',
-    caretColor: '#14b464',
     fontFamily: "'Tajawal', sans-serif",
     fontSize: '14px',
     fontWeight: 500,
     padding: '12px 4px',
     direction: 'rtl',
+    outline: 'none',
     minWidth: 0,
-    WebkitBoxShadow: '0 0 0px 1000px transparent inset',
+    minHeight: '20px',
+    lineHeight: '1.4',
+    wordBreak: 'break-all',
   }
 
   return (
@@ -208,6 +217,7 @@ export default function OverviewPage() {
           text-align: center;
         }
 
+        /* ── FILTERS ── */
         .ov-filters {
           max-width: 700px;
           margin: 0 auto;
@@ -226,6 +236,7 @@ export default function OverviewPage() {
           border-radius: 13px;
           padding: 0 12px;
           transition: border-color 0.2s, background 0.2s;
+          cursor: text;
         }
 
         .ov-filter-wrapper:focus-within {
@@ -240,17 +251,12 @@ export default function OverviewPage() {
           align-items: center;
         }
 
-        .ov-filter-input::placeholder {
-          color: rgba(255,255,255,0.35) !important;
+        /* placeholder للـ contentEditable */
+        .ov-editable:empty::before {
+          content: attr(data-placeholder);
+          color: rgba(255,255,255,0.35);
+          pointer-events: none;
           font-size: 13px;
-        }
-
-        .ov-filter-input:-webkit-autofill,
-        .ov-filter-input:-webkit-autofill:hover,
-        .ov-filter-input:-webkit-autofill:focus {
-          -webkit-text-fill-color: #fff !important;
-          -webkit-box-shadow: 0 0 0px 1000px #0d1829 inset !important;
-          transition: background-color 5000s ease-in-out 0s;
         }
 
         .ov-filter-clear {
@@ -274,6 +280,7 @@ export default function OverviewPage() {
           padding: 6px 0 2px;
         }
 
+        /* ── CARDS ── */
         .ov-cards {
           max-width: 700px;
           margin: 0 auto;
@@ -473,7 +480,6 @@ export default function OverviewPage() {
         }
 
         .ov-total-text { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.7); }
-
         .ov-total-num { font-size: 26px; font-weight: 900; color: #14b464; }
 
         .ov-meta {
@@ -553,27 +559,29 @@ export default function OverviewPage() {
             <div className="ov-filters">
 
               {/* فلتر المنزل */}
-              <div className="ov-filter-wrapper">
+              <div className="ov-filter-wrapper" onClick={() => houseRef.current?.focus()}>
                 <div className="ov-filter-icon">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                     <polyline points="9 22 9 12 15 12 15 22"/>
                   </svg>
                 </div>
-                <input
-                  type="text"
-                  placeholder="ابحث باسم المنزل أو رقمه..."
-                  value={houseFilter}
-                  onChange={e => setHouseFilter(e.target.value)}
-                  style={inputStyle}
+                <div
+                  ref={houseRef}
+                  className="ov-editable"
+                  contentEditable
+                  suppressContentEditableWarning
+                  data-placeholder="ابحث باسم المنزل أو رقمه..."
+                  onInput={e => setHouseFilter(e.currentTarget.textContent || '')}
+                  style={editableStyle}
                 />
                 {houseFilter && (
-                  <button className="ov-filter-clear" onClick={() => setHouseFilter('')}>×</button>
+                  <button className="ov-filter-clear" onMouseDown={e => { e.preventDefault(); clearHouse() }}>×</button>
                 )}
               </div>
 
               {/* فلتر الأسرة */}
-              <div className="ov-filter-wrapper">
+              <div className="ov-filter-wrapper" onClick={() => familyRef.current?.focus()}>
                 <div className="ov-filter-icon">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                     <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
@@ -582,15 +590,17 @@ export default function OverviewPage() {
                     <path d="M16 3.13a4 4 0 010 7.75"/>
                   </svg>
                 </div>
-                <input
-                  type="text"
-                  placeholder="ابحث باسم الأسرة..."
-                  value={familyFilter}
-                  onChange={e => setFamilyFilter(e.target.value)}
-                  style={inputStyle}
+                <div
+                  ref={familyRef}
+                  className="ov-editable"
+                  contentEditable
+                  suppressContentEditableWarning
+                  data-placeholder="ابحث باسم الأسرة..."
+                  onInput={e => setFamilyFilter(e.currentTarget.textContent || '')}
+                  style={editableStyle}
                 />
                 {familyFilter && (
-                  <button className="ov-filter-clear" onClick={() => setFamilyFilter('')}>×</button>
+                  <button className="ov-filter-clear" onMouseDown={e => { e.preventDefault(); clearFamily() }}>×</button>
                 )}
               </div>
 
