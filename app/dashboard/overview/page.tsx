@@ -74,6 +74,24 @@ export default function OverviewPage() {
   const filteredTotal = filteredRows.reduce((s, r) => s + r.individual_count, 0)
   const isFiltering = houseFilter !== '' || familyFilter !== ''
 
+  // ← الحل النهائي: style مباشر على كل input يتجاوز أي تدخل من المتصفح
+  const inputStyle: React.CSSProperties = {
+    flex: 1,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    color: '#ffffff',
+    WebkitTextFillColor: '#ffffff',
+    caretColor: '#14b464',
+    fontFamily: "'Tajawal', sans-serif",
+    fontSize: '14px',
+    fontWeight: 500,
+    padding: '12px 4px',
+    direction: 'rtl',
+    minWidth: 0,
+    WebkitBoxShadow: '0 0 0px 1000px transparent inset',
+  }
+
   return (
     <>
       <style>{`
@@ -96,7 +114,6 @@ export default function OverviewPage() {
             radial-gradient(ellipse 60% 40% at 80% 90%, rgba(16,140,80,0.10) 0%, transparent 60%);
         }
 
-        /* ── HEADER ── */
         .ov-header {
           position: sticky;
           top: 0;
@@ -141,7 +158,6 @@ export default function OverviewPage() {
           font-family: 'Tajawal', sans-serif;
           cursor: pointer;
           transition: all 0.2s ease;
-          letter-spacing: 0.01em;
         }
         .ov-back-btn:hover {
           background: rgba(20,180,100,0.28);
@@ -149,7 +165,6 @@ export default function OverviewPage() {
           transform: translateX(2px);
         }
 
-        /* ── STATS BAR ── */
         .ov-stats {
           display: flex;
           gap: 10px;
@@ -193,7 +208,6 @@ export default function OverviewPage() {
           text-align: center;
         }
 
-        /* ── SEARCH FILTERS ── */
         .ov-filters {
           max-width: 700px;
           margin: 0 auto;
@@ -226,58 +240,40 @@ export default function OverviewPage() {
           align-items: center;
         }
 
-        .ov-filter-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #fff;
-  -webkit-text-fill-color: #fff;
-  font-family: 'Tajawal', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 12px 4px;
-  direction: rtl;
-  min-width: 0;
-  caret-color: #fff;
-  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
-}
-
-.ov-filter-input:-webkit-autofill,
-.ov-filter-input:-webkit-autofill:hover,
-.ov-filter-input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #fff !important;
-  -webkit-box-shadow: 0 0 0px 1000px #0d1a2a inset !important;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
         .ov-filter-input::placeholder {
-          color: rgba(255,255,255,0.32);
+          color: rgba(255,255,255,0.35) !important;
           font-size: 13px;
+        }
+
+        .ov-filter-input:-webkit-autofill,
+        .ov-filter-input:-webkit-autofill:hover,
+        .ov-filter-input:-webkit-autofill:focus {
+          -webkit-text-fill-color: #fff !important;
+          -webkit-box-shadow: 0 0 0px 1000px #0d1829 inset !important;
+          transition: background-color 5000s ease-in-out 0s;
         }
 
         .ov-filter-clear {
           background: none;
           border: none;
-          color: rgba(255,255,255,0.3);
-          font-size: 18px;
+          color: rgba(255,255,255,0.4);
+          font-size: 20px;
           cursor: pointer;
           padding: 0 2px;
           line-height: 1;
           transition: color 0.15s;
           flex-shrink: 0;
         }
-        .ov-filter-clear:hover { color: rgba(255,255,255,0.8); }
+        .ov-filter-clear:hover { color: #fff; }
 
         .ov-results-count {
           text-align: center;
           font-size: 12px;
           color: rgba(20,180,100,0.85);
           font-weight: 600;
-          padding: 8px 0 2px;
+          padding: 6px 0 2px;
         }
 
-        /* ── CARDS CONTAINER ── */
         .ov-cards {
           max-width: 700px;
           margin: 0 auto;
@@ -287,7 +283,6 @@ export default function OverviewPage() {
           gap: 12px;
         }
 
-        /* ── SINGLE CARD ── */
         .ov-card {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.08);
@@ -319,7 +314,6 @@ export default function OverviewPage() {
         .ov-card:nth-child(9)  { animation-delay: 0.27s }
         .ov-card:nth-child(10) { animation-delay: 0.30s }
 
-        /* ── CARD TOP BAR ── */
         .ov-card-top {
           display: flex;
           align-items: center;
@@ -328,11 +322,7 @@ export default function OverviewPage() {
           border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
-        .ov-card-serial {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
+        .ov-card-serial { display: flex; align-items: center; gap: 8px; }
 
         .ov-serial-badge {
           width: 30px;
@@ -349,10 +339,7 @@ export default function OverviewPage() {
           flex-shrink: 0;
         }
 
-        .ov-house-badge {
-          display: flex;
-          flex-direction: column;
-        }
+        .ov-house-badge { display: flex; flex-direction: column; }
 
         .ov-house-label {
           font-size: 9px;
@@ -377,18 +364,12 @@ export default function OverviewPage() {
           font-weight: 700;
           padding: 4px 10px;
           border-radius: 20px;
-          letter-spacing: 0.03em;
         }
 
-        /* ── CARD BODY ── */
-        .ov-card-body {
-          display: flex;
-          flex-direction: column;
-          gap: 0;
-        }
+        .ov-card-body { display: flex; flex-direction: column; gap: 0; }
 
         .ov-info-block {
-          padding: 10px 16px 10px;
+          padding: 10px 16px;
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -399,12 +380,7 @@ export default function OverviewPage() {
           border-top: 1px solid rgba(255,255,255,0.05);
         }
 
-        .ov-info-left {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          flex-shrink: 0;
-        }
+        .ov-info-left { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
         .ov-info-icon {
           width: 26px;
@@ -443,7 +419,6 @@ export default function OverviewPage() {
           text-align: center;
         }
 
-        /* ── CARD FOOTER ── */
         .ov-card-footer {
           border-top: 1px solid rgba(255,255,255,0.07);
           padding: 10px 14px;
@@ -453,22 +428,11 @@ export default function OverviewPage() {
           background: rgba(0,0,0,0.15);
         }
 
-        .ov-footer-label {
-          font-size: 11px;
-          color: #fff;
-          font-weight: 500;
-        }
+        .ov-footer-label { font-size: 11px; color: #fff; font-weight: 500; }
 
-        .ov-count-chip {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-        }
+        .ov-count-chip { display: flex; align-items: center; gap: 5px; }
 
-        .ov-count-dots {
-          display: flex;
-          gap: 3px;
-        }
+        .ov-count-dots { display: flex; gap: 3px; }
 
         .ov-dot {
           width: 6px;
@@ -490,13 +454,8 @@ export default function OverviewPage() {
           text-align: center;
         }
 
-        .ov-count-unit {
-          font-size: 10px;
-          color: #fff;
-          font-weight: 500;
-        }
+        .ov-count-unit { font-size: 10px; color: #fff; font-weight: 500; }
 
-        /* ── TOTAL STRIP ── */
         .ov-total {
           max-width: 700px;
           margin: 0 auto 6px;
@@ -513,19 +472,10 @@ export default function OverviewPage() {
           align-items: center;
         }
 
-        .ov-total-text {
-          font-size: 14px;
-          font-weight: 700;
-          color: rgba(255,255,255,0.7);
-        }
+        .ov-total-text { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.7); }
 
-        .ov-total-num {
-          font-size: 26px;
-          font-weight: 900;
-          color: #14b464;
-        }
+        .ov-total-num { font-size: 26px; font-weight: 900; color: #14b464; }
 
-        /* ── RECORD COUNT ── */
         .ov-meta {
           text-align: center;
           font-size: 11px;
@@ -534,7 +484,6 @@ export default function OverviewPage() {
           font-weight: 500;
         }
 
-        /* ── NO RESULTS ── */
         .ov-no-results {
           text-align: center;
           padding: 40px 20px;
@@ -543,11 +492,7 @@ export default function OverviewPage() {
           font-weight: 500;
         }
 
-        /* ── LOADING / EMPTY ── */
-        .ov-empty {
-          text-align: center;
-          padding: 80px 20px;
-        }
+        .ov-empty { text-align: center; padding: 80px 20px; }
 
         .ov-spinner {
           width: 36px;
@@ -559,15 +504,9 @@ export default function OverviewPage() {
           margin: 0 auto 12px;
         }
 
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .ov-empty-text {
-          font-size: 14px;
-          color: rgba(255,255,255,0.25);
-          font-weight: 500;
-        }
+        .ov-empty-text { font-size: 14px; color: rgba(255,255,255,0.25); font-weight: 500; }
       `}</style>
 
       <div className="overview-root">
@@ -575,9 +514,7 @@ export default function OverviewPage() {
         {/* HEADER */}
         <div className="ov-header">
           <div className="ov-header-title">نظرة عامة — المنازل والأسر</div>
-          <button className="ov-back-btn" onClick={() => router.push('/home')}>
-            رجوع
-          </button>
+          <button className="ov-back-btn" onClick={() => router.push('/home')}>رجوع</button>
         </div>
 
         {loading ? (
@@ -614,6 +551,7 @@ export default function OverviewPage() {
 
             {/* FILTERS */}
             <div className="ov-filters">
+
               {/* فلتر المنزل */}
               <div className="ov-filter-wrapper">
                 <div className="ov-filter-icon">
@@ -623,11 +561,11 @@ export default function OverviewPage() {
                   </svg>
                 </div>
                 <input
-                  className="ov-filter-input"
                   type="text"
                   placeholder="ابحث باسم المنزل أو رقمه..."
                   value={houseFilter}
                   onChange={e => setHouseFilter(e.target.value)}
+                  style={inputStyle}
                 />
                 {houseFilter && (
                   <button className="ov-filter-clear" onClick={() => setHouseFilter('')}>×</button>
@@ -645,18 +583,17 @@ export default function OverviewPage() {
                   </svg>
                 </div>
                 <input
-                  className="ov-filter-input"
                   type="text"
                   placeholder="ابحث باسم الأسرة..."
                   value={familyFilter}
                   onChange={e => setFamilyFilter(e.target.value)}
+                  style={inputStyle}
                 />
                 {familyFilter && (
                   <button className="ov-filter-clear" onClick={() => setFamilyFilter('')}>×</button>
                 )}
               </div>
 
-              {/* عداد نتائج الفلتر */}
               {isFiltering && (
                 <p className="ov-results-count">
                   {filteredRows.length === 0
@@ -676,7 +613,6 @@ export default function OverviewPage() {
                   return (
                     <div className="ov-card" key={index}>
 
-                      {/* TOP */}
                       <div className="ov-card-top">
                         <div className="ov-card-serial">
                           <div className="ov-serial-badge">{index + 1}</div>
@@ -688,7 +624,6 @@ export default function OverviewPage() {
                         <div className="ov-sector-pill">{row.sector}</div>
                       </div>
 
-                      {/* BODY */}
                       <div className="ov-card-body">
                         <div className="ov-info-block">
                           <div className="ov-info-left">
@@ -721,7 +656,6 @@ export default function OverviewPage() {
                         </div>
                       </div>
 
-                      {/* FOOTER */}
                       <div className="ov-card-footer">
                         <span className="ov-footer-label">عدد الأفراد</span>
                         <div className="ov-count-chip">
