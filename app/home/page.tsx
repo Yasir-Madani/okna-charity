@@ -127,6 +127,7 @@ export default function HomePage() {
       </div>
 
       {/* ───── News button ───── */}
+      {isLoggedIn && (
       <div className="px-4 pb-3">
         <button
           onClick={() => router.push('/home/news')}
@@ -144,7 +145,7 @@ export default function HomePage() {
           <span className="text-gray-300 text-sm">←</span>
         </button>
       </div>
-
+)}
       {/* ───── Admin button ───── */}
       <div className="px-4 pb-4">
         <button
