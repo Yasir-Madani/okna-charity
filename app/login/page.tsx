@@ -125,7 +125,7 @@ export default function LoginPage() {
             <h1 style={{ fontSize: '20px', fontWeight: '800', color: '#0f2a5e', marginBottom: '4px' }}>
               جمعية نهضة العكنة الخيرية
             </h1>
-            <p style={{ fontSize: '12.5px', color: '#94a3b8', fontWeight: '500' }}>
+            <p style={{ fontSize: '12.5px', color: '#e8eef4', fontWeight: '500' }}>
               نظام الإحصاء السكاني والاشتراكات
             </p>
           </div>
@@ -292,7 +292,7 @@ export default function LoginPage() {
           {/* التذييل */}
           <p style={{
             textAlign: 'center', marginTop: '24px',
-            fontSize: '11px', color: '#cbd5e1', fontWeight: '400',
+            fontSize: '11px', color: '#1b232c', fontWeight: '400',
           }}>
             جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
           </p>
