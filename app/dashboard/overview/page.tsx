@@ -13,13 +13,8 @@ export default function OverviewPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const checkAndFetch = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/'); return }
-      fetchData()
-    }
-    checkAndFetch()
-  }, [])
+  fetchData()
+}, [])
 
   const fetchData = async () => {
     const { data } = await supabase

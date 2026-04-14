@@ -382,6 +382,29 @@ export default function MedicalNeedsPage() {
               </div>
             </div>
 
+
+{/* ✅ ضع التنويه هنا */}
+            <div className="relative overflow-hidden rounded-2xl border border-teal-200 bg-gradient-to-r from-teal-50 to-teal-100 px-4 py-3 mb-3 flex items-start gap-3">
+              <div className="absolute top-0 left-0 w-20 h-20 bg-teal-200 rounded-full -translate-x-8 -translate-y-8 opacity-40" />
+              <div className="flex-shrink-0 w-9 h-9 bg-teal-700 rounded-full flex items-center justify-center mt-0.5 z-10">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 16v-4M12 8h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
+                    stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="flex-1 z-10">
+                <span className="inline-block bg-teal-700 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 tracking-wide">
+                  تنويه
+                </span>
+                <p className="text-teal-900 text-sm font-semibold leading-relaxed m-0">
+                  الروشتات الطبية متاحة عند الطلب عبر{' '}
+                  <a href="/home/contact" className="text-teal-700 font-bold underline underline-offset-2">
+                    صفحة التواصل
+                  </a>
+                </p>
+              </div>
+            </div>
+
             {/* ── قائمة الحوجات ── */}
             <div className="space-y-2">
               {needs.map(need => (
