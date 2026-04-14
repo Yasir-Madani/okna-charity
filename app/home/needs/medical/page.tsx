@@ -370,11 +370,11 @@ export default function MedicalNeedsPage() {
 
 
           {/* ✅ ضع التنويه هنا */}
-            <div className="rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 mb-3 flex items-center gap-2">
-  <span className="inline-block bg-teal-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
+            <div className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 mb-3 flex items-center gap-2">
+  <span className="bg-teal-700 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0">
     تنويه
   </span>
-  <p className="text-teal-900 text-xs font-medium leading-relaxed m-0">
+  <p className="text-teal-900 text-[11px] font-medium m-0">
     الروشتات الطبية متاحة عند الطلب عبر{' '}
     <a href="/home/contact" className="text-teal-700 font-bold underline underline-offset-2">
       صفحة التواصل
