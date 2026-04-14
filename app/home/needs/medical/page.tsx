@@ -211,11 +211,11 @@ export default function MedicalNeedsPage() {
       <div className="bg-teal-700 text-white sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
           <button
-            onClick={() => router.push('/home/needs')}
-            className="text-sm text-white/80 hover:text-white transition-colors cursor-pointer"
-          >
-            رجوع
-          </button>
+              onClick={() => router.push('/home/needs')}
+              className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
+            >
+              رجوع
+            </button>
           <h1 className="text-base font-semibold tracking-wide">الحوجات الطبية</h1>
           {/* أزرار التصدير */}
           <div className="flex items-center gap-1.5">
