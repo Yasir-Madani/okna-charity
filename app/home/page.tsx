@@ -86,19 +86,44 @@ export default function HomePage() {
 
         {/* Logo + title */}
 <div className="text-center">
-  {/* Home Icon */}
-  <div className="flex justify-center mb-3">
-    <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M9 22V12h6v10" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
+  <div className="flex items-center justify-center w-full mt-4 mb-1">
+    
+    {/* خط اليمين */}
+    <div style={{
+      flex: 1,
+      height: '1.5px',
+      background: 'linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.55))',
+      position: 'relative',
+    }}>
+      <span style={{
+        position: 'absolute', left: '100%', top: '50%',
+        transform: 'translateY(-50%)',
+        width: '5px', height: '5px', borderRadius: '50%',
+        background: 'rgba(255,255,255,0.6)', display: 'block',
+      }} />
     </div>
-  </div>
 
-  <h1 className="text-white text-xl font-extrabold mb-1 tracking-tight">
-   جمعية نهضة العكنة الخيرية
-  </h1>
+    <h1 className="text-white text-xl font-extrabold tracking-tight" style={{ whiteSpace: 'nowrap', padding: '0 14px' }}>
+      جمعية نهضة العكنة الخيرية
+    </h1>
+
+    {/* خط اليسار */}
+    <div style={{
+      flex: 1,
+      height: '1.5px',
+      background: 'linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.55))',
+      position: 'relative',
+    }}>
+      <span style={{
+        position: 'absolute', right: '100%', top: '50%',
+        transform: 'translateY(-50%)',
+        width: '5px', height: '5px', borderRadius: '50%',
+        background: 'rgba(255,255,255,0.6)', display: 'block',
+      }} />
+    </div>
+
+  </div>
+  
           <p className="text-white text-xs opacity-80">بوابة الإحصاء والمعلومات</p>
         </div>
       </div>
