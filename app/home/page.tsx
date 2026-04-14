@@ -85,10 +85,20 @@ export default function HomePage() {
         </div>
 
         {/* Logo + title */}
-        <div className="text-center">
-          <h1 className="text-white text-xl font-extrabold mb-1 tracking-tight">
-           جمعية نهضة العكنة الخيرية
-          </h1>
+<div className="text-center">
+  {/* Home Icon */}
+  <div className="flex justify-center mb-3">
+    <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9 22V12h6v10" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <h1 className="text-white text-xl font-extrabold mb-1 tracking-tight">
+   جمعية نهضة العكنة الخيرية
+  </h1>
           <p className="text-white text-xs opacity-80">بوابة الإحصاء والمعلومات</p>
         </div>
       </div>
