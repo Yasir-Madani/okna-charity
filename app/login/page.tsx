@@ -30,7 +30,7 @@ export default function LoginPage() {
 
         <button
               onClick={() => router.push('/home')}
-              className="bg-white/15 border border-green/20 text-green text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
+              className="bg-green/15 border border-green/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
             >
               رجوع
             </button>
