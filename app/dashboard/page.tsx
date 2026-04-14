@@ -57,6 +57,14 @@ export default function Dashboard() {
         <h1 className="text-base font-bold">جمعية العكنة الخيرية</h1>
 
         {/* قائمة الموبايل */}
+
+
+
+        <button onClick={() => router.push('/dashboard/import')}>
+  📥 رفع من Excel
+</button>
+
+
         <div className="flex items-center gap-2">
           <button
             onClick={() => router.push('/dashboard/houses/new')}
