@@ -214,7 +214,7 @@ export default function MedicalNeedsPage() {
             onClick={() => router.push('/home/needs')}
             className="text-sm text-white/80 hover:text-white transition-colors cursor-pointer"
           >
-            ← رجوع
+            رجوع
           </button>
           <h1 className="text-base font-semibold tracking-wide">الحوجات الطبية</h1>
           {/* أزرار التصدير */}
@@ -374,9 +374,9 @@ export default function MedicalNeedsPage() {
   <span className="bg-teal-700 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0">
     تنويه
   </span>
-  <p className="text-red-500 text-[11px] font-medium m-0">
+  <p className="text-red-900 text-[11px] font-medium m-0">
     الروشتات الطبية متاحة عند الطلب عبر{' '}
-    <a href="/home/contact" className="text-red-500 font-bold underline underline-offset-2">
+    <a href="/home/contact" className="text-red-900 underline underline-offset-2">
       صفحة التواصل
     </a>
   </p>
