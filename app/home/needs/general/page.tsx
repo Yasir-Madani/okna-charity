@@ -124,13 +124,13 @@ export default function GeneralNeedsPage() {
             <div className="absolute inset-0 bg-gray-100 bg-opacity-80 backdrop-blur-sm rounded-2xl" />
             <div className="relative bg-white rounded-2xl border border-gray-100 p-8 text-center w-full shadow-sm">
               <h2 className="text-base font-semibold text-gray-800 mb-2">البيانات قيد الإدخال</h2>
-              <p className="text-gray-400 text-sm leading-loose mb-5">
+              <p className="text-gray-700 text-sm leading-loose mb-5">
                 يتم حالياً إدخال وتدقيق البيانات
                 <br />
                 ستتوفر للعرض بعد اكتمال عملية الإدخال
               </p>
               <div className="bg-rose-50 rounded-xl p-3 flex items-center gap-3 mb-5">
-                <p className="text-rose-600 text-sm text-right flex-1">
+                <p className="text-rose-600 text-sm text-center flex-1">
                   نعتذر عن عدم توفر البيانات مؤقتاً
                 </p>
               </div>
