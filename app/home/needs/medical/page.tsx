@@ -397,13 +397,13 @@ export default function MedicalNeedsPage() {
                 <p className="text-xs font-bold text-gray-400">#</p>
               </div>
               <div className="col-span-3">
-                <p className="text-xs font-bold text-gray-400">الصنف</p>
+                <p className="text-xs font-bold text-black-500">الصنف</p>
               </div>
               <div className="col-span-5">
-                <p className="text-xs font-bold text-gray-400">الوصف</p>
+                <p className="text-xs font-bold text-black-500">الوصف</p>
               </div>
               <div className="col-span-3 text-center">
-                <p className="text-xs font-bold text-gray-400">العدد</p>
+                <p className="text-xs font-bold text-black-500">العدد</p>
               </div>
             </div>
 
@@ -427,7 +427,7 @@ export default function MedicalNeedsPage() {
                       <p className="text-sm font-bold text-gray-800 leading-tight">{need.category}</p>
                     </div>
                     <div className="col-span-5">
-                      <p className="text-xs text-gray-500 leading-tight">{need.description}</p>
+                      <p className="text-xs text-gray-900 leading-tight">{need.description}</p>
                     </div>
                     <div className="col-span-3 text-center">
                       <span className="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-2 py-1 rounded-lg">
