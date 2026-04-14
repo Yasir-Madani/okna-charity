@@ -366,24 +366,10 @@ export default function MedicalNeedsPage() {
           </div>
         ) : (
           <>
-            {/* ── رؤوس الأعمدة ── */}
-            <div className="grid grid-cols-12 gap-2 px-3 pb-1">
-              <div className="col-span-1 text-center">
-                <p className="text-xs font-bold text-gray-400">#</p>
-              </div>
-              <div className="col-span-3">
-                <p className="text-xs font-bold text-gray-400">الصنف</p>
-              </div>
-              <div className="col-span-5">
-                <p className="text-xs font-bold text-gray-400">الوصف</p>
-              </div>
-              <div className="col-span-3 text-center">
-                <p className="text-xs font-bold text-gray-400">العدد</p>
-              </div>
-            </div>
 
 
-{/* ✅ ضع التنويه هنا */}
+
+          {/* ✅ ضع التنويه هنا */}
             <div className="relative overflow-hidden rounded-2xl border border-teal-200 bg-gradient-to-r from-teal-50 to-teal-100 px-4 py-3 mb-3 flex items-start gap-3">
               <div className="absolute top-0 left-0 w-20 h-20 bg-teal-200 rounded-full -translate-x-8 -translate-y-8 opacity-40" />
               <div className="flex-shrink-0 w-9 h-9 bg-teal-700 rounded-full flex items-center justify-center mt-0.5 z-10">
@@ -404,6 +390,24 @@ export default function MedicalNeedsPage() {
                 </p>
               </div>
             </div>
+
+            {/* ── رؤوس الأعمدة ── */}
+            <div className="grid grid-cols-12 gap-2 px-3 pb-1">
+              <div className="col-span-1 text-center">
+                <p className="text-xs font-bold text-gray-400">#</p>
+              </div>
+              <div className="col-span-3">
+                <p className="text-xs font-bold text-gray-400">الصنف</p>
+              </div>
+              <div className="col-span-5">
+                <p className="text-xs font-bold text-gray-400">الوصف</p>
+              </div>
+              <div className="col-span-3 text-center">
+                <p className="text-xs font-bold text-gray-400">العدد</p>
+              </div>
+            </div>
+
+
 
             {/* ── قائمة الحوجات ── */}
             <div className="space-y-2">
