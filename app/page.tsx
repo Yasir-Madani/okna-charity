@@ -26,13 +26,11 @@ export default function RootPage() {
         transition: 'opacity 0.5s ease',
         opacity: fadeOut ? 0 : 1,
       }}
-      className="
-        flex flex-col items-center justify-center
-        min-h-screen bg-white gap-8
-      "
+      className="flex flex-col items-center justify-center min-h-screen bg-white gap-8"
     >
       {/* الشعار */}
-      <div className="animate-bounce-slow">
+      {/* تم استخدام animate-bounce الافتراضي من Tailwind */}
+      <div className="animate-bounce">
         <Image
           src="/logo.jpg"
           alt="شعار الجمعية"
@@ -67,7 +65,8 @@ export default function RootPage() {
         />
       </div>
 
-      <style jsx>{`
+      {/* الحل: إزالة الخاصية jsx واستخدام وسم style العادي ليعمل مع Next.js و React بسهولة */}
+      <style>{`
         @keyframes loading {
           from { width: 0% }
           to   { width: 100% }
