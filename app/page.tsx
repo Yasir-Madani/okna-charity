@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 
 export default function RootPage() {
   const router = useRouter()
   const [fadeOut, setFadeOut] = useState(false)
 
   useEffect(() => {
-    // بعد 2.5 ثانية ابدأ تأثير التلاشي
+    // البدء في التلاشي قبل الانتقال بنصف ثانية
     const fadeTimer = setTimeout(() => setFadeOut(true), 2500)
-    // بعد 3 ثوانٍ انتقل للصفحة الرئيسية
+    // الانتقال للصفحة الرئيسية
     const navTimer = setTimeout(() => router.push('/home'), 3000)
 
     return () => {
@@ -26,46 +25,26 @@ export default function RootPage() {
         transition: 'opacity 0.5s ease',
         opacity: fadeOut ? 0 : 1,
       }}
-      className="flex flex-col items-center justify-center min-h-screen bg-white gap-8"
+      className="flex flex-col items-center justify-center min-h-screen bg-white font-sans"
     >
-      {/* الشعار */}
-      {/* تم استخدام animate-bounce الافتراضي من Tailwind */}
-      <div className="animate-bounce">
-        <Image
-          src="/logo.jpg"
-          alt="شعار الجمعية"
-          width={150}
-          height={150}
-          className="rounded-3xl shadow-lg"
-          priority
-        />
-      </div>
-
-      {/* اسم الجمعية */}
-      <div className="text-center px-6">
-        <h1
-          className="text-3xl font-bold mb-2"
-          style={{ color: '#8B1A6B', fontFamily: 'Arial, sans-serif' }}
-        >
-          جمعية نهضة العكنة الخيرية
-        </h1>
-        <p className="text-gray-500 text-base">
-          نظام الإحصاء السكاني والاشتراكات
+      <div className="flex flex-col items-center gap-4">
+        {/* النص فوق شريط التحميل */}
+        <p className="text-gray-600 text-lg font-medium animate-pulse">
+          جاري تحميل البيانات...
         </p>
+
+        {/* شريط التحميل */}
+        <div className="w-56 h-1.5 bg-gray-100 rounded-full overflow-hidden shadow-sm">
+          <div
+            className="h-full rounded-full"
+            style={{
+              backgroundColor: '#14b464',
+              animation: 'loading 2.5s ease-in-out forwards',
+            }}
+          />
+        </div>
       </div>
 
-      {/* شريط تحميل */}
-      <div className="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full"
-          style={{
-            backgroundColor: '#14b464',
-            animation: 'loading 2.5s ease-in-out forwards',
-          }}
-        />
-      </div>
-
-      {/* الحل: إزالة الخاصية jsx واستخدام وسم style العادي ليعمل مع Next.js و React بسهولة */}
       <style>{`
         @keyframes loading {
           from { width: 0% }
