@@ -34,13 +34,19 @@ export default function Dashboard() {
     router.push('/')
   }
 
-  const filtered = houses.filter(h => {
-    const matchSearch =
-      h.name.includes(search) ||
-      (h.house_number && h.house_number.toString().includes(search))
-    const matchSector = sectorFilter ? h.sector === sectorFilter : true
-    return matchSearch && matchSector
-  })
+  const filtered = houses
+    .filter(h => {
+      const matchSearch =
+        h.name.includes(search) ||
+        (h.house_number && h.house_number.toString().includes(search))
+      const matchSector = sectorFilter ? h.sector === sectorFilter : true
+      return matchSearch && matchSector
+    })
+    .sort((a, b) => {
+      const numA = a.house_number ? Number(a.house_number) : Infinity
+      const numB = b.house_number ? Number(b.house_number) : Infinity
+      return numA - numB
+    })
 
   const getFamilyCount = (house: any) => house.families?.length || 0
   const getIndividualCount = (house: any) =>
@@ -56,14 +62,9 @@ export default function Dashboard() {
       <div className="bg-green-700 text-white px-4 py-3 flex justify-between items-center sticky top-0 z-20 shadow-md">
         <h1 className="text-base font-bold">جمعية العكنة الخيرية</h1>
 
-        {/* قائمة الموبايل */}
-
-
-
         <button onClick={() => router.push('/dashboard/import')}>
-  📥 رفع من Excel
-</button>
-
+          📥 رفع من Excel
+        </button>
 
         <div className="flex items-center gap-2">
           <button
@@ -156,13 +157,21 @@ export default function Dashboard() {
           </select>
         </div>
 
-        {/* ===== قائمة المنازل - بطاقات ===== */}
+        {/* ===== قائمة المنازل ===== */}
         {loading ? (
           <p className="text-center text-gray-400 text-sm py-10">جاري التحميل...</p>
         ) : filtered.length === 0 ? (
           <p className="text-center text-gray-400 text-sm py-10">لا توجد منازل</p>
         ) : (
           <div className="space-y-2">
+
+            {/* ===== صف العنوان ===== */}
+            <div className="bg-black text-white rounded-xl px-4 py-2.5 flex items-center gap-3">
+              <div className="w-10 flex-shrink-0 text-center text-xs font-bold">رقم</div>
+              <div className="flex-1 text-sm font-bold">إسم المنزل</div>
+              <div className="text-xs font-bold opacity-70">التفاصيل</div>
+            </div>
+
             {filtered.map(house => (
               <div
                 key={house.id}
