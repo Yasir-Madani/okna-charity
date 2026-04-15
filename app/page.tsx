@@ -29,8 +29,8 @@ export default function RootPage() {
     >
       <div className="flex flex-col items-center gap-4">
         {/* النص فوق شريط التحميل */}
-        <p className="text-gray-600 text-lg font-medium animate-pulse">
-          جاري تحميل البيانات...
+        <p className="text-gray-900 text-lg font-medium animate-pulse">
+          ...يتم تحميل البيانات
         </p>
 
         {/* شريط التحميل */}
