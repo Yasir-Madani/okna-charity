@@ -60,7 +60,7 @@ export default function Dashboard() {
 
       {/* ===== شريط العنوان ===== */}
       <div className="bg-green-700 text-white px-4 py-3 flex justify-between items-center sticky top-0 z-20 shadow-md">
-        <h1 className="text-base font-bold">جمعية العكنة الخيرية</h1>
+       
 
         <button onClick={() => router.push('/dashboard/import')}>
           📥 رفع من Excel
