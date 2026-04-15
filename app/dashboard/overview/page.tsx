@@ -657,7 +657,7 @@ export default function OverviewPage() {
                             <span className="ov-info-label">الأسرة</span>
                           </div>
                           <div className="ov-info-divider" />
-                          <span className="ov-info-value">{row.family_name}</span>
+                          <span className="ov-info-value">أسرة {row.family_name}</span>
                         </div>
                       </div>
 
