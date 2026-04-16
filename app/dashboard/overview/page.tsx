@@ -550,8 +550,8 @@ export default function OverviewPage() {
               </div>
             </div>
 
-<div className="ov-header-title" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '13px', whiteSpace: 'nowrap' }}>
-  <span style={{ width: '6px', height: '6px', backgroundColor: '#28a745', borderRadius: '50%' }}></span>
+<div className="ov-header-title" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '12px', marginTop: '20px', color: '#fff', opacity: '0.8' }}>
+  <span style={{ width: '6px', height: '6px', backgroundColor: '#28a745', borderRadius: '50%', display: 'inline-block' }}></span>
   تنويه: البيانات قيد الحصر والإدخال
 </div>
 
