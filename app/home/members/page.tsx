@@ -1,25 +1,27 @@
-import { useState } from 'react'
-
-interface Member {
-  id: string
-  full_name: string
-  role: string
-  phone?: string
-  sort_order: number
-}
+'use client'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function MembersPage() {
-  const [members, setMembers] = useState<Member[]>([
-    { id: '1', full_name: 'عبدالله محمد الأحمدي', role: 'رئيس الجمعية', phone: '0501234567', sort_order: 1 },
-    { id: '2', full_name: 'فهد سعد العتيبي', role: 'نائب الرئيس', phone: '0507654321', sort_order: 2 },
-    { id: '3', full_name: 'خالد أحمد القحطاني', role: 'أمين الصندوق', phone: '0509876543', sort_order: 3 },
-    { id: '4', full_name: 'سعد عبدالعزيز المطيري', role: 'عضو مجلس الإدارة', sort_order: 4 },
-    { id: '5', full_name: 'محمد سليمان الدوسري', role: 'عضو مجلس الإدارة', phone: '0503456789', sort_order: 5 },
-  ])
+  const [members, setMembers] = useState<any[]>([])
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [editing, setEditing] = useState<Member | null>(null)
+  const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState({ full_name: '', role: '', phone: '', sort_order: '0' })
   const [duplicateError, setDuplicateError] = useState('')
+  const router = useRouter()
+
+  useEffect(() => { fetchData() }, [])
+
+  const fetchData = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) setIsAdmin(true)
+    const { data } = await supabase.from('members').select('*').order('sort_order')
+    if (data) setMembers(data)
+    setLoading(false)
+  }
 
   const resetForm = () => {
     setForm({ full_name: '', role: '', phone: '', sort_order: '0' })
@@ -28,68 +30,70 @@ export default function MembersPage() {
     setDuplicateError('')
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
 
-    const existing = members.find(
-      m => m.full_name.toLowerCase() === form.full_name.trim().toLowerCase() && m.id !== editing?.id
-    )
+    const { data: existing } = await supabase
+      .from('members')
+      .select('id')
+      .ilike('full_name', form.full_name.trim())
+      .neq('id', editing?.id ?? '00000000-0000-0000-0000-000000000000')
+      .single()
 
     if (existing) {
       setDuplicateError(`"${form.full_name.trim()}" موجود مسبقاً في قائمة الأعضاء`)
       return
     }
 
+    const payload = {
+      full_name: form.full_name.trim(),
+      role: form.role,
+      phone: form.phone || null,
+      sort_order: Number(form.sort_order),
+      created_by: user.id
+    }
+
     if (editing) {
-      setMembers(members.map(m => 
-        m.id === editing.id 
-          ? { ...m, full_name: form.full_name.trim(), role: form.role, phone: form.phone || undefined, sort_order: Number(form.sort_order) }
-          : m
-      ))
+      await supabase.from('members').update(payload).eq('id', editing.id)
     } else {
-      const newMember: Member = {
-        id: Date.now().toString(),
-        full_name: form.full_name.trim(),
-        role: form.role,
-        phone: form.phone || undefined,
-        sort_order: Number(form.sort_order)
-      }
-      setMembers([...members, newMember])
+      await supabase.from('members').insert(payload)
     }
 
     resetForm()
+    fetchData()
   }
 
-  const handleEdit = (member: Member) => {
+  const handleEdit = (member: any) => {
     setForm({
       full_name: member.full_name,
       role: member.role,
       phone: member.phone || '',
-      sort_order: member.sort_order.toString()
+      sort_order: member.sort_order?.toString() || '0'
     })
     setEditing(member)
     setShowForm(true)
     setDuplicateError('')
   }
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return
-    setMembers(members.filter(m => m.id !== id))
+    await supabase.from('members').delete().eq('id', id)
+    fetchData()
   }
 
   const roleConfig: Record<string, { bg: string; color: string; border: string }> = {
-    'رئيس': { bg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', color: '#92400e', border: 'rgba(251, 191, 36, 0.4)' },
-    'نائب': { bg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)', color: '#1e40af', border: 'rgba(59, 130, 246, 0.4)' },
-    'أمين': { bg: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)', color: '#065f46', border: 'rgba(16, 185, 129, 0.4)' },
-    'عضو': { bg: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)', color: '#475569', border: 'rgba(148, 163, 184, 0.4)' },
+    'رئيس': { bg: '#fff7ed', color: '#9a3412', border: '#fed7aa' },
+    'نائب': { bg: '#eff6ff', color: '#1e40af', border: '#bfdbfe' },
+    'أمين': { bg: '#f0fdf4', color: '#14532d', border: '#bbf7d0' },
+    'عضو': { bg: '#f8fafc', color: '#334155', border: '#e2e8f0' },
   }
 
   const getRoleConfig = (role: string) => {
     const match = Object.keys(roleConfig).find(k => role.includes(k))
     return match ? roleConfig[match] : roleConfig['عضو']
   }
-
-  const sortedMembers = [...members].sort((a, b) => a.sort_order - b.sort_order)
 
   return (
     <>
@@ -101,23 +105,7 @@ export default function MembersPage() {
           font-family: 'Cairo', sans-serif;
           direction: rtl;
           min-height: 100vh;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-          background-attachment: fixed;
-          position: relative;
-        }
-
-        .mem-root::before {
-          content: '';
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: 
-            radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(255, 135, 214, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 40% 20%, rgba(138, 118, 249, 0.3) 0%, transparent 50%);
-          pointer-events: none;
+          background: #f0f2f5;
         }
 
         /* ── HEADER ── */
@@ -125,398 +113,277 @@ export default function MembersPage() {
           position: sticky;
           top: 0;
           z-index: 50;
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 
-            0 4px 24px rgba(102, 126, 234, 0.12),
-            0 1px 2px rgba(0, 0, 0, 0.05);
+          background: #fff;
+          border-bottom: 1px solid #e8edf2;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         }
 
         .mem-header-inner {
-          padding: 18px 24px;
+          padding: 14px 20px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          max-width: 720px;
-          margin: 0 auto;
         }
 
         .mem-header-left {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 12px;
         }
 
         .mem-header-accent {
-          width: 5px;
-          height: 42px;
-          background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-          border-radius: 8px;
+          width: 4px;
+          height: 32px;
+          background: linear-gradient(180deg, #ea580c, #c2410c);
+          border-radius: 4px;
           flex-shrink: 0;
-          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .mem-header-title {
-          font-size: 20px;
-          font-weight: 900;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          letter-spacing: -0.02em;
+          font-size: 17px;
+          font-weight: 800;
+          color: #1e293b;
+          letter-spacing: 0.01em;
           line-height: 1.2;
         }
 
         .mem-header-sub {
-          font-size: 12px;
-          color: #6b7280;
-          font-weight: 600;
-          margin-top: 3px;
-          letter-spacing: 0.02em;
+          font-size: 11px;
+          color: #94a3b8;
+          font-weight: 500;
+          margin-top: 2px;
+        }
+
+        .mem-back-btn {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: #64748b;
+          padding: 8px 16px;
+          border-radius: 9px;
+          font-size: 13px;
+          font-weight: 700;
+          font-family: 'Cairo', sans-serif;
+          cursor: pointer;
+          transition: all 0.18s ease;
+          white-space: nowrap;
+        }
+        .mem-back-btn:hover {
+          background: #f1f5f9;
+          border-color: #cbd5e1;
+          color: #334155;
         }
 
         /* ── BODY ── */
         .mem-body {
-          max-width: 720px;
+          max-width: 680px;
           margin: 0 auto;
-          padding: 32px 20px 48px;
-          position: relative;
-          z-index: 1;
+          padding: 20px 16px 32px;
         }
 
         /* ── ADD BUTTON ── */
         .mem-add-btn {
           width: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: #1e293b;
           border: none;
           color: #fff;
-          border-radius: 16px;
-          padding: 18px;
-          font-size: 15px;
-          font-weight: 800;
+          border-radius: 12px;
+          padding: 14px;
+          font-size: 14px;
+          font-weight: 700;
           font-family: 'Cairo', sans-serif;
           cursor: pointer;
-          margin-bottom: 24px;
-          letter-spacing: 0.02em;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-bottom: 18px;
+          letter-spacing: 0.04em;
+          transition: all 0.2s ease;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          box-shadow: 
-            0 8px 24px rgba(102, 126, 234, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
-          position: relative;
-          overflow: hidden;
+          gap: 8px;
+          box-shadow: 0 2px 10px rgba(30,41,59,0.14);
         }
-
-        .mem-add-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: left 0.5s;
-        }
-
-        .mem-add-btn:hover::before {
-          left: 100%;
-        }
-
         .mem-add-btn:hover {
-          transform: translateY(-3px);
-          box-shadow: 
-            0 12px 32px rgba(102, 126, 234, 0.45),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-
-        .mem-add-btn:active {
+          background: #0f172a;
+          box-shadow: 0 4px 18px rgba(30,41,59,0.2);
           transform: translateY(-1px);
         }
 
         /* ── FORM CARD ── */
         .mem-form-card {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 20px;
-          padding: 28px;
-          margin-bottom: 24px;
-          box-shadow: 
-            0 20px 50px rgba(102, 126, 234, 0.15),
-            0 1px 2px rgba(0, 0, 0, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.5);
-          animation: fadeDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .mem-form-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-          background-size: 200% 100%;
-          animation: gradientShift 3s ease infinite;
-        }
-
-        @keyframes gradientShift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-top: 3px solid #ea580c;
+          border-radius: 14px;
+          padding: 22px;
+          margin-bottom: 18px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+          animation: fadeDown 0.22s ease;
         }
 
         @keyframes fadeDown {
-          from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .mem-form-title {
-          font-size: 17px;
-          font-weight: 900;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 24px;
-          padding-bottom: 16px;
-          border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+          font-size: 15px;
+          font-weight: 800;
+          color: #1e293b;
+          margin-bottom: 18px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #f1f5f9;
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
         }
 
         .mem-form-title-dot {
-          width: 10px;
-          height: 10px;
+          width: 8px;
+          height: 8px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: #ea580c;
           flex-shrink: 0;
-          box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
         }
 
         .mem-field-label {
           display: block;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 700;
-          color: #4b5563;
-          margin-bottom: 8px;
-          letter-spacing: 0.02em;
+          color: #475569;
+          margin-bottom: 6px;
+          letter-spacing: 0.04em;
         }
 
         .mem-input {
           width: 100%;
-          background: rgba(255, 255, 255, 0.7);
-          border: 2px solid rgba(102, 126, 234, 0.1);
-          border-radius: 12px;
-          padding: 13px 16px;
-          color: #1f2937;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 9px;
+          padding: 11px 13px;
+          color: #1e293b;
           font-size: 14px;
           font-family: 'Cairo', sans-serif;
           font-weight: 500;
           text-align: right;
           outline: none;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          margin-bottom: 18px;
+          transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+          margin-bottom: 14px;
         }
         .mem-input:focus {
           background: #fff;
-          border-color: #667eea;
-          box-shadow: 
-            0 0 0 4px rgba(102, 126, 234, 0.1),
-            0 4px 12px rgba(102, 126, 234, 0.15);
-          transform: translateY(-1px);
+          border-color: #ea580c;
+          box-shadow: 0 0 0 3px rgba(234,88,12,0.08);
         }
-        .mem-input.error { 
-          border-color: #ef4444;
-          background: rgba(254, 242, 242, 0.7);
-        }
-        .mem-input::placeholder { color: #9ca3af; }
+        .mem-input.error { border-color: #ef4444; }
+        .mem-input::placeholder { color: #cbd5e1; }
 
         .mem-err {
-          font-size: 13px;
+          font-size: 12px;
           color: #dc2626;
-          margin-top: -14px;
-          margin-bottom: 16px;
-          padding: 10px 14px;
-          background: rgba(254, 242, 242, 0.8);
-          border-radius: 10px;
+          margin-top: -10px;
+          margin-bottom: 12px;
+          padding-right: 2px;
           font-weight: 600;
-          border-left: 3px solid #ef4444;
         }
 
         .mem-form-actions {
           display: flex;
-          gap: 12px;
-          margin-top: 8px;
+          gap: 10px;
+          margin-top: 6px;
         }
 
         .mem-save-btn {
           flex: 1;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: #1e293b;
           border: none;
           color: #fff;
-          padding: 14px;
-          border-radius: 12px;
-          font-size: 15px;
+          padding: 12px;
+          border-radius: 9px;
+          font-size: 14px;
           font-weight: 800;
           font-family: 'Cairo', sans-serif;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 
-            0 6px 18px rgba(102, 126, 234, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          transition: all 0.18s;
         }
-        .mem-save-btn:hover { 
-          transform: translateY(-2px);
-          box-shadow: 
-            0 8px 24px rgba(102, 126, 234, 0.45),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-        .mem-save-btn:active {
-          transform: translateY(0);
-        }
+        .mem-save-btn:hover { background: #0f172a; }
 
         .mem-cancel-btn {
           flex: 1;
-          background: rgba(255, 255, 255, 0.8);
-          border: 2px solid rgba(102, 126, 234, 0.2);
-          color: #6b7280;
-          padding: 14px;
-          border-radius: 12px;
-          font-size: 15px;
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
+          color: #64748b;
+          padding: 12px;
+          border-radius: 9px;
+          font-size: 14px;
           font-family: 'Cairo', sans-serif;
-          font-weight: 700;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.18s;
         }
-        .mem-cancel-btn:hover { 
-          background: rgba(255, 255, 255, 1);
-          border-color: rgba(102, 126, 234, 0.3);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-        .mem-cancel-btn:active {
-          transform: translateY(0);
-        }
+        .mem-cancel-btn:hover { background: #e2e8f0; }
 
         /* ── MEMBER CARDS ── */
         .mem-cards {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 10px;
         }
 
         .mem-card {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 18px;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
           overflow: hidden;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          animation: cardIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
-          box-shadow: 
-            0 4px 20px rgba(102, 126, 234, 0.08),
-            0 1px 3px rgba(0, 0, 0, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.5);
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
+          animation: cardIn 0.32s ease both;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.05);
           display: flex;
           flex-direction: row;
           align-items: stretch;
-          position: relative;
-        }
-
-        .mem-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.5), transparent);
-          opacity: 0;
-          transition: opacity 0.3s;
-        }
-
-        .mem-card:hover::before {
-          opacity: 1;
         }
 
         .mem-card:hover {
-          transform: translateY(-4px) scale(1.01);
-          box-shadow: 
-            0 12px 40px rgba(102, 126, 234, 0.15),
-            0 2px 4px rgba(0, 0, 0, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
-          border-color: rgba(102, 126, 234, 0.2);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 22px rgba(0,0,0,0.09);
         }
 
         @keyframes cardIn {
-          from { opacity: 0; transform: translateY(20px) scale(0.95); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
-        .mem-card:nth-child(1) { animation-delay: 0.05s }
-        .mem-card:nth-child(2) { animation-delay: 0.1s }
-        .mem-card:nth-child(3) { animation-delay: 0.15s }
-        .mem-card:nth-child(4) { animation-delay: 0.2s }
-        .mem-card:nth-child(5) { animation-delay: 0.25s }
-        .mem-card:nth-child(6) { animation-delay: 0.3s }
-        .mem-card:nth-child(7) { animation-delay: 0.35s }
-        .mem-card:nth-child(8) { animation-delay: 0.4s }
+        .mem-card:nth-child(1) { animation-delay: 0.03s }
+        .mem-card:nth-child(2) { animation-delay: 0.06s }
+        .mem-card:nth-child(3) { animation-delay: 0.09s }
+        .mem-card:nth-child(4) { animation-delay: 0.12s }
+        .mem-card:nth-child(5) { animation-delay: 0.15s }
+        .mem-card:nth-child(6) { animation-delay: 0.18s }
+        .mem-card:nth-child(7) { animation-delay: 0.21s }
+        .mem-card:nth-child(8) { animation-delay: 0.24s }
 
         /* ── SERIAL COLUMN (left side) ── */
         .mem-serial-col {
-          width: 70px;
+          width: 54px;
           flex-shrink: 0;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: center;
-          background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-          border-left: 1px solid rgba(102, 126, 234, 0.1);
-          position: relative;
-        }
-
-        .mem-serial-col::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 20%;
-          bottom: 20%;
-          width: 3px;
-          background: linear-gradient(180deg, transparent, rgba(102, 126, 234, 0.5), transparent);
-          border-radius: 2px;
+          padding-top: 14px;
+          background: linear-gradient(180deg, #fff7f3 0%, #fff 100%);
+          border-left: 1px solid #f1f5f9;
         }
 
         .mem-serial {
-          width: 44px;
-          height: 44px;
-          border-radius: 14px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #ea580c, #c2410c);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 900;
           color: #fff;
-          box-shadow: 
-            0 4px 16px rgba(102, 126, 234, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .mem-card:hover .mem-serial {
-          transform: scale(1.1) rotate(5deg);
-          box-shadow: 
-            0 6px 20px rgba(102, 126, 234, 0.45),
-            inset 0 1px 0 rgba(255, 255, 255, 0.4);
+          box-shadow: 0 2px 8px rgba(234,88,12,0.30);
         }
 
         /* ── MAIN CONTENT (center stacked) ── */
@@ -526,182 +393,167 @@ export default function MembersPage() {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          padding: 20px 20px;
+          padding: 14px 16px;
           gap: 0;
           text-align: center;
         }
 
         .mem-name {
-          font-size: 17px;
+          font-size: 16px;
           font-weight: 800;
-          color: #1f2937;
+          color: #0f172a;
           line-height: 1.3;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          letter-spacing: -0.01em;
         }
 
         .mem-divider {
-          width: 50px;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
-          margin: 10px auto;
+          width: 40px;
+          height: 1px;
+          background: #e2e8f0;
+          margin: 7px auto;
         }
 
         .mem-role-badge {
           display: inline-block;
-          padding: 5px 16px;
-          border-radius: 10px;
+          padding: 3px 14px;
+          border-radius: 5px;
           font-size: 12px;
           font-weight: 700;
-          border: 1.5px solid;
+          border: 1px solid;
           letter-spacing: 0.02em;
-          margin: 0 auto 10px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .mem-card:hover .mem-role-badge {
-          transform: scale(1.05);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+          margin: 0 auto 7px;
         }
 
         .mem-phone {
-          font-size: 14px;
-          color: #6b7280;
+          font-size: 13px;
+          color: #64748b;
           direction: ltr;
           font-weight: 600;
           letter-spacing: 0.03em;
         }
 
         .mem-no-phone {
-          font-size: 13px;
+          font-size: 12px;
           color: #d1d5db;
         }
 
         /* ── ACTIONS COLUMN (right side) ── */
         .mem-actions-col {
-          width: 70px;
+          width: 54px;
           flex-shrink: 0;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          padding: 16px 0;
-          border-right: 1px solid rgba(102, 126, 234, 0.1);
-          background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(240, 147, 251, 0.02) 100%);
+          gap: 6px;
+          padding: 12px 0;
+          border-right: 1px solid #f1f5f9;
+          background: #fafbfc;
         }
 
         .mem-edit-btn {
-          background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-          border: 1.5px solid rgba(59, 130, 246, 0.3);
-          color: #1e40af;
-          width: 42px;
-          height: 36px;
-          border-radius: 10px;
-          font-size: 12px;
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
+          color: #1d4ed8;
+          width: 36px;
+          height: 30px;
+          border-radius: 7px;
+          font-size: 11px;
           font-weight: 700;
           font-family: 'Cairo', sans-serif;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.18s;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
         }
-        .mem-edit-btn:hover { 
-          background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
-          transform: scale(1.1);
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
-        }
+        .mem-edit-btn:hover { background: #dbeafe; }
 
         .mem-del-btn {
-          background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-          border: 1.5px solid rgba(239, 68, 68, 0.3);
+          background: #fef2f2;
+          border: 1px solid #fecaca;
           color: #dc2626;
-          width: 42px;
-          height: 36px;
-          border-radius: 10px;
-          font-size: 12px;
+          width: 36px;
+          height: 30px;
+          border-radius: 7px;
+          font-size: 11px;
           font-weight: 700;
           font-family: 'Cairo', sans-serif;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.18s;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
         }
-        .mem-del-btn:hover { 
-          background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-          transform: scale(1.1);
-          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
-        }
+        .mem-del-btn:hover { background: #fee2e2; }
 
         /* ── STAT STRIP ── */
         .mem-stat {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 16px;
-          padding: 20px 24px;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-right: 4px solid #ea580c;
+          border-radius: 12px;
+          padding: 14px 18px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-top: 24px;
-          box-shadow: 
-            0 8px 24px rgba(102, 126, 234, 0.12),
-            inset 0 1px 0 rgba(255, 255, 255, 0.5);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .mem-stat::before {
-          content: '';
-          position: absolute;
-          right: 0;
-          top: 0;
-          bottom: 0;
-          width: 4px;
-          background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-          box-shadow: 0 0 16px rgba(102, 126, 234, 0.5);
+          margin-top: 18px;
+          box-shadow: 0 1px 6px rgba(0,0,0,0.04);
         }
 
         .mem-stat-label {
-          font-size: 14px;
-          color: #6b7280;
-          font-weight: 700;
-          letter-spacing: 0.01em;
+          font-size: 13px;
+          color: #64748b;
+          font-weight: 600;
         }
 
         .mem-stat-num {
-          font-size: 32px;
+          font-size: 28px;
           font-weight: 900;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: #ea580c;
           line-height: 1;
+        }
+
+        /* ── LOADING / EMPTY ── */
+        .mem-center {
+          text-align: center;
+          padding: 80px 20px;
+        }
+
+        .mem-spinner {
+          width: 34px;
+          height: 34px;
+          border: 3px solid #e2e8f0;
+          border-top-color: #ea580c;
+          border-radius: 50%;
+          animation: spin 0.75s linear infinite;
+          margin: 0 auto 12px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .mem-empty-text {
+          font-size: 14px;
+          color: #94a3b8;
+          font-weight: 500;
         }
 
         /* ── FOOTER ── */
         .mem-footer {
           text-align: center;
-          font-size: 12px;
-          color: rgba(255, 255, 255, 0.95);
-          padding: 32px 0 0;
-          font-weight: 600;
-          border-top: 1px solid rgba(255, 255, 255, 0.15);
-          margin-top: 32px;
-          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          letter-spacing: 0.02em;
+          font-size: 11px;
+          color: #000;
+          padding: 24px 0 0;
+          font-weight: 500;
+          border-top: 1px solid #f1f5f9;
+          margin-top: 24px;
         }
       `}</style>
 
       <div className="mem-root">
+
         {/* HEADER */}
         <div className="mem-header">
           <div className="mem-header-inner">
@@ -712,15 +564,21 @@ export default function MembersPage() {
                 <div className="mem-header-sub">الأعضاء الإداريون</div>
               </div>
             </div>
+            <button className="mem-back-btn" onClick={() => router.push('/home')}>
+               رجوع
+            </button>
           </div>
         </div>
 
         <div className="mem-body">
+
           {/* ADD BUTTON */}
-          <button className="mem-add-btn" onClick={() => { resetForm(); setShowForm(!showForm) }}>
-            <span style={{ fontSize: 18 }}>＋</span>
-            إضافة عضو جديد
-          </button>
+          {isAdmin && (
+            <button className="mem-add-btn" onClick={() => { resetForm(); setShowForm(!showForm) }}>
+              <span style={{ fontSize: 16 }}>＋</span>
+              إضافة عضو جديد
+            </button>
+          )}
 
           {/* FORM */}
           {showForm && (
@@ -775,50 +633,70 @@ export default function MembersPage() {
             </div>
           )}
 
-          {/* MEMBER CARDS */}
-          <div className="mem-cards">
-            {sortedMembers.map((member, index) => {
-              const rc = getRoleConfig(member.role)
-              return (
-                <div className="mem-card" key={member.id}>
-                  {/* SERIAL — يسار */}
-                  <div className="mem-serial-col">
-                    <div className="mem-serial">{index + 1}</div>
-                  </div>
+          {/* LOADING */}
+          {loading ? (
+            <div className="mem-center">
+              <div className="mem-spinner" />
+              <p className="mem-empty-text">جاري التحميل...</p>
+            </div>
+          ) : members.length === 0 ? (
+            <div className="mem-center">
+              <p style={{ fontSize: 38, marginBottom: 12 }}>👥</p>
+              <p className="mem-empty-text">لا يوجد أعضاء مسجلون بعد</p>
+            </div>
+          ) : (
+            <>
+              <div className="mem-cards">
+                {members.map((member, index) => {
+                  const rc = getRoleConfig(member.role)
+                  return (
+                    <div className="mem-card" key={member.id}>
 
-                  {/* CONTENT — وسط مكدّس */}
-                  <div className="mem-card-content">
-                    <div className="mem-name">{member.full_name}</div>
-                    <div className="mem-divider" />
-                    <span
-                      className="mem-role-badge"
-                      style={{ background: rc.bg, color: rc.color, borderColor: rc.border }}
-                    >
-                      {member.role}
-                    </span>
-                    {member.phone
-                      ? <span className="mem-phone">{member.phone}</span>
-                      : <span className="mem-no-phone">—</span>
-                    }
-                  </div>
+                      {/* SERIAL — يسار */}
+                      <div className="mem-serial-col">
+                        <div className="mem-serial">{index + 1}</div>
+                      </div>
 
-                  {/* ACTIONS — يمين */}
-                  <div className="mem-actions-col">
-                    <button className="mem-edit-btn" onClick={() => handleEdit(member)} title="تعديل">✎</button>
-                    <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)} title="حذف">✕</button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                      {/* CONTENT — وسط مكدّس */}
+                      <div className="mem-card-content">
+                        <div className="mem-name">{member.full_name}</div>
+                        <div className="mem-divider" />
+                        <span
+                          className="mem-role-badge"
+                          style={{ background: rc.bg, color: rc.color, borderColor: rc.border }}
+                        >
+                          {member.role}
+                        </span>
+                        {member.phone
+                          ? <span className="mem-phone">{member.phone}</span>
+                          : <span className="mem-no-phone">—</span>
+                        }
+                      </div>
 
-          {/* STAT */}
-          <div className="mem-stat">
-            <span className="mem-stat-label">إجمالي الأعضاء الإداريين</span>
-            <span className="mem-stat-num">{members.length}</span>
-          </div>
+                      {/* ACTIONS — يمين */}
+                      {isAdmin && (
+                        <div className="mem-actions-col">
+                          <button className="mem-edit-btn" onClick={() => handleEdit(member)} title="تعديل">✎</button>
+                          <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)} title="حذف">✕</button>
+                        </div>
+                      )}
 
-          <div className="mem-footer">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* STAT */}
+              <div className="mem-stat">
+                <span className="mem-stat-label">إجمالي الأعضاء الإداريين</span>
+                <span className="mem-stat-num">{members.length}</span>
+              </div>
+            </>
+          )}
+
+          <div className="mem-footer text-black">
+  جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
+</div>
         </div>
       </div>
     </>
