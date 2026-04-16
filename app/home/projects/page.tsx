@@ -268,7 +268,7 @@ export default function ProjectsPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-black-800 leading-snug">{project.name}</p>
                     {project.description && (
-                      <p className="text-xs text-gray-1000 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-gray-1000 mt-1.5 leading-relaxed text-justify">
                         {project.description}
                       </p>
                     )}
