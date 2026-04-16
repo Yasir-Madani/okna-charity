@@ -43,7 +43,7 @@ export default function MembersPage() {
       .single()
 
     if (existing) {
-      setDuplicateError(`"${form.full_name.trim()}" موجود مسبقاً في قائمة الأعضاء`)
+      setDuplicateError(`"${form.full_name.trim()}" موجود مسبقاً`)
       return
     }
 
@@ -83,621 +83,365 @@ export default function MembersPage() {
     fetchData()
   }
 
-  const roleConfig: Record<string, { bg: string; color: string; border: string }> = {
-    'رئيس': { bg: '#fff7ed', color: '#9a3412', border: '#fed7aa' },
-    'نائب': { bg: '#eff6ff', color: '#1e40af', border: '#bfdbfe' },
-    'أمين': { bg: '#f0fdf4', color: '#14532d', border: '#bbf7d0' },
-    'عضو': { bg: '#f8fafc', color: '#334155', border: '#e2e8f0' },
-  }
-
-  const getRoleConfig = (role: string) => {
-    const match = Object.keys(roleConfig).find(k => role.includes(k))
-    return match ? roleConfig[match] : roleConfig['عضو']
+  const getRoleStyle = (role: string) => {
+    if (role.includes('رئيس')) return { grad: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', text: '#fff' }
+    if (role.includes('نائب')) return { grad: 'linear-gradient(135deg, #334155 0%, #475569 100%)', text: '#fff' }
+    return { grad: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', text: '#1e293b' }
   }
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        
+        :root {
+          --primary: #ea580c;
+          --secondary: #1e293b;
+          --bg: #f8fafc;
+        }
 
-        .mem-root {
+        .ok-root {
           font-family: 'Cairo', sans-serif;
           direction: rtl;
           min-height: 100vh;
-          background: #f0f2f5;
+          background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+          color: var(--secondary);
+          padding-bottom: 50px;
         }
 
-        /* ── HEADER ── */
-        .mem-header {
+        /* Glassmorphism Header */
+        .ok-header {
           position: sticky;
           top: 0;
-          z-index: 50;
-          background: #fff;
-          border-bottom: 1px solid #e8edf2;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+          z-index: 100;
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
         }
 
-        .mem-header-inner {
-          padding: 14px 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .mem-header-left {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .mem-header-accent {
-          width: 4px;
-          height: 32px;
-          background: linear-gradient(180deg, #ea580c, #c2410c);
-          border-radius: 4px;
-          flex-shrink: 0;
-        }
-
-        .mem-header-title {
-          font-size: 17px;
-          font-weight: 800;
-          color: #1e293b;
-          letter-spacing: 0.01em;
-          line-height: 1.2;
-        }
-
-        .mem-header-sub {
-          font-size: 11px;
-          color: #94a3b8;
-          font-weight: 500;
-          margin-top: 2px;
-        }
-
-        .mem-back-btn {
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          color: #64748b;
-          padding: 8px 16px;
-          border-radius: 9px;
-          font-size: 13px;
-          font-weight: 700;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          transition: all 0.18s ease;
-          white-space: nowrap;
-        }
-        .mem-back-btn:hover {
-          background: #f1f5f9;
-          border-color: #cbd5e1;
-          color: #334155;
-        }
-
-        /* ── BODY ── */
-        .mem-body {
-          max-width: 680px;
+        .ok-header-inner {
+          max-width: 1000px;
           margin: 0 auto;
-          padding: 20px 16px 32px;
-        }
-
-        /* ── ADD BUTTON ── */
-        .mem-add-btn {
-          width: 100%;
-          background: #1e293b;
-          border: none;
-          color: #fff;
-          border-radius: 12px;
-          padding: 14px;
-          font-size: 14px;
-          font-weight: 700;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          margin-bottom: 18px;
-          letter-spacing: 0.04em;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          box-shadow: 0 2px 10px rgba(30,41,59,0.14);
-        }
-        .mem-add-btn:hover {
-          background: #0f172a;
-          box-shadow: 0 4px 18px rgba(30,41,59,0.2);
-          transform: translateY(-1px);
-        }
-
-        /* ── FORM CARD ── */
-        .mem-form-card {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-top: 3px solid #ea580c;
-          border-radius: 14px;
-          padding: 22px;
-          margin-bottom: 18px;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-          animation: fadeDown 0.22s ease;
-        }
-
-        @keyframes fadeDown {
-          from { opacity: 0; transform: translateY(-8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .mem-form-title {
-          font-size: 15px;
-          font-weight: 800;
-          color: #1e293b;
-          margin-bottom: 18px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid #f1f5f9;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .mem-form-title-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #ea580c;
-          flex-shrink: 0;
-        }
-
-        .mem-field-label {
-          display: block;
-          font-size: 12px;
-          font-weight: 700;
-          color: #475569;
-          margin-bottom: 6px;
-          letter-spacing: 0.04em;
-        }
-
-        .mem-input {
-          width: 100%;
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 9px;
-          padding: 11px 13px;
-          color: #1e293b;
-          font-size: 14px;
-          font-family: 'Cairo', sans-serif;
-          font-weight: 500;
-          text-align: right;
-          outline: none;
-          transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-          margin-bottom: 14px;
-        }
-        .mem-input:focus {
-          background: #fff;
-          border-color: #ea580c;
-          box-shadow: 0 0 0 3px rgba(234,88,12,0.08);
-        }
-        .mem-input.error { border-color: #ef4444; }
-        .mem-input::placeholder { color: #cbd5e1; }
-
-        .mem-err {
-          font-size: 12px;
-          color: #dc2626;
-          margin-top: -10px;
-          margin-bottom: 12px;
-          padding-right: 2px;
-          font-weight: 600;
-        }
-
-        .mem-form-actions {
-          display: flex;
-          gap: 10px;
-          margin-top: 6px;
-        }
-
-        .mem-save-btn {
-          flex: 1;
-          background: #1e293b;
-          border: none;
-          color: #fff;
-          padding: 12px;
-          border-radius: 9px;
-          font-size: 14px;
-          font-weight: 800;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          transition: all 0.18s;
-        }
-        .mem-save-btn:hover { background: #0f172a; }
-
-        .mem-cancel-btn {
-          flex: 1;
-          background: #f1f5f9;
-          border: 1px solid #e2e8f0;
-          color: #64748b;
-          padding: 12px;
-          border-radius: 9px;
-          font-size: 14px;
-          font-family: 'Cairo', sans-serif;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.18s;
-        }
-        .mem-cancel-btn:hover { background: #e2e8f0; }
-
-        /* ── MEMBER CARDS ── */
-        .mem-cards {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .mem-card {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 14px;
-          overflow: hidden;
-          transition: transform 0.18s ease, box-shadow 0.18s ease;
-          animation: cardIn 0.32s ease both;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-          display: flex;
-          flex-direction: row;
-          align-items: stretch;
-        }
-
-        .mem-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 22px rgba(0,0,0,0.09);
-        }
-
-        @keyframes cardIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .mem-card:nth-child(1) { animation-delay: 0.03s }
-        .mem-card:nth-child(2) { animation-delay: 0.06s }
-        .mem-card:nth-child(3) { animation-delay: 0.09s }
-        .mem-card:nth-child(4) { animation-delay: 0.12s }
-        .mem-card:nth-child(5) { animation-delay: 0.15s }
-        .mem-card:nth-child(6) { animation-delay: 0.18s }
-        .mem-card:nth-child(7) { animation-delay: 0.21s }
-        .mem-card:nth-child(8) { animation-delay: 0.24s }
-
-        /* ── SERIAL COLUMN (left side) ── */
-        .mem-serial-col {
-          width: 54px;
-          flex-shrink: 0;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding-top: 14px;
-          background: linear-gradient(180deg, #fff7f3 0%, #fff 100%);
-          border-left: 1px solid #f1f5f9;
-        }
-
-        .mem-serial {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
-          background: linear-gradient(135deg, #ea580c, #c2410c);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 14px;
-          font-weight: 900;
-          color: #fff;
-          box-shadow: 0 2px 8px rgba(234,88,12,0.30);
-        }
-
-        /* ── MAIN CONTENT (center stacked) ── */
-        .mem-card-content {
-          flex: 1;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 14px 16px;
-          gap: 0;
-          text-align: center;
-        }
-
-        .mem-name {
-          font-size: 16px;
-          font-weight: 800;
-          color: #0f172a;
-          line-height: 1.3;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .mem-divider {
-          width: 40px;
-          height: 1px;
-          background: #e2e8f0;
-          margin: 7px auto;
-        }
-
-        .mem-role-badge {
-          display: inline-block;
-          padding: 3px 14px;
-          border-radius: 5px;
-          font-size: 12px;
-          font-weight: 700;
-          border: 1px solid;
-          letter-spacing: 0.02em;
-          margin: 0 auto 7px;
-        }
-
-        .mem-phone {
-          font-size: 13px;
-          color: #64748b;
-          direction: ltr;
-          font-weight: 600;
-          letter-spacing: 0.03em;
-        }
-
-        .mem-no-phone {
-          font-size: 12px;
-          color: #d1d5db;
-        }
-
-        /* ── ACTIONS COLUMN (right side) ── */
-        .mem-actions-col {
-          width: 54px;
-          flex-shrink: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          padding: 12px 0;
-          border-right: 1px solid #f1f5f9;
-          background: #fafbfc;
-        }
-
-        .mem-edit-btn {
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
-          color: #1d4ed8;
-          width: 36px;
-          height: 30px;
-          border-radius: 7px;
-          font-size: 11px;
-          font-weight: 700;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          transition: all 0.18s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .mem-edit-btn:hover { background: #dbeafe; }
-
-        .mem-del-btn {
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #dc2626;
-          width: 36px;
-          height: 30px;
-          border-radius: 7px;
-          font-size: 11px;
-          font-weight: 700;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          transition: all 0.18s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .mem-del-btn:hover { background: #fee2e2; }
-
-        /* ── STAT STRIP ── */
-        .mem-stat {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-right: 4px solid #ea580c;
-          border-radius: 12px;
-          padding: 14px 18px;
+          padding: 16px 24px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-top: 18px;
-          box-shadow: 0 1px 6px rgba(0,0,0,0.04);
         }
 
-        .mem-stat-label {
+        .ok-brand { display: flex; align-items: center; gap: 14px; }
+        .ok-logo-box {
+          width: 42px;
+          height: 42px;
+          background: var(--secondary);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--primary);
+          font-weight: 900;
+          font-size: 20px;
+          box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
+        }
+
+        .ok-title h1 { font-size: 18px; font-weight: 900; color: var(--secondary); margin: 0; }
+        .ok-title p { font-size: 11px; color: #64748b; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        .ok-back-btn {
+          background: white;
+          border: 1px solid #e2e8f0;
+          padding: 8px 20px;
+          border-radius: 10px;
           font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: 0.3s;
+        }
+        .ok-back-btn:hover { background: var(--secondary); color: white; border-color: var(--secondary); }
+
+        .ok-container {
+          max-width: 800px;
+          margin: 30px auto;
+          padding: 0 20px;
+        }
+
+        /* Action Section */
+        .ok-action-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 25px;
+        }
+
+        .ok-add-btn {
+          background: var(--primary);
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 14px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          box-shadow: 0 10px 20px rgba(234, 88, 12, 0.2);
+          transition: 0.3s;
+        }
+        .ok-add-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(234, 88, 12, 0.3); }
+
+        /* Modern Card Grid */
+        .ok-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
+        }
+
+        .ok-member-card {
+          background: white;
+          border-radius: 24px;
+          padding: 24px;
+          position: relative;
+          border: 1px solid rgba(255,255,255,0.8);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+          transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          overflow: hidden;
+        }
+        .ok-member-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
+
+        .ok-avatar {
+          width: 70px;
+          height: 70px;
+          background: #f1f5f9;
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 30px;
+          margin-bottom: 16px;
+          color: var(--secondary);
+          border: 1px solid #e2e8f0;
+        }
+
+        .ok-mem-name { font-size: 18px; font-weight: 800; margin-bottom: 6px; color: var(--secondary); }
+        .ok-mem-role {
+          font-size: 12px;
+          font-weight: 700;
+          padding: 5px 15px;
+          border-radius: 10px;
+          margin-bottom: 15px;
+        }
+
+        .ok-mem-phone {
+          font-size: 14px;
           color: #64748b;
           font-weight: 600;
+          background: #f8fafc;
+          padding: 6px 12px;
+          border-radius: 8px;
+          direction: ltr;
         }
 
-        .mem-stat-num {
-          font-size: 28px;
-          font-weight: 900;
-          color: #ea580c;
-          line-height: 1;
+        .ok-card-actions {
+          position: absolute;
+          top: 15px;
+          left: 15px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          opacity: 0;
+          transition: 0.3s;
+        }
+        .ok-member-card:hover .ok-card-actions { opacity: 1; }
+
+        .ok-icon-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 10px;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: 0.2s;
+        }
+        .ok-edit { background: #eff6ff; color: #2563eb; }
+        .ok-delete { background: #fef2f2; color: #dc2626; }
+        .ok-icon-btn:hover { transform: scale(1.1); }
+
+        /* Form Styling */
+        .ok-form-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(15, 23, 42, 0.4);
+          backdrop-filter: blur(8px);
+          z-index: 200;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
         }
 
-        /* ── LOADING / EMPTY ── */
-        .mem-center {
-          text-align: center;
-          padding: 80px 20px;
+        .ok-form-modal {
+          background: white;
+          width: 100%;
+          max-width: 450px;
+          border-radius: 28px;
+          padding: 35px;
+          box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+          animation: modalIn 0.4s ease;
         }
 
-        .mem-spinner {
-          width: 34px;
-          height: 34px;
-          border: 3px solid #e2e8f0;
-          border-top-color: #ea580c;
-          border-radius: 50%;
-          animation: spin 0.75s linear infinite;
-          margin: 0 auto 12px;
-        }
+        @keyframes modalIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .mem-empty-text {
-          font-size: 14px;
-          color: #94a3b8;
-          font-weight: 500;
+        .ok-input-group { margin-bottom: 20px; }
+        .ok-input-group label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 8px; color: #475569; }
+        .ok-input {
+          width: 100%;
+          padding: 14px 18px;
+          border-radius: 14px;
+          border: 2px solid #f1f5f9;
+          font-family: inherit;
+          font-weight: 600;
+          transition: 0.3s;
+          background: #f8fafc;
         }
+        .ok-input:focus { border-color: var(--primary); outline: none; background: white; box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1); }
 
-        /* ── FOOTER ── */
-        .mem-footer {
-          text-align: center;
-          font-size: 11px;
-          color: #000;
-          padding: 24px 0 0;
-          font-weight: 500;
-          border-top: 1px solid #f1f5f9;
-          margin-top: 24px;
-        }
+        .ok-modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
+        .ok-save-btn { background: var(--secondary); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; cursor: pointer; }
+        .ok-cancel-btn { background: #f1f5f9; color: #64748b; border: none; padding: 14px; border-radius: 14px; font-weight: 800; cursor: pointer; }
+
+        .ok-empty { text-align: center; padding: 100px 0; color: #94a3b8; }
+        .ok-empty i { font-size: 60px; display: block; margin-bottom: 20px; }
       `}</style>
 
-      <div className="mem-root">
-
-        {/* HEADER */}
-        <div className="mem-header">
-          <div className="mem-header-inner">
-            <div className="mem-header-left">
-              <div className="mem-header-accent" />
-              <div>
-                <div className="mem-header-title">إدارة الجمعية</div>
-                <div className="mem-header-sub">الأعضاء الإداريون</div>
+      <div className="ok-root">
+        {/* Modern Header */}
+        <header className="ok-header">
+          <div className="ok-header-inner">
+            <div className="ok-brand">
+              <div className="ok-logo-box">O</div>
+              <div className="ok-title">
+                <h1>إدارة الجمعية</h1>
+                <p>Okna Administration</p>
               </div>
             </div>
-            <button className="mem-back-btn" onClick={() => router.push('/home')}>
-               رجوع
-            </button>
+            <button className="ok-back-btn" onClick={() => router.push('/home')}>العودة للرئيسية</button>
           </div>
-        </div>
+        </header>
 
-        <div className="mem-body">
+        <main className="ok-container">
+          <div className="ok-action-bar">
+             <h2 style={{fontSize: '22px', fontWeight: 900}}>قائمة الأعضاء</h2>
+             {isAdmin && (
+                <button className="ok-add-btn" onClick={() => setShowForm(true)}>
+                  <span>إضافة عضو جديد</span>
+                  <span style={{fontSize: '20px'}}>+</span>
+                </button>
+             )}
+          </div>
 
-          {/* ADD BUTTON */}
-          {isAdmin && (
-            <button className="mem-add-btn" onClick={() => { resetForm(); setShowForm(!showForm) }}>
-              <span style={{ fontSize: 16 }}>＋</span>
-              إضافة عضو جديد
-            </button>
-          )}
-
-          {/* FORM */}
-          {showForm && (
-            <div className="mem-form-card">
-              <div className="mem-form-title">
-                <div className="mem-form-title-dot" />
-                {editing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}
-              </div>
-              <form onSubmit={handleSubmit}>
-                <label className="mem-field-label">الاسم الكامل *</label>
-                <input
-                  required
-                  className={`mem-input ${duplicateError ? 'error' : ''}`}
-                  value={form.full_name}
-                  placeholder="مثال: محمد أحمد"
-                  onChange={e => { setForm({ ...form, full_name: e.target.value }); setDuplicateError('') }}
-                />
-                {duplicateError && <p className="mem-err">⚠ {duplicateError}</p>}
-
-                <label className="mem-field-label">المنصب / الوظيفة *</label>
-                <input
-                  required
-                  className="mem-input"
-                  value={form.role}
-                  placeholder="مثال: رئيس الجمعية"
-                  onChange={e => setForm({ ...form, role: e.target.value })}
-                />
-
-                <label className="mem-field-label">رقم الهاتف</label>
-                <input
-                  className="mem-input"
-                  value={form.phone}
-                  dir="ltr"
-                  placeholder="05X XXX XXXX"
-                  style={{ textAlign: 'left' }}
-                  onChange={e => setForm({ ...form, phone: e.target.value })}
-                />
-
-                <label className="mem-field-label">ترتيب الظهور</label>
-                <input
-                  type="number"
-                  className="mem-input"
-                  value={form.sort_order}
-                  onChange={e => setForm({ ...form, sort_order: e.target.value })}
-                />
-
-                <div className="mem-form-actions">
-                  <button type="submit" className="mem-save-btn">حفظ</button>
-                  <button type="button" className="mem-cancel-btn" onClick={resetForm}>إلغاء</button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* LOADING */}
           {loading ? (
-            <div className="mem-center">
-              <div className="mem-spinner" />
-              <p className="mem-empty-text">جاري التحميل...</p>
-            </div>
+            <div className="ok-empty">جاري تحميل البيانات...</div>
           ) : members.length === 0 ? (
-            <div className="mem-center">
-              <p style={{ fontSize: 38, marginBottom: 12 }}>👥</p>
-              <p className="mem-empty-text">لا يوجد أعضاء مسجلون بعد</p>
+            <div className="ok-empty">
+              <i>👥</i>
+              <p>لا يوجد أعضاء مضافون حالياً</p>
             </div>
           ) : (
-            <>
-              <div className="mem-cards">
-                {members.map((member, index) => {
-                  const rc = getRoleConfig(member.role)
-                  return (
-                    <div className="mem-card" key={member.id}>
-
-                      {/* SERIAL — يسار */}
-                      <div className="mem-serial-col">
-                        <div className="mem-serial">{index + 1}</div>
+            <div className="ok-grid">
+              {members.map((member) => {
+                const style = getRoleStyle(member.role);
+                return (
+                  <div className="ok-member-card" key={member.id}>
+                    {isAdmin && (
+                      <div className="ok-card-actions">
+                        <button className="ok-icon-btn ok-edit" onClick={() => handleEdit(member)}>✎</button>
+                        <button className="ok-icon-btn ok-delete" onClick={() => handleDelete(member.id, member.full_name)}>✕</button>
                       </div>
-
-                      {/* CONTENT — وسط مكدّس */}
-                      <div className="mem-card-content">
-                        <div className="mem-name">{member.full_name}</div>
-                        <div className="mem-divider" />
-                        <span
-                          className="mem-role-badge"
-                          style={{ background: rc.bg, color: rc.color, borderColor: rc.border }}
-                        >
-                          {member.role}
-                        </span>
-                        {member.phone
-                          ? <span className="mem-phone">{member.phone}</span>
-                          : <span className="mem-no-phone">—</span>
-                        }
-                      </div>
-
-                      {/* ACTIONS — يمين */}
-                      {isAdmin && (
-                        <div className="mem-actions-col">
-                          <button className="mem-edit-btn" onClick={() => handleEdit(member)} title="تعديل">✎</button>
-                          <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)} title="حذف">✕</button>
-                        </div>
-                      )}
-
+                    )}
+                    <div className="ok-avatar">{member.full_name.charAt(0)}</div>
+                    <div className="ok-mem-name">{member.full_name}</div>
+                    <div className="ok-mem-role" style={{ background: style.grad, color: style.text }}>
+                      {member.role}
                     </div>
-                  )
-                })}
-              </div>
-
-              {/* STAT */}
-              <div className="mem-stat">
-                <span className="mem-stat-label">إجمالي الأعضاء الإداريين</span>
-                <span className="mem-stat-num">{members.length}</span>
-              </div>
-            </>
+                    {member.phone && <div className="ok-mem-phone">{member.phone}</div>}
+                  </div>
+                )
+              })}
+            </div>
           )}
 
-          <div className="mem-footer text-black">
-  جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
-</div>
-        </div>
+          {/* Form Modal */}
+          {showForm && (
+            <div className="ok-form-overlay">
+              <div className="ok-form-modal">
+                <h2 style={{marginBottom: '25px', fontWeight: 900, textAlign: 'center'}}>
+                  {editing ? 'تعديل البيانات' : 'إضافة عضو جديد'}
+                </h2>
+                <form onSubmit={handleSubmit}>
+                  <div className="ok-input-group">
+                    <label>الاسم بالكامل</label>
+                    <input 
+                      className="ok-input" 
+                      required 
+                      value={form.full_name}
+                      onChange={e => setForm({...form, full_name: e.target.value})}
+                      placeholder="أدخل الاسم الثلاثي"
+                    />
+                    {duplicateError && <p style={{color: 'red', fontSize: '11px', marginTop: '5px'}}>{duplicateError}</p>}
+                  </div>
+
+                  <div className="ok-input-group">
+                    <label>المنصب الإداري</label>
+                    <input 
+                      className="ok-input" 
+                      required 
+                      value={form.role}
+                      onChange={e => setForm({...form, role: e.target.value})}
+                      placeholder="مثلاً: رئيس، نائب، أمين مال"
+                    />
+                  </div>
+
+                  <div className="ok-input-group">
+                    <label>رقم التواصل</label>
+                    <input 
+                      className="ok-input" 
+                      value={form.phone}
+                      onChange={e => setForm({...form, phone: e.target.value})}
+                      placeholder="05xxxxxxxx"
+                      dir="ltr"
+                    />
+                  </div>
+
+                  <div className="ok-input-group">
+                    <label>الأولوية في الترتيب</label>
+                    <input 
+                      type="number"
+                      className="ok-input" 
+                      value={form.sort_order}
+                      onChange={e => setForm({...form, sort_order: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="ok-modal-btns">
+                    <button type="submit" className="ok-save-btn">حفظ البيانات</button>
+                    <button type="button" className="ok-cancel-btn" onClick={resetForm}>إلغاء</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </main>
+
+        <footer style={{textAlign: 'center', marginTop: '40px', padding: '20px', borderTop: '1px solid #e2e8f0', opacity: 0.6, fontSize: '12px'}}>
+           جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية 2026
+        </footer>
       </div>
     </>
   )
