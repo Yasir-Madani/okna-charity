@@ -550,7 +550,7 @@ export default function OverviewPage() {
               </div>
             </div>
 
-<div className="ov-header-title" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '13px', whiteSpace: 'nowrap', marginTop: '30px' }}>
+<div className="ov-header-title" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '13px', whiteSpace: 'nowrap', marginTop: '15px' }}>
   تنويه: البيانات قيد الحصر والإدخال
 </div>
 
