@@ -13,6 +13,7 @@ export default function ProjectsPage() {
   const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState({ name: '', description: '' })
   const [duplicateError, setDuplicateError] = useState('')
+  const [reordering, setReordering] = useState(false)
   const router = useRouter()
 
   useEffect(() => { fetchData() }, [])
@@ -31,9 +32,28 @@ export default function ProjectsPage() {
     const { data } = await supabase
       .from('projects')
       .select('*')
+      .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true })
     if (data) setProjects(data)
     setLoading(false)
+  }
+
+  // *** الترتيب اليدوي ***
+  const moveProject = async (index: number, direction: 'up' | 'down') => {
+    const newProjects = [...projects]
+    const swapIndex = direction === 'up' ? index - 1 : index + 1
+    if (swapIndex < 0 || swapIndex >= newProjects.length) return
+
+    ;[newProjects[index], newProjects[swapIndex]] = [newProjects[swapIndex], newProjects[index]]
+    setProjects(newProjects)
+
+    setReordering(true)
+    await Promise.all(
+      newProjects.map((p, i) =>
+        supabase.from('projects').update({ sort_order: i }).eq('id', p.id)
+      )
+    )
+    setReordering(false)
   }
 
   const toggleVisibility = async () => {
@@ -74,7 +94,9 @@ export default function ProjectsPage() {
     const payload = {
       name: form.name.trim(),
       description: form.description.trim() || null,
-      created_by: user.id
+      created_by: user.id,
+      // مشروع جديد يذهب للنهاية تلقائياً
+      ...(!editing && { sort_order: projects.length })
     }
 
     if (editing) {
@@ -100,9 +122,7 @@ export default function ProjectsPage() {
     fetchData()
   }
 
-  // Arabic ordinal numerals
-  const arabicNum = (n: number) =>
-    n.toLocaleString('ar-EG')
+  const arabicNum = (n: number) => n.toLocaleString('ar-EG')
 
   return (
     <div
@@ -119,11 +139,11 @@ export default function ProjectsPage() {
       <div className="bg-indigo-800 text-white sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
           <button
-              onClick={() => router.push('/home')}
-              className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
-            >
-              رجوع
-            </button>
+            onClick={() => router.push('/home')}
+            className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
+          >
+            رجوع
+          </button>
           <h1 className="text-base font-semibold tracking-wide">مشاريع الجمعية</h1>
           <div className="w-12" />
         </div>
@@ -217,7 +237,7 @@ export default function ProjectsPage() {
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
                   placeholder="اكتب وصفاً موجزاً للمشروع وأهدافه..."
-                  className="w-full border border-black-500 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none leading-relaxed"
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none leading-relaxed"
                 />
               </div>
               <div className="flex gap-2 pt-1">
@@ -257,8 +277,9 @@ export default function ProjectsPage() {
                 className="bg-white rounded-xl border border-gray-100 px-4 py-3.5"
               >
                 <div className="flex gap-3 items-start">
-                  {/* رقم المشروع */}
-                  <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center mt-0.5">
+
+                  {/* *** رقم المشروع — مع حدود واضحة *** */}
+                  <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-indigo-50 border-2 border-indigo-200 flex items-center justify-center mt-0.5">
                     <span className="text-indigo-700 font-bold text-sm leading-none">
                       {arabicNum(index + 1)}
                     </span>
@@ -266,16 +287,43 @@ export default function ProjectsPage() {
 
                   {/* المحتوى */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-black-800 leading-snug">{project.name}</p>
+                    <p className="text-sm font-bold text-gray-800 leading-snug">{project.name}</p>
                     {project.description && (
-                      <p className="text-xs text-gray-1000 mt-1.5 leading-relaxed text-justify">
+                      <p className="text-xs text-gray-500 mt-1.5 leading-relaxed text-justify">
                         {project.description}
                       </p>
                     )}
 
                     {/* أزرار الأدمن */}
                     {isAdmin && (
-                      <div className="flex items-center gap-4 mt-3 pt-2.5 border-t border-gray-100">
+                      <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-gray-100">
+
+                        {/* *** أزرار الترتيب *** */}
+                        <span className="text-xs text-gray-400 ml-1">ترتيب:</span>
+                        <button
+                          onClick={() => moveProject(index, 'up')}
+                          disabled={index === 0 || reordering}
+                          className={`w-7 h-7 rounded-lg border text-xs flex items-center justify-center transition-colors cursor-pointer
+                            ${index === 0
+                              ? 'border-gray-100 text-gray-200 cursor-not-allowed'
+                              : 'border-gray-200 text-gray-500 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600'
+                            }`}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() => moveProject(index, 'down')}
+                          disabled={index === projects.length - 1 || reordering}
+                          className={`w-7 h-7 rounded-lg border text-xs flex items-center justify-center transition-colors cursor-pointer
+                            ${index === projects.length - 1
+                              ? 'border-gray-100 text-gray-200 cursor-not-allowed'
+                              : 'border-gray-200 text-gray-500 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600'
+                            }`}
+                        >
+                          ↓
+                        </button>
+
+                        <div className="flex-1" />
                         <button
                           onClick={() => handleEdit(project)}
                           className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors font-medium"
@@ -312,7 +360,7 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        <p className="text-center text-black-300 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
+        <p className="text-center text-gray-400 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </div>
     </div>
   )
