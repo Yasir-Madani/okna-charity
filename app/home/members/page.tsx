@@ -152,7 +152,7 @@ export default function MembersPage() {
           font-family: 'Cairo', sans-serif;
           font-weight: 700;
           font-size: 16px;
-          color: #d4aa40;
+          color: #ffffff; /* تم التغيير للأبيض */
           letter-spacing: 0.03em;
           line-height: 1.1;
         }
@@ -173,7 +173,7 @@ export default function MembersPage() {
         .mem-back-btn {
           background: transparent;
           border: 1px solid rgba(184,149,42,0.3);
-          color: #d4aa40;
+          color: #ffffff; /* تم التغيير للأبيض */
           padding: 6px 14px;
           border-radius: 6px;
           font-size: 12px;
@@ -200,7 +200,7 @@ export default function MembersPage() {
           width: 100%;
           background: transparent;
           border: 1.5px dashed #b8952a;
-          color: #b8952a;
+          color: #000000; /* تم التغيير للأسود */
           border-radius: 10px;
           padding: 11px;
           font-size: 13px;
@@ -254,7 +254,7 @@ export default function MembersPage() {
         .mem-form-header-title {
           font-family: 'Cairo', sans-serif;
           font-weight: 700;
-          color: #d4aa40;
+          color: #ffffff; /* تم التغيير للأبيض */
           font-size: 15px;
           letter-spacing: 0.04em;
         }
@@ -263,21 +263,22 @@ export default function MembersPage() {
           padding: 20px;
         }
 
-        /* التعديل هنا ليكون كل حقل في سطر منفصل */
+        /* تغيير الـ Grid ليصبح عمودي (فوق بعض) */
         .mem-field-grid {
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          margin-bottom: 20px;
+          gap: 14px;
+          margin-bottom: 14px;
         }
 
         .mem-field-label {
           display: block;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 700;
-          color: #8a8a9a;
+          color: #000000; /* تم التغيير للأسود */
           margin-bottom: 6px;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
         }
 
         .mem-input {
@@ -285,9 +286,9 @@ export default function MembersPage() {
           background: #f6f5f2;
           border: 1px solid #e8e4da;
           border-radius: 8px;
-          padding: 12px 14px;
-          color: #0d0d12;
-          font-size: 14px;
+          padding: 9px 12px;
+          color: #000000; /* تم التغيير للأسود */
+          font-size: 13px;
           font-family: 'Cairo', sans-serif;
           font-weight: 500;
           text-align: right;
@@ -311,34 +312,34 @@ export default function MembersPage() {
 
         .mem-form-actions {
           display: flex;
-          flex-direction: column;
           gap: 10px;
-          margin-top: 10px;
+          margin-top: 4px;
         }
 
         .mem-save-btn {
-          width: 100%;
+          flex: 1;
           background: #1a1a2e;
           border: none;
-          color: #d4aa40;
-          padding: 12px;
+          color: #ffffff; /* تم التغيير للأبيض */
+          padding: 11px;
           border-radius: 8px;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 800;
           font-family: 'Cairo', sans-serif;
           cursor: pointer;
+          letter-spacing: 0.05em;
           transition: all 0.18s;
         }
         .mem-save-btn:hover { background: #0a0a1a; }
 
         .mem-cancel-btn {
-          width: 100%;
+          flex: 1;
           background: transparent;
           border: 1px solid #e8e4da;
-          color: #8a8a9a;
-          padding: 12px;
+          color: #000000; /* تم التغيير للأسود */
+          padding: 11px;
           border-radius: 8px;
-          font-size: 14px;
+          font-size: 13px;
           font-family: 'Cairo', sans-serif;
           font-weight: 600;
           cursor: pointer;
@@ -361,7 +362,7 @@ export default function MembersPage() {
         .mem-section-text {
           font-size: 10px;
           font-weight: 700;
-          color: #8a8a9a;
+          color: #000000; /* تم التغيير للأسود */
           letter-spacing: 0.1em;
           white-space: nowrap;
         }
@@ -396,13 +397,6 @@ export default function MembersPage() {
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        .mem-card:nth-child(1)  { animation-delay: 0.03s }
-        .mem-card:nth-child(2)  { animation-delay: 0.06s }
-        .mem-card:nth-child(3)  { animation-delay: 0.09s }
-        .mem-card:nth-child(4)  { animation-delay: 0.12s }
-        .mem-card:nth-child(5)  { animation-delay: 0.15s }
-
-        /* ── SERIAL COLUMN ── */
         .mem-serial-col {
           width: 46px;
           flex-shrink: 0;
@@ -422,11 +416,10 @@ export default function MembersPage() {
           justify-content: center;
           font-size: 13px;
           font-weight: 700;
-          color: #b8952a;
+          color: #000000; /* تم التغيير للأسود */
           font-family: 'Cairo', sans-serif;
         }
 
-        /* ── CARD CONTENT ── */
         .mem-card-content {
           flex: 1;
           min-width: 0;
@@ -441,7 +434,8 @@ export default function MembersPage() {
           font-family: 'Cairo', sans-serif;
           font-weight: 700;
           font-size: 15px;
-          color: #0d0d12;
+          color: #000000; /* تم التغيير للأسود */
+          letter-spacing: 0.01em;
           line-height: 1.2;
           white-space: nowrap;
           overflow: hidden;
@@ -456,20 +450,27 @@ export default function MembersPage() {
           font-size: 10px;
           font-weight: 700;
           border: 1px solid;
+          letter-spacing: 0.05em;
           align-self: flex-start;
           font-family: 'Cairo', sans-serif;
         }
 
         .mem-phone {
           font-size: 12px;
-          color: #8a8a9a;
+          color: #000000; /* تم التغيير للأسود */
           direction: rtl;
           font-weight: 600;
+          letter-spacing: 0.03em;
           margin-top: 2px;
           text-align: right;
         }
 
-        /* ── ACTIONS COLUMN ── */
+        .mem-no-phone {
+          font-size: 11px;
+          color: #e8e4da;
+          text-align: right;
+        }
+
         .mem-actions-col {
           width: 44px;
           flex-shrink: 0;
@@ -482,39 +483,6 @@ export default function MembersPage() {
           background: #f6f5f2;
         }
 
-        .mem-edit-btn {
-          background: #eef2fc;
-          border: 1px solid #a8bef0;
-          color: #1a4a8a;
-          width: 30px;
-          height: 24px;
-          border-radius: 5px;
-          font-size: 10px;
-          font-weight: 700;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .mem-del-btn {
-          background: #fdf0ef;
-          border: 1px solid #f0b8b5;
-          color: #c0392b;
-          width: 30px;
-          height: 24px;
-          border-radius: 5px;
-          font-size: 10px;
-          font-weight: 700;
-          font-family: 'Cairo', sans-serif;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        /* ── STAT STRIP ── */
         .mem-stat {
           margin-top: 22px;
           background: #1a1a2e;
@@ -525,27 +493,60 @@ export default function MembersPage() {
           align-items: center;
         }
 
+        .mem-stat-label {
+          font-size: 11px;
+          color: rgba(255,255,255,0.45);
+          font-weight: 500;
+          letter-spacing: 0.05em;
+          margin-bottom: 3px;
+        }
+
+        .mem-stat-desc {
+          font-size: 10px;
+          color: rgba(255,255,255,0.25);
+        }
+
         .mem-stat-num {
           font-family: 'Cairo', sans-serif;
           font-weight: 800;
           font-size: 42px;
-          color: #d4aa40;
+          color: #ffffff; /* تم التغيير للأبيض */
           line-height: 1;
         }
 
-        .mem-stat-label {
-          font-size: 11px;
-          color: rgba(255,255,255,0.45);
+        .mem-stat-unit {
+          font-size: 13px;
+          color: #ffffff; /* تم التغيير للأبيض */
+          margin-top: 3px;
+          font-weight: 600;
+          text-align: left;
+        }
+
+        .mem-empty-text {
+          font-size: 14px;
+          color: #000000; /* تم التغيير للأسود */
           font-weight: 500;
         }
 
         .mem-footer {
           text-align: center;
           font-size: 10px;
-          color: #8a8a9a;
-          padding: 20px 0;
+          color: #000000; /* تم التغيير للأسود */
+          padding: 20px 0 0;
+          font-weight: 500;
           border-top: 1px solid #e8e4da;
           margin-top: 22px;
+          letter-spacing: 0.03em;
+        }
+
+        .mem-footer-divider {
+          display: inline-block;
+          width: 32px;
+          height: 1px;
+          background: #b8952a;
+          vertical-align: middle;
+          margin: 0 8px;
+          opacity: 0.5;
         }
       `}</style>
 
@@ -555,8 +556,9 @@ export default function MembersPage() {
           <div className="mem-header-inner">
             <div className="mem-header-logo">
               <div className="mem-header-crest">
-                <svg viewBox="0 0 24 24" fill="none" style={{ width: 20, height: 20 }}>
-                  <path d="M12 2L14.5 8.5H21L15.5 12.5L17.5 19L12 15L6.5 19L8.5 12.5L3 8.5H9.5L12 2Z" stroke="#d4aa40" strokeWidth="1.2" fill="none" />
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 20, height: 20 }}>
+                  <path d="M12 2L14.5 8.5H21L15.5 12.5L17.5 19L12 15L6.5 19L8.5 12.5L3 8.5H9.5L12 2Z"
+                    stroke="#d4aa40" strokeWidth="1.2" strokeLinejoin="round" fill="none" />
                   <circle cx="12" cy="12" r="3" stroke="#d4aa40" strokeWidth="1" fill="none" />
                 </svg>
               </div>
@@ -584,13 +586,15 @@ export default function MembersPage() {
             <div className="mem-form-card">
               <div className="mem-form-header">
                 <div className="mem-form-header-dot" />
-                <div className="mem-form-header-title">{editing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}</div>
+                <div className="mem-form-header-title">
+                  {editing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}
+                </div>
               </div>
               <div className="mem-form-body">
                 <form onSubmit={handleSubmit}>
                   <div className="mem-field-grid">
                     <div>
-                      <label className="mem-field-label">الاسم الكامل *</label>
+                      <label className="mem-field-label">الاسم الكامل</label> {/* حُذفت النجمة */}
                       <input
                         required
                         className={`mem-input ${duplicateError ? 'error' : ''}`}
@@ -601,7 +605,7 @@ export default function MembersPage() {
                       {duplicateError && <p className="mem-err">⚠ {duplicateError}</p>}
                     </div>
                     <div>
-                      <label className="mem-field-label">المنصب *</label>
+                      <label className="mem-field-label">المنصب</label> {/* حُذفت النجمة */}
                       <input
                         required
                         className="mem-input"
@@ -617,7 +621,7 @@ export default function MembersPage() {
                         value={form.phone}
                         dir="ltr"
                         placeholder="05X XXX XXXX"
-                        style={{ textAlign: 'right' }}
+                        style={{ textAlign: 'left' }}
                         onChange={e => setForm({ ...form, phone: e.target.value })}
                       />
                     </div>
@@ -647,50 +651,71 @@ export default function MembersPage() {
             <div className="mem-section-line" />
           </div>
 
-          {/* LIST */}
+          {/* LOADING */}
           {loading ? (
-            <div className="mem-center"><div className="mem-spinner" /></div>
+            <div className="mem-center">
+              <div className="mem-spinner" />
+              <p className="mem-empty-text">جاري التحميل...</p>
+            </div>
+          ) : members.length === 0 ? (
+            <div className="mem-center">
+              <p style={{ fontSize: 36, marginBottom: 12 }}>👥</p>
+              <p className="mem-empty-text">لا يوجد أعضاء مسجلون بعد</p>
+            </div>
           ) : (
-            <div className="mem-cards">
-              {members.map((member, index) => {
-                const badgeStyle = getRoleBadgeStyle(member.role)
-                return (
-                  <div className="mem-card" key={member.id}>
-                    <div className="mem-serial-col"><div className="mem-serial">{index + 1}</div></div>
-                    <div className="mem-card-content">
-                      <div className="mem-name">{member.full_name}</div>
-                      <span className="mem-role-badge" style={{ background: badgeStyle.background, color: badgeStyle.color, borderColor: badgeStyle.borderColor }}>
-                        {getRoleIcon(member.role)}{member.role}
-                      </span>
-                      {member.phone && <span className="mem-phone">{member.phone}</span>}
-                    </div>
-                    {isAdmin && (
-                      <div className="mem-actions-col">
-                        <button className="mem-edit-btn" onClick={() => handleEdit(member)}>✎</button>
-                        <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)}>✕</button>
+            <>
+              <div className="mem-cards">
+                {members.map((member, index) => {
+                  const badgeStyle = getRoleBadgeStyle(member.role)
+                  const icon = getRoleIcon(member.role)
+                  return (
+                    <div className="mem-card" key={member.id}>
+                      <div className="mem-serial-col">
+                        <div className="mem-serial">{index + 1}</div>
                       </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+                      <div className="mem-card-content">
+                        <div className="mem-name">{member.full_name}</div>
+                        <span
+                          className="mem-role-badge"
+                          style={{ background: badgeStyle.background, color: badgeStyle.color, borderColor: badgeStyle.borderColor }}
+                        >
+                          {icon}{member.role}
+                        </span>
+                        {member.phone
+                          ? <span className="mem-phone">{member.phone}</span>
+                          : <span className="mem-no-phone">—</span>
+                        }
+                      </div>
+                      {isAdmin && (
+                        <div className="mem-actions-col">
+                          <button className="mem-edit-btn" onClick={() => handleEdit(member)} title="تعديل">✎</button>
+                          <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)} title="حذف">✕</button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* STAT */}
+              <div className="mem-stat">
+                <div>
+                  <div className="mem-stat-label">إجمالي الأعضاء الإداريين</div>
+                  <div className="mem-stat-desc">جمعية نهضة العكنة الخيرية</div>
+                </div>
+                <div>
+                  <div className="mem-stat-num">{members.length}</div>
+                  <div className="mem-stat-unit">عضو</div>
+                </div>
+              </div>
+            </>
           )}
 
-          {/* STAT */}
-          {!loading && members.length > 0 && (
-            <div className="mem-stat">
-              <div>
-                <div className="mem-stat-label">إجمالي الأعضاء</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>جمعية نهضة العكنة الخيرية</div>
-              </div>
-              <div style={{ textAlign: 'left' }}>
-                <div className="mem-stat-num">{members.length}</div>
-                <div style={{ fontSize: 12, color: '#b8952a', fontWeight: 600 }}>عضو</div>
-              </div>
-            </div>
-          )}
-
-          <div className="mem-footer">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</div>
+          <div className="mem-footer">
+            <span className="mem-footer-divider" />
+            جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
+            <span className="mem-footer-divider" />
+          </div>
         </div>
       </div>
     </>
