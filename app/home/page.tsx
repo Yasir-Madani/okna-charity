@@ -32,15 +32,15 @@ export default function HomePage() {
   }
 
   const buttons = [
-  { label: 'عن الجمعية',           icon: '🏛️', path: '/home/about',        iconBg: 'bg-amber-50',   iconColor: 'text-amber-600',  bar: 'bg-amber-400',   sub: 'تعرف علينا'    },
-  { label: 'حوجة الجمعية',         icon: '📋', path: '/home/needs',         iconBg: 'bg-rose-50',    iconColor: 'text-rose-600',   bar: 'bg-rose-400',    sub: 'الاحتياجات'    },
-   { label: 'تواصل وتبرع',          icon: '🤝', path: '/home/contact',       iconBg: 'bg-teal-50',    iconColor: 'text-teal-600',   bar: 'bg-teal-400',    sub: 'ساهم معنا'     },
-  { label: 'إحصائيات السكان',      icon: '📊', path: '/public-dashboard',   iconBg: 'bg-indigo-50',  iconColor: 'text-indigo-600', bar: 'bg-indigo-400',  sub: 'بيانات المجتمع' },
-  { label: 'مشاريع الجمعية',       icon: '🏗️', path: '/home/projects',      iconBg: 'bg-blue-50',    iconColor: 'text-blue-600',   bar: 'bg-blue-400',    sub: 'إنجازاتنا ومبادراتنا' },
-  { label: 'ممتلكات الجمعية',      icon: '🏗️', path: '/home/assets',        iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600',bar: 'bg-emerald-400', sub: 'الأصول والعقار' },
-  { label: 'إدارة الجمعية',        icon: '👥', path: '/home/members',       iconBg: 'bg-purple-50',  iconColor: 'text-purple-600', bar: 'bg-purple-400',  sub: 'الهيئة الإدارية'},
-  { label: 'المنازل والأسر',        icon: '🏘️', path: '/dashboard/overview', iconBg: 'bg-orange-50',  iconColor: 'text-orange-600', bar: 'bg-orange-400',  sub: 'دليل الأسر والمنازل' },
-]
+    { label: 'عن الجمعية',           icon: '🏛️', path: '/home/about',        iconBg: 'bg-amber-50',   iconColor: 'text-amber-600',  bar: 'bg-amber-400',   sub: 'تعرف علينا'    },
+    { label: 'حوجة الجمعية',         icon: '📋', path: '/home/needs',         iconBg: 'bg-rose-50',    iconColor: 'text-rose-600',   bar: 'bg-rose-400',    sub: 'الاحتياجات'    },
+    { label: 'تواصل وتبرع',          icon: '🤝', path: '/home/contact',       iconBg: 'bg-teal-50',    iconColor: 'text-teal-600',   bar: 'bg-teal-400',    sub: 'ساهم معنا'     },
+    { label: 'إحصائيات السكان',      icon: '📊', path: '/public-dashboard',   iconBg: 'bg-indigo-50',  iconColor: 'text-indigo-600', bar: 'bg-indigo-400',  sub: 'بيانات المجتمع' },
+    { label: 'مشاريع الجمعية',       icon: '🏗️', path: '/home/projects',      iconBg: 'bg-blue-50',    iconColor: 'text-blue-600',   bar: 'bg-blue-400',    sub: 'إنجازاتنا ومبادراتنا' },
+    { label: 'ممتلكات الجمعية',      icon: '🏗️', path: '/home/assets',        iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600',bar: 'bg-emerald-400', sub: 'الأصول والعقار' },
+    { label: 'إدارة الجمعية',        icon: '👥', path: '/home/members',       iconBg: 'bg-purple-50',  iconColor: 'text-purple-600', bar: 'bg-purple-400',  sub: 'الهيئة الإدارية'},
+    { label: 'المنازل والأسر',        icon: '🏘️', path: '/dashboard/overview', iconBg: 'bg-orange-50',  iconColor: 'text-orange-600', bar: 'bg-orange-400',  sub: 'دليل الأسر والمنازل' },
+  ]
 
   return (
     <div
@@ -85,45 +85,43 @@ export default function HomePage() {
         </div>
 
         {/* Logo + title */}
-<div className="text-center">
-  <div className="flex items-center justify-center w-full mt-4 mb-1">
-    
-    {/* خط اليمين */}
-    <div style={{
-      flex: 1,
-      height: '1.5px',
-      background: 'linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.55))',
-      position: 'relative',
-    }}>
-      <span style={{
-        position: 'absolute', left: '100%', top: '50%',
-        transform: 'translateY(-50%)',
-        width: '5px', height: '5px', borderRadius: '50%',
-        background: 'rgba(255,255,255,0.6)', display: 'block',
-      }} />
-    </div>
+        <div className="text-center">
+          <div className="flex items-center justify-center w-full mt-4 mb-1">
+            {/* خط اليمين */}
+            <div style={{
+              flex: 1,
+              height: '1.5px',
+              background: 'linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.55))',
+              position: 'relative',
+            }}>
+              <span style={{
+                position: 'absolute', left: '100%', top: '50%',
+                transform: 'translateY(-50%)',
+                width: '5px', height: '5px', borderRadius: '50%',
+                background: 'rgba(255,255,255,0.6)', display: 'block',
+              }} />
+            </div>
 
-    <h1 className="text-white text-xl font-extrabold tracking-tight" style={{ whiteSpace: 'nowrap', padding: '0 14px' }}>
-      جمعية نهضة العكنة الخيرية
-    </h1>
+            <h1 className="text-white text-xl font-extrabold tracking-tight" style={{ whiteSpace: 'nowrap', padding: '0 14px' }}>
+              جمعية نهضة العكنة الخيرية
+            </h1>
 
-    {/* خط اليسار */}
-    <div style={{
-      flex: 1,
-      height: '1.5px',
-      background: 'linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.55))',
-      position: 'relative',
-    }}>
-      <span style={{
-        position: 'absolute', right: '100%', top: '50%',
-        transform: 'translateY(-50%)',
-        width: '5px', height: '5px', borderRadius: '50%',
-        background: 'rgba(255,255,255,0.6)', display: 'block',
-      }} />
-    </div>
+            {/* خط اليسار */}
+            <div style={{
+              flex: 1,
+              height: '1.5px',
+              background: 'linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,0.55))',
+              position: 'relative',
+            }}>
+              <span style={{
+                position: 'absolute', right: '100%', top: '50%',
+                transform: 'translateY(-50%)',
+                width: '5px', height: '5px', borderRadius: '50%',
+                background: 'rgba(255,255,255,0.6)', display: 'block',
+              }} />
+            </div>
+          </div>
 
-  </div>
-  
           <p className="text-white text-xs opacity-80">بوابة الإحصاء والمعلومات</p>
         </div>
       </div>
@@ -140,20 +138,13 @@ export default function HomePage() {
             className="bg-white border border-gray-100 rounded-2xl p-3.5 flex flex-col items-start gap-2.5 active:scale-95 transition-all duration-150 text-right relative overflow-hidden"
             style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
           >
-            {/* colour accent bar on the right side */}
             <span className={`absolute top-0 right-0 w-1 h-full rounded-r-2xl ${btn.bar}`} />
-
-            {/* icon */}
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base ${btn.iconBg}`}>
               {btn.icon}
             </div>
-
-            {/* label */}
             <p className="text-sm font-bold text-gray-800 leading-tight pr-1">
               {btn.label}
             </p>
-
-            {/* sub-label */}
             <p className="text-xs text-gray-600 font-medium pr-1 -mt-1">
               {btn.sub}
             </p>
@@ -163,24 +154,46 @@ export default function HomePage() {
 
       {/* ───── News button ───── */}
       {isLoggedIn && (
-      <div className="px-4 pb-3">
-        <button
-          onClick={() => router.push('/home/news')}
-          className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 relative overflow-hidden"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-        >
-          <span className="absolute top-0 right-0 w-1 h-full rounded-r-2xl bg-orange-400" />
-          <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center text-base">
-            📰
-          </div>
-          <div className="flex-1 text-right pr-1">
-            <p className="text-sm font-bold text-gray-800">أخبار الجمعية</p>
-            <p className="text-xs text-gray-800 font-medium">آخر المستجدات</p>
-          </div>
-          <span className="text-gray-300 text-sm">←</span>
-        </button>
-      </div>
-)}
+        <div className="px-4 pb-3">
+          <button
+            onClick={() => router.push('/home/news')}
+            className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 relative overflow-hidden"
+            style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+          >
+            <span className="absolute top-0 right-0 w-1 h-full rounded-r-2xl bg-orange-400" />
+            <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center text-base">
+              📰
+            </div>
+            <div className="flex-1 text-right pr-1">
+              <p className="text-sm font-bold text-gray-800">أخبار الجمعية</p>
+              <p className="text-xs text-gray-800 font-medium">آخر المستجدات</p>
+            </div>
+            <span className="text-gray-300 text-sm">←</span>
+          </button>
+        </div>
+      )}
+
+      {/* ───── Install Stats button — للمستخدمين فقط ───── */}
+      {isLoggedIn && (
+        <div className="px-4 pb-3">
+          <button
+            onClick={() => router.push('/install-stats')}
+            className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 relative overflow-hidden"
+            style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+          >
+            <span className="absolute top-0 right-0 w-1 h-full rounded-r-2xl bg-violet-400" />
+            <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center text-base">
+              📲
+            </div>
+            <div className="flex-1 text-right pr-1">
+              <p className="text-sm font-bold text-gray-800">إحصائيات برمجية</p>
+              <p className="text-xs text-gray-500 font-medium">تثبيت التطبيق والأجهزة</p>
+            </div>
+            <span className="text-gray-300 text-sm">←</span>
+          </button>
+        </div>
+      )}
+
       {/* ───── Admin button ───── */}
       <div className="px-4 pb-4">
         <button
