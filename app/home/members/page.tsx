@@ -11,6 +11,7 @@ export default function MembersPage() {
   const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState({ full_name: '', role: '', phone: '', sort_order: '0' })
   const [duplicateError, setDuplicateError] = useState('')
+  const [reordering, setReordering] = useState(false)
   const router = useRouter()
 
   useEffect(() => { fetchData() }, [])
@@ -21,6 +22,24 @@ export default function MembersPage() {
     const { data } = await supabase.from('members').select('*').order('sort_order')
     if (data) setMembers(data)
     setLoading(false)
+  }
+
+  // *** الترتيب اليدوي ***
+  const moveMember = async (index: number, direction: 'up' | 'down') => {
+    const newMembers = [...members]
+    const swapIndex = direction === 'up' ? index - 1 : index + 1
+    if (swapIndex < 0 || swapIndex >= newMembers.length) return
+
+    ;[newMembers[index], newMembers[swapIndex]] = [newMembers[swapIndex], newMembers[index]]
+    setMembers(newMembers)
+
+    setReordering(true)
+    await Promise.all(
+      newMembers.map((m, i) =>
+        supabase.from('members').update({ sort_order: i }).eq('id', m.id)
+      )
+    )
+    setReordering(false)
   }
 
   const resetForm = () => {
@@ -113,7 +132,6 @@ export default function MembersPage() {
           background: #f6f5f2;
         }
 
-        /* ── HEADER ── */
         .mem-header {
           position: sticky;
           top: 0;
@@ -188,14 +206,12 @@ export default function MembersPage() {
           border-color: #d4aa40;
         }
 
-        /* ── BODY ── */
         .mem-body {
           max-width: 720px;
           margin: 0 auto;
           padding: 24px 16px 40px;
         }
 
-        /* ── ADD BUTTON ── */
         .mem-add-btn {
           width: 100%;
           background: transparent;
@@ -221,7 +237,6 @@ export default function MembersPage() {
           color: #1a1a2e;
         }
 
-        /* ── FORM CARD ── */
         .mem-form-card {
           background: #fff;
           border: 1px solid #e8e4da;
@@ -346,7 +361,6 @@ export default function MembersPage() {
         }
         .mem-cancel-btn:hover { background: #f6f5f2; }
 
-        /* ── SECTION LABEL ── */
         .mem-section-label {
           display: flex;
           align-items: center;
@@ -366,7 +380,6 @@ export default function MembersPage() {
           white-space: nowrap;
         }
 
-        /* ── MEMBER CARDS ── */
         .mem-cards {
           display: flex;
           flex-direction: column;
@@ -470,6 +483,7 @@ export default function MembersPage() {
           text-align: right;
         }
 
+        /* ── عمود الأزرار (تعديل + حذف + ترتيب) ── */
         .mem-actions-col {
           width: 44px;
           flex-shrink: 0;
@@ -477,9 +491,77 @@ export default function MembersPage() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 5px;
+          gap: 4px;
           border-right: 1px solid #e8e4da;
           background: #f6f5f2;
+          padding: 6px 0;
+        }
+
+        /* ── أزرار الترتيب ── */
+        .mem-sort-btn {
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
+          border: 1px solid #e8e4da;
+          background: #ffffff;
+          color: #3a3a4a;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.18s;
+          font-family: 'Cairo', sans-serif;
+          line-height: 1;
+        }
+        .mem-sort-btn:hover:not(:disabled) {
+          background: #f5e9c0;
+          border-color: #b8952a;
+          color: #7a5c00;
+        }
+        .mem-sort-btn:disabled {
+          border-color: #f0ede6;
+          color: #d8d4cc;
+          cursor: not-allowed;
+          background: #fafaf8;
+        }
+
+        .mem-edit-btn {
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
+          border: 1px solid #e8e4da;
+          background: #ffffff;
+          color: #3a7bd5;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.18s;
+        }
+        .mem-edit-btn:hover {
+          background: #eef2fc;
+          border-color: #a8bef0;
+        }
+
+        .mem-del-btn {
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
+          border: 1px solid #e8e4da;
+          background: #ffffff;
+          color: #c0392b;
+          font-size: 11px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.18s;
+        }
+        .mem-del-btn:hover {
+          background: #fdf0ef;
+          border-color: #e8a09a;
         }
 
         .mem-stat {
@@ -500,7 +582,6 @@ export default function MembersPage() {
           margin-bottom: 3px;
         }
 
-        /* تعديل: كلاس جديد لتوسيط الرقم فوق الكلمة */
         .mem-stat-value {
           display: flex;
           flex-direction: column;
@@ -516,11 +597,11 @@ export default function MembersPage() {
         }
 
         .mem-stat-unit {
-          font-size: 20px;
+          font-size: 15px;
           color: #ffffff;
           margin-top: 3px;
           font-weight: 600;
-          text-align: center; /* تم تغييرها من left إلى center */
+          text-align: center;
         }
 
         .mem-empty-text {
@@ -550,7 +631,6 @@ export default function MembersPage() {
           opacity: 0.5;
         }
 
-        /* ── تنسيق التوسيط لرسالة التحميل ── */
         .mem-center {
           display: flex;
           flex-direction: column;
@@ -567,12 +647,9 @@ export default function MembersPage() {
         <div className="mem-header">
           <div className="mem-header-inner">
             <div className="mem-header-logo">
-              <div className="mem-header-crest">
-                
-              </div>
+              <div className="mem-header-crest"></div>
               <div>
                 <div className="mem-header-title">إدارة الجمعية</div>
-                
               </div>
             </div>
             <button className="mem-back-btn" onClick={() => router.push('/home')}>رجوع</button>
@@ -662,7 +739,6 @@ export default function MembersPage() {
           {/* LOADING */}
           {loading ? (
             <div className="mem-center">
-              <div className="mem-spinner" />
               <p className="mem-empty-text">جاري التحميل...</p>
             </div>
           ) : members.length === 0 ? (
@@ -696,6 +772,24 @@ export default function MembersPage() {
                       </div>
                       {isAdmin && (
                         <div className="mem-actions-col">
+                          {/* *** أزرار الترتيب *** */}
+                          <button
+                            className="mem-sort-btn"
+                            onClick={() => moveMember(index, 'up')}
+                            disabled={index === 0 || reordering}
+                            title="تحريك لأعلى"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            className="mem-sort-btn"
+                            onClick={() => moveMember(index, 'down')}
+                            disabled={index === members.length - 1 || reordering}
+                            title="تحريك لأسفل"
+                          >
+                            ↓
+                          </button>
+                          {/* *** أزرار التعديل والحذف *** */}
                           <button className="mem-edit-btn" onClick={() => handleEdit(member)} title="تعديل">✎</button>
                           <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)} title="حذف">✕</button>
                         </div>
@@ -710,7 +804,6 @@ export default function MembersPage() {
                 <div>
                   <div className="mem-stat-label">إجمالي الأعضاء الإداريين</div>
                 </div>
-                {/* تم تعديل الحاوية هنا لتستخدم الكلاس الجديد mem-stat-value */}
                 <div className="mem-stat-value">
                   <div className="mem-stat-num">{members.length}</div>
                   <div className="mem-stat-unit">أعضاء</div>

@@ -23,6 +23,7 @@ export default function MedicalNeedsPage() {
   const [editing, setEditing] = useState<MedicalNeed | null>(null)
   const [form, setForm] = useState({ category: '', description: '', quantity: '' })
   const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null)
+  const [reordering, setReordering] = useState(false)
   const router = useRouter()
 
   useEffect(() => { fetchData() }, [])
@@ -64,7 +65,27 @@ export default function MedicalNeedsPage() {
     setShowForm(false)
   }
 
-  // إعادة ترقيم تلقائي بعد كل تعديل
+  // *** الترتيب اليدوي بالأسهم ***
+  const moveNeed = async (index: number, direction: 'up' | 'down') => {
+    const newNeeds = [...needs]
+    const swapIndex = direction === 'up' ? index - 1 : index + 1
+    if (swapIndex < 0 || swapIndex >= newNeeds.length) return
+
+    ;[newNeeds[index], newNeeds[swapIndex]] = [newNeeds[swapIndex], newNeeds[index]]
+    // إعادة ترقيم الـ number بعد التبديل
+    const renumbered = newNeeds.map((item, i) => ({ ...item, number: i + 1 }))
+    setNeeds(renumbered)
+
+    setReordering(true)
+    await Promise.all(
+      renumbered.map(n =>
+        supabase.from('medical_needs').update({ number: n.number }).eq('id', n.id)
+      )
+    )
+    setReordering(false)
+  }
+
+  // إعادة ترقيم تلقائي بعد الحذف
   const reorderNumbers = async (items: MedicalNeed[]) => {
     const updates = items.map((item, i) => ({ id: item.id, number: i + 1 }))
     for (const u of updates) {
@@ -106,7 +127,6 @@ export default function MedicalNeedsPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return
     await supabase.from('medical_needs').delete().eq('id', id)
-    // إعادة ترقيم
     const remaining = needs.filter(n => n.id !== id)
     await reorderNumbers(remaining)
     fetchData()
@@ -124,7 +144,6 @@ export default function MedicalNeedsPage() {
         'العدد': n.quantity,
       }))
       const ws = utils.json_to_sheet(rows, { skipHeader: false })
-      // عرض الأعمدة
       ws['!cols'] = [{ wch: 8 }, { wch: 22 }, { wch: 35 }, { wch: 14 }]
       const wb = utils.book_new()
       utils.book_append_sheet(wb, ws, 'الحوجات الطبية')
@@ -135,7 +154,7 @@ export default function MedicalNeedsPage() {
     setExporting(null)
   }
 
-  // ── تصدير PDF — تنزيل مباشر بدون نافذة طباعة ──
+  // ── تصدير PDF ──
   const exportPDF = async () => {
     setExporting('pdf')
     try {
@@ -211,11 +230,11 @@ export default function MedicalNeedsPage() {
       <div className="bg-teal-700 text-white sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
           <button
-              onClick={() => router.push('/home/needs')}
-              className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
-            >
-              رجوع
-            </button>
+            onClick={() => router.push('/home/needs')}
+            className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
+          >
+            رجوع
+          </button>
           <h1 className="text-base font-semibold tracking-wide">الحوجات الطبية</h1>
           {/* أزرار التصدير */}
           <div className="flex items-center gap-1.5">
@@ -366,67 +385,96 @@ export default function MedicalNeedsPage() {
           </div>
         ) : (
           <>
-
-
-
-          {/* ✅ ضع التنويه هنا */}
+            {/* التنويه */}
             <div className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-2 mb-3 flex items-center gap-2">
-  <span className="bg-teal-700 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0">
-    تنويه
-  </span>
-  <p className="text-red-900 text-[11px] font-medium m-0">
-    الروشتات الطبية متاحة عند الطلب عبر{' '}
-    <a href="/home/contact" className="text-red-900 underline underline-offset-2">
-      صفحة التواصل
-    </a>
-  </p>
-</div>
+              <span className="bg-teal-700 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0">
+                تنويه
+              </span>
+              <p className="text-red-900 text-[11px] font-medium m-0">
+                الروشتات الطبية متاحة عند الطلب عبر{' '}
+                <a href="/home/contact" className="text-red-900 underline underline-offset-2">
+                  صفحة التواصل
+                </a>
+              </p>
+            </div>
 
             {/* ── رؤوس الأعمدة ── */}
-            <div className="grid grid-cols-12 gap-2 px-3 pb-1">
+            <div className={`grid gap-2 px-3 pb-1 ${isAdmin ? 'grid-cols-12' : 'grid-cols-12'}`}>
               <div className="col-span-1 text-center">
                 <p className="text-xs font-bold text-gray-400">#</p>
               </div>
-              <div className="col-span-3">
-                <p className="text-xs font-bold text-black-500">الصنف</p>
+              <div className={isAdmin ? 'col-span-3' : 'col-span-3'}>
+                <p className="text-xs font-bold text-black">الصنف</p>
               </div>
-              <div className="col-span-5">
-                <p className="text-xs font-bold text-black-500">الوصف</p>
+              <div className={isAdmin ? 'col-span-4' : 'col-span-5'}>
+                <p className="text-xs font-bold text-black">الوصف</p>
               </div>
-              <div className="col-span-3 text-center">
-                <p className="text-xs font-bold text-black-500">العدد</p>
+              <div className={isAdmin ? 'col-span-2 text-center' : 'col-span-3 text-center'}>
+                <p className="text-xs font-bold text-black">العدد</p>
               </div>
+              {isAdmin && (
+                <div className="col-span-2 text-center">
+                  <p className="text-xs font-bold text-gray-400">ترتيب</p>
+                </div>
+              )}
             </div>
-
-
 
             {/* ── قائمة الحوجات ── */}
             <div className="space-y-2">
-              {needs.map(need => (
+              {needs.map((need, index) => (
                 <div
                   key={need.id}
                   className="bg-white rounded-2xl border border-gray-100 px-3 py-3.5"
                   style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
                 >
-                  <div className="grid grid-cols-12 gap-2 items-center">
+                  <div className={`grid gap-2 items-center ${isAdmin ? 'grid-cols-12' : 'grid-cols-12'}`}>
                     <div className="col-span-1 flex justify-center">
                       <span className="w-6 h-6 rounded-full bg-teal-50 text-teal-700 text-xs font-bold flex items-center justify-center">
                         {need.number}
                       </span>
                     </div>
-                    <div className="col-span-3">
+                    <div className={isAdmin ? 'col-span-3' : 'col-span-3'}>
                       <p className="text-sm font-bold text-gray-800 leading-tight">{need.category}</p>
                     </div>
-                    <div className="col-span-5">
+                    <div className={isAdmin ? 'col-span-4' : 'col-span-5'}>
                       <p className="text-xs text-gray-900 leading-tight">{need.description}</p>
                     </div>
-                    <div className="col-span-3 text-center">
+                    <div className={isAdmin ? 'col-span-2 text-center' : 'col-span-3 text-center'}>
                       <span className="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-2 py-1 rounded-lg">
                         {need.quantity}
                       </span>
                     </div>
+
+                    {/* *** أزرار الترتيب — عمود مستقل *** */}
+                    {isAdmin && (
+                      <div className="col-span-2 flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => moveNeed(index, 'up')}
+                          disabled={index === 0 || reordering}
+                          className={`w-7 h-7 rounded-lg border text-xs flex items-center justify-center transition-colors cursor-pointer
+                            ${index === 0
+                              ? 'border-gray-100 text-gray-200 cursor-not-allowed'
+                              : 'border-gray-200 text-gray-500 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700'
+                            }`}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() => moveNeed(index, 'down')}
+                          disabled={index === needs.length - 1 || reordering}
+                          className={`w-7 h-7 rounded-lg border text-xs flex items-center justify-center transition-colors cursor-pointer
+                            ${index === needs.length - 1
+                              ? 'border-gray-100 text-gray-200 cursor-not-allowed'
+                              : 'border-gray-200 text-gray-500 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700'
+                            }`}
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    )}
                   </div>
 
+                  {/* أزرار التعديل والحذف */}
                   {isAdmin && (
                     <div className="flex gap-3 justify-end mt-2 pt-2 border-t border-gray-50">
                       <button
