@@ -597,7 +597,7 @@ export default function MembersPage() {
         }
 
         .mem-stat-unit {
-          font-size: 15px;
+          font-size: 11px;
           color: #ffffff;
           margin-top: 3px;
           font-weight: 600;
@@ -729,12 +729,7 @@ export default function MembersPage() {
             </div>
           )}
 
-          {/* SECTION LABEL */}
-          <div className="mem-section-label">
-            <div className="mem-section-line" />
-            <div className="mem-section-text">الأعضاء المسجلون</div>
-            <div className="mem-section-line" />
-          </div>
+         
 
           {/* LOADING */}
           {loading ? (
