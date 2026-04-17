@@ -158,7 +158,7 @@ export default function MembersPage() {
         .mem-header-crest {
           width: 36px;
           height: 36px;
-          border: 1px solid rgba(184,149,42,0.4);
+          border: 1px solid rgba(15, 13, 4, 0.4);
           border-radius: 50%;
           display: flex;
           align-items: center;
