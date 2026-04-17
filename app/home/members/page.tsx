@@ -152,7 +152,7 @@ export default function MembersPage() {
           font-family: 'Cairo', sans-serif;
           font-weight: 700;
           font-size: 16px;
-          color: #ffffff; /* تم التغيير للأبيض */
+          color: #ffffff;
           letter-spacing: 0.03em;
           line-height: 1.1;
         }
@@ -173,7 +173,7 @@ export default function MembersPage() {
         .mem-back-btn {
           background: transparent;
           border: 1px solid rgba(184,149,42,0.3);
-          color: #ffffff; /* تم التغيير للأبيض */
+          color: #ffffff;
           padding: 6px 14px;
           border-radius: 6px;
           font-size: 12px;
@@ -200,7 +200,7 @@ export default function MembersPage() {
           width: 100%;
           background: transparent;
           border: 1.5px dashed #b8952a;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           border-radius: 10px;
           padding: 11px;
           font-size: 13px;
@@ -254,7 +254,7 @@ export default function MembersPage() {
         .mem-form-header-title {
           font-family: 'Cairo', sans-serif;
           font-weight: 700;
-          color: #ffffff; /* تم التغيير للأبيض */
+          color: #ffffff;
           font-size: 15px;
           letter-spacing: 0.04em;
         }
@@ -263,7 +263,6 @@ export default function MembersPage() {
           padding: 20px;
         }
 
-        /* تغيير الـ Grid ليصبح عمودي (فوق بعض) */
         .mem-field-grid {
           display: flex;
           flex-direction: column;
@@ -275,7 +274,7 @@ export default function MembersPage() {
           display: block;
           font-size: 10px;
           font-weight: 700;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           margin-bottom: 6px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
@@ -287,7 +286,7 @@ export default function MembersPage() {
           border: 1px solid #e8e4da;
           border-radius: 8px;
           padding: 9px 12px;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           font-size: 13px;
           font-family: 'Cairo', sans-serif;
           font-weight: 500;
@@ -320,7 +319,7 @@ export default function MembersPage() {
           flex: 1;
           background: #1a1a2e;
           border: none;
-          color: #ffffff; /* تم التغيير للأبيض */
+          color: #ffffff;
           padding: 11px;
           border-radius: 8px;
           font-size: 13px;
@@ -336,7 +335,7 @@ export default function MembersPage() {
           flex: 1;
           background: transparent;
           border: 1px solid #e8e4da;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           padding: 11px;
           border-radius: 8px;
           font-size: 13px;
@@ -362,7 +361,7 @@ export default function MembersPage() {
         .mem-section-text {
           font-size: 10px;
           font-weight: 700;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           letter-spacing: 0.1em;
           white-space: nowrap;
         }
@@ -416,7 +415,7 @@ export default function MembersPage() {
           justify-content: center;
           font-size: 13px;
           font-weight: 700;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           font-family: 'Cairo', sans-serif;
         }
 
@@ -434,7 +433,7 @@ export default function MembersPage() {
           font-family: 'Cairo', sans-serif;
           font-weight: 700;
           font-size: 15px;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           letter-spacing: 0.01em;
           line-height: 1.2;
           white-space: nowrap;
@@ -457,7 +456,7 @@ export default function MembersPage() {
 
         .mem-phone {
           font-size: 12px;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           direction: rtl;
           font-weight: 600;
           letter-spacing: 0.03em;
@@ -501,22 +500,17 @@ export default function MembersPage() {
           margin-bottom: 3px;
         }
 
-        .mem-stat-desc {
-          font-size: 10px;
-          color: rgba(255,255,255,0.25);
-        }
-
         .mem-stat-num {
           font-family: 'Cairo', sans-serif;
           font-weight: 800;
-          font-size: 42px;
-          color: #ffffff; /* تم التغيير للأبيض */
+          font-size: 15px;
+          color: #ffffff;
           line-height: 1;
         }
 
         .mem-stat-unit {
-          font-size: 13px;
-          color: #ffffff; /* تم التغيير للأبيض */
+          font-size: 11px;
+          color: #ffffff;
           margin-top: 3px;
           font-weight: 600;
           text-align: left;
@@ -524,14 +518,14 @@ export default function MembersPage() {
 
         .mem-empty-text {
           font-size: 14px;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           font-weight: 500;
         }
 
         .mem-footer {
           text-align: center;
           font-size: 10px;
-          color: #000000; /* تم التغيير للأسود */
+          color: #000000;
           padding: 20px 0 0;
           font-weight: 500;
           border-top: 1px solid #e8e4da;
@@ -547,6 +541,17 @@ export default function MembersPage() {
           vertical-align: middle;
           margin: 0 8px;
           opacity: 0.5;
+        }
+
+        /* ── تنسيق التوسيط لرسالة التحميل ── */
+        .mem-center {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 60px 20px;
+          width: 100%;
         }
       `}</style>
 
@@ -590,7 +595,7 @@ export default function MembersPage() {
                 <form onSubmit={handleSubmit}>
                   <div className="mem-field-grid">
                     <div>
-                      <label className="mem-field-label">الاسم الكامل</label> {/* حُذفت النجمة */}
+                      <label className="mem-field-label">الاسم الكامل</label>
                       <input
                         required
                         className={`mem-input ${duplicateError ? 'error' : ''}`}
@@ -601,7 +606,7 @@ export default function MembersPage() {
                       {duplicateError && <p className="mem-err">⚠ {duplicateError}</p>}
                     </div>
                     <div>
-                      <label className="mem-field-label">المنصب</label> {/* حُذفت النجمة */}
+                      <label className="mem-field-label">المنصب</label>
                       <input
                         required
                         className="mem-input"
@@ -697,11 +702,10 @@ export default function MembersPage() {
               <div className="mem-stat">
                 <div>
                   <div className="mem-stat-label">إجمالي الأعضاء الإداريين</div>
-                  
                 </div>
                 <div>
                   <div className="mem-stat-num">{members.length}</div>
-                  <div className="mem-stat-unit">عضو</div>
+                  <div className="mem-stat-unit">أعضاء</div>
                 </div>
               </div>
             </>
