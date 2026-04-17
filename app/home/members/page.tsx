@@ -103,7 +103,7 @@ export default function MembersPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         .mem-root {
@@ -149,7 +149,8 @@ export default function MembersPage() {
         }
 
         .mem-header-title {
-          font-family: 'DM Serif Display', serif;
+          font-family: 'Cairo', sans-serif;
+          font-weight: 700;
           font-size: 16px;
           color: #d4aa40;
           letter-spacing: 0.03em;
@@ -159,7 +160,7 @@ export default function MembersPage() {
         .mem-header-sub {
           font-size: 10px;
           color: rgba(255,255,255,0.35);
-          font-weight: 400;
+          font-weight: 500;
           margin-top: 2px;
         }
 
@@ -251,7 +252,8 @@ export default function MembersPage() {
         }
 
         .mem-form-header-title {
-          font-family: 'DM Serif Display', serif;
+          font-family: 'Cairo', sans-serif;
+          font-weight: 700;
           color: #d4aa40;
           font-size: 15px;
           letter-spacing: 0.04em;
@@ -423,10 +425,10 @@ export default function MembersPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 11px;
-          font-weight: 900;
+          font-size: 13px;
+          font-weight: 700;
           color: #b8952a;
-          font-family: 'DM Serif Display', serif;
+          font-family: 'Cairo', sans-serif;
         }
 
         /* ── CARD CONTENT — vertical stacked ── */
@@ -441,7 +443,8 @@ export default function MembersPage() {
         }
 
         .mem-name {
-          font-family: 'DM Serif Display', serif;
+          font-family: 'Cairo', sans-serif;
+          font-weight: 700;
           font-size: 15px;
           color: #0d0d12;
           letter-spacing: 0.01em;
@@ -461,6 +464,7 @@ export default function MembersPage() {
           border: 1px solid;
           letter-spacing: 0.05em;
           align-self: flex-start;
+          font-family: 'Cairo', sans-serif;
         }
 
         .mem-phone {
@@ -550,7 +554,8 @@ export default function MembersPage() {
         }
 
         .mem-stat-num {
-          font-family: 'DM Serif Display', serif;
+          font-family: 'Cairo', sans-serif;
+          font-weight: 800;
           font-size: 42px;
           color: #d4aa40;
           line-height: 1;
