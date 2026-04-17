@@ -500,6 +500,13 @@ export default function MembersPage() {
           margin-bottom: 3px;
         }
 
+        /* تعديل: كلاس جديد لتوسيط الرقم فوق الكلمة */
+        .mem-stat-value {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
         .mem-stat-num {
           font-family: 'Cairo', sans-serif;
           font-weight: 800;
@@ -509,11 +516,11 @@ export default function MembersPage() {
         }
 
         .mem-stat-unit {
-          font-size: 11px;
+          font-size: 20px;
           color: #ffffff;
           margin-top: 3px;
           font-weight: 600;
-          text-align: left;
+          text-align: center; /* تم تغييرها من left إلى center */
         }
 
         .mem-empty-text {
@@ -703,7 +710,8 @@ export default function MembersPage() {
                 <div>
                   <div className="mem-stat-label">إجمالي الأعضاء الإداريين</div>
                 </div>
-                <div>
+                {/* تم تعديل الحاوية هنا لتستخدم الكلاس الجديد mem-stat-value */}
+                <div className="mem-stat-value">
                   <div className="mem-stat-num">{members.length}</div>
                   <div className="mem-stat-unit">أعضاء</div>
                 </div>
