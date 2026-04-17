@@ -170,7 +170,9 @@ export default function HomePage() {
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
         >
           <span className="absolute top-0 right-0 w-1 h-full rounded-r-2xl bg-orange-400" />
-          
+          <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center text-base">
+            📰
+          </div>
           <div className="flex-1 text-right pr-1">
             <p className="text-sm font-bold text-gray-800">أخبار الجمعية</p>
             <p className="text-xs text-gray-800 font-medium">آخر المستجدات</p>
