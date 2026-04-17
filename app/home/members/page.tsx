@@ -495,7 +495,7 @@ export default function MembersPage() {
 
         .mem-stat-label {
           font-size: 11px;
-          color: rgba(255,255,255,0.45);
+          color: rgba(255, 255, 255, 0.92);
           font-weight: 500;
           letter-spacing: 0.05em;
           margin-bottom: 3px;
@@ -556,15 +556,11 @@ export default function MembersPage() {
           <div className="mem-header-inner">
             <div className="mem-header-logo">
               <div className="mem-header-crest">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 20, height: 20 }}>
-                  <path d="M12 2L14.5 8.5H21L15.5 12.5L17.5 19L12 15L6.5 19L8.5 12.5L3 8.5H9.5L12 2Z"
-                    stroke="#d4aa40" strokeWidth="1.2" strokeLinejoin="round" fill="none" />
-                  <circle cx="12" cy="12" r="3" stroke="#d4aa40" strokeWidth="1" fill="none" />
-                </svg>
+                
               </div>
               <div>
                 <div className="mem-header-title">إدارة الجمعية</div>
-                <div className="mem-header-sub">الهيئة الإدارية · الأعضاء</div>
+                
               </div>
             </div>
             <button className="mem-back-btn" onClick={() => router.push('/home')}>رجوع</button>
@@ -701,7 +697,7 @@ export default function MembersPage() {
               <div className="mem-stat">
                 <div>
                   <div className="mem-stat-label">إجمالي الأعضاء الإداريين</div>
-                  <div className="mem-stat-desc">جمعية نهضة العكنة الخيرية</div>
+                  
                 </div>
                 <div>
                   <div className="mem-stat-num">{members.length}</div>
