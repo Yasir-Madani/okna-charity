@@ -391,10 +391,13 @@ export default function MedicalNeedsPage() {
                 تنويه
               </span>
               <p className="text-red-900 text-[11px] font-medium m-0">
-                الروشتات الطبية متاحة عند الطلب عبر{' '}
-                <a href="/home/contact" className="text-red-900 underline underline-offset-2">
-                  صفحة التواصل
-                </a>
+                الروشتات الطبية متاحة عند الطلب عبر صفحة التواصل{' '}
+                {/*
+<a href="/home/contact" className="text-red-900 underline underline-offset-2">
+  صفحة التواصل
+</a>
+*/}
+
               </p>
             </div>
 
