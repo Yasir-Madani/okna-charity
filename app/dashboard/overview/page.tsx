@@ -13,8 +13,8 @@ export default function OverviewPage() {
   const router = useRouter()
 
   useEffect(() => {
-  fetchData()
-}, [])
+    fetchData()
+  }, [])
 
   const fetchData = async () => {
     const { data } = await supabase
@@ -55,6 +55,15 @@ export default function OverviewPage() {
           })
         }
       })
+
+      // التعديل هنا: ترتيب المصفوفة تصاعدياً لضمان ظهور أرقام المنازل 1، 2، 3... 
+      // دون المساس بالتسلسل الأخضر للبطاقات
+      expanded.sort((a, b) => {
+        const numA = parseInt(a.house_number) || Infinity;
+        const numB = parseInt(b.house_number) || Infinity;
+        return numA - numB;
+      });
+
       setRows(expanded)
     }
     setLoading(false)
@@ -550,11 +559,9 @@ export default function OverviewPage() {
               </div>
             </div>
 
-<div className="ov-header-title" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '13px', whiteSpace: 'nowrap', marginTop: '15px' }}>
-  تنويه: البيانات قيد الحصر والإدخال
-</div>
-
-
+            <div className="ov-header-title" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '13px', whiteSpace: 'nowrap', marginTop: '15px' }}>
+              تنويه: البيانات قيد الحصر والإدخال
+            </div>
 
             {/* FILTERS */}
             <div className="ov-filters">
