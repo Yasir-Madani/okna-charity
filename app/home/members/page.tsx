@@ -103,11 +103,11 @@ export default function MembersPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         .mem-root {
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           direction: rtl;
           min-height: 100vh;
           background: #f6f5f2;
@@ -177,7 +177,7 @@ export default function MembersPage() {
           border-radius: 6px;
           font-size: 12px;
           font-weight: 700;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           transition: all 0.2s ease;
           letter-spacing: 0.05em;
@@ -204,7 +204,7 @@ export default function MembersPage() {
           padding: 11px;
           font-size: 13px;
           font-weight: 700;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           margin-bottom: 22px;
           letter-spacing: 0.06em;
@@ -286,7 +286,7 @@ export default function MembersPage() {
           padding: 9px 12px;
           color: #0d0d12;
           font-size: 13px;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           font-weight: 500;
           text-align: right;
           outline: none;
@@ -322,7 +322,7 @@ export default function MembersPage() {
           border-radius: 8px;
           font-size: 13px;
           font-weight: 800;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           letter-spacing: 0.05em;
           transition: all 0.18s;
@@ -337,7 +337,7 @@ export default function MembersPage() {
           padding: 11px;
           border-radius: 8px;
           font-size: 13px;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.18s;
@@ -498,7 +498,7 @@ export default function MembersPage() {
           border-radius: 5px;
           font-size: 10px;
           font-weight: 700;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           transition: all 0.16s;
           display: flex;
@@ -516,7 +516,7 @@ export default function MembersPage() {
           border-radius: 5px;
           font-size: 10px;
           font-weight: 700;
-          font-family: 'Tajawal', sans-serif;
+          font-family: 'Cairo', sans-serif;
           cursor: pointer;
           transition: all 0.16s;
           display: flex;
