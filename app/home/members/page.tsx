@@ -263,21 +263,21 @@ export default function MembersPage() {
           padding: 20px;
         }
 
+        /* التعديل هنا ليكون كل حقل في سطر منفصل */
         .mem-field-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 14px;
-          margin-bottom: 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          margin-bottom: 20px;
         }
 
         .mem-field-label {
           display: block;
-          font-size: 10px;
+          font-size: 11px;
           font-weight: 700;
           color: #8a8a9a;
           margin-bottom: 6px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
 
         .mem-input {
@@ -285,9 +285,9 @@ export default function MembersPage() {
           background: #f6f5f2;
           border: 1px solid #e8e4da;
           border-radius: 8px;
-          padding: 9px 12px;
+          padding: 12px 14px;
           color: #0d0d12;
-          font-size: 13px;
+          font-size: 14px;
           font-family: 'Cairo', sans-serif;
           font-weight: 500;
           text-align: right;
@@ -311,34 +311,34 @@ export default function MembersPage() {
 
         .mem-form-actions {
           display: flex;
+          flex-direction: column;
           gap: 10px;
-          margin-top: 4px;
+          margin-top: 10px;
         }
 
         .mem-save-btn {
-          flex: 1;
+          width: 100%;
           background: #1a1a2e;
           border: none;
           color: #d4aa40;
-          padding: 11px;
+          padding: 12px;
           border-radius: 8px;
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 800;
           font-family: 'Cairo', sans-serif;
           cursor: pointer;
-          letter-spacing: 0.05em;
           transition: all 0.18s;
         }
         .mem-save-btn:hover { background: #0a0a1a; }
 
         .mem-cancel-btn {
-          flex: 1;
+          width: 100%;
           background: transparent;
           border: 1px solid #e8e4da;
           color: #8a8a9a;
-          padding: 11px;
+          padding: 12px;
           border-radius: 8px;
-          font-size: 13px;
+          font-size: 14px;
           font-family: 'Cairo', sans-serif;
           font-weight: 600;
           cursor: pointer;
@@ -401,11 +401,6 @@ export default function MembersPage() {
         .mem-card:nth-child(3)  { animation-delay: 0.09s }
         .mem-card:nth-child(4)  { animation-delay: 0.12s }
         .mem-card:nth-child(5)  { animation-delay: 0.15s }
-        .mem-card:nth-child(6)  { animation-delay: 0.18s }
-        .mem-card:nth-child(7)  { animation-delay: 0.21s }
-        .mem-card:nth-child(8)  { animation-delay: 0.24s }
-        .mem-card:nth-child(9)  { animation-delay: 0.27s }
-        .mem-card:nth-child(10) { animation-delay: 0.30s }
 
         /* ── SERIAL COLUMN ── */
         .mem-serial-col {
@@ -431,7 +426,7 @@ export default function MembersPage() {
           font-family: 'Cairo', sans-serif;
         }
 
-        /* ── CARD CONTENT — vertical stacked ── */
+        /* ── CARD CONTENT ── */
         .mem-card-content {
           flex: 1;
           min-width: 0;
@@ -439,7 +434,7 @@ export default function MembersPage() {
           flex-direction: column;
           justify-content: center;
           padding: 9px 14px;
-          gap: 4px; /* مسافة بين العناصر */
+          gap: 4px;
         }
 
         .mem-name {
@@ -447,7 +442,6 @@ export default function MembersPage() {
           font-weight: 700;
           font-size: 15px;
           color: #0d0d12;
-          letter-spacing: 0.01em;
           line-height: 1.2;
           white-space: nowrap;
           overflow: hidden;
@@ -462,7 +456,6 @@ export default function MembersPage() {
           font-size: 10px;
           font-weight: 700;
           border: 1px solid;
-          letter-spacing: 0.05em;
           align-self: flex-start;
           font-family: 'Cairo', sans-serif;
         }
@@ -470,16 +463,9 @@ export default function MembersPage() {
         .mem-phone {
           font-size: 12px;
           color: #8a8a9a;
-          direction: rtl; /* اتجاه النص من اليمين ليناسب المحاذاة */
+          direction: rtl;
           font-weight: 600;
-          letter-spacing: 0.03em;
           margin-top: 2px;
-          text-align: right; /* محاذاة النص لليمين */
-        }
-
-        .mem-no-phone {
-          font-size: 11px;
-          color: #e8e4da;
           text-align: right;
         }
 
@@ -507,12 +493,10 @@ export default function MembersPage() {
           font-weight: 700;
           font-family: 'Cairo', sans-serif;
           cursor: pointer;
-          transition: all 0.16s;
           display: flex;
           align-items: center;
           justify-content: center;
         }
-        .mem-edit-btn:hover { background: #dce6f8; }
 
         .mem-del-btn {
           background: #fdf0ef;
@@ -525,12 +509,10 @@ export default function MembersPage() {
           font-weight: 700;
           font-family: 'Cairo', sans-serif;
           cursor: pointer;
-          transition: all 0.16s;
           display: flex;
           align-items: center;
           justify-content: center;
         }
-        .mem-del-btn:hover { background: #fae0de; }
 
         /* ── STAT STRIP ── */
         .mem-stat {
@@ -543,19 +525,6 @@ export default function MembersPage() {
           align-items: center;
         }
 
-        .mem-stat-label {
-          font-size: 11px;
-          color: rgba(255,255,255,0.45);
-          font-weight: 500;
-          letter-spacing: 0.05em;
-          margin-bottom: 3px;
-        }
-
-        .mem-stat-desc {
-          font-size: 10px;
-          color: rgba(255,255,255,0.25);
-        }
-
         .mem-stat-num {
           font-family: 'Cairo', sans-serif;
           font-weight: 800;
@@ -564,71 +533,30 @@ export default function MembersPage() {
           line-height: 1;
         }
 
-        .mem-stat-unit {
-          font-size: 13px;
-          color: #b8952a;
-          margin-top: 3px;
-          font-weight: 600;
-          text-align: left;
-        }
-
-        /* ── LOADING / EMPTY ── */
-        .mem-center {
-          text-align: center;
-          padding: 80px 20px;
-        }
-
-        .mem-spinner {
-          width: 32px;
-          height: 32px;
-          border: 2px solid #e8e4da;
-          border-top-color: #b8952a;
-          border-radius: 50%;
-          animation: spin 0.75s linear infinite;
-          margin: 0 auto 12px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .mem-empty-text {
-          font-size: 14px;
-          color: #8a8a9a;
+        .mem-stat-label {
+          font-size: 11px;
+          color: rgba(255,255,255,0.45);
           font-weight: 500;
         }
 
-        /* ── FOOTER ── */
         .mem-footer {
           text-align: center;
           font-size: 10px;
           color: #8a8a9a;
-          padding: 20px 0 0;
-          font-weight: 500;
+          padding: 20px 0;
           border-top: 1px solid #e8e4da;
           margin-top: 22px;
-          letter-spacing: 0.03em;
-        }
-
-        .mem-footer-divider {
-          display: inline-block;
-          width: 32px;
-          height: 1px;
-          background: #b8952a;
-          vertical-align: middle;
-          margin: 0 8px;
-          opacity: 0.5;
         }
       `}</style>
 
       <div className="mem-root">
-
         {/* HEADER */}
         <div className="mem-header">
           <div className="mem-header-inner">
             <div className="mem-header-logo">
               <div className="mem-header-crest">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: 20, height: 20 }}>
-                  <path d="M12 2L14.5 8.5H21L15.5 12.5L17.5 19L12 15L6.5 19L8.5 12.5L3 8.5H9.5L12 2Z"
-                    stroke="#d4aa40" strokeWidth="1.2" strokeLinejoin="round" fill="none" />
+                <svg viewBox="0 0 24 24" fill="none" style={{ width: 20, height: 20 }}>
+                  <path d="M12 2L14.5 8.5H21L15.5 12.5L17.5 19L12 15L6.5 19L8.5 12.5L3 8.5H9.5L12 2Z" stroke="#d4aa40" strokeWidth="1.2" fill="none" />
                   <circle cx="12" cy="12" r="3" stroke="#d4aa40" strokeWidth="1" fill="none" />
                 </svg>
               </div>
@@ -643,7 +571,6 @@ export default function MembersPage() {
         </div>
 
         <div className="mem-body">
-
           {/* ADD BUTTON */}
           {isAdmin && (
             <button className="mem-add-btn" onClick={() => { resetForm(); setShowForm(!showForm) }}>
@@ -657,9 +584,7 @@ export default function MembersPage() {
             <div className="mem-form-card">
               <div className="mem-form-header">
                 <div className="mem-form-header-dot" />
-                <div className="mem-form-header-title">
-                  {editing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}
-                </div>
+                <div className="mem-form-header-title">{editing ? 'تعديل بيانات العضو' : 'إضافة عضو جديد'}</div>
               </div>
               <div className="mem-form-body">
                 <form onSubmit={handleSubmit}>
@@ -685,8 +610,6 @@ export default function MembersPage() {
                         onChange={e => setForm({ ...form, role: e.target.value })}
                       />
                     </div>
-                  </div>
-                  <div className="mem-field-grid">
                     <div>
                       <label className="mem-field-label">رقم الهاتف</label>
                       <input
@@ -694,7 +617,7 @@ export default function MembersPage() {
                         value={form.phone}
                         dir="ltr"
                         placeholder="05X XXX XXXX"
-                        style={{ textAlign: 'left' }}
+                        style={{ textAlign: 'right' }}
                         onChange={e => setForm({ ...form, phone: e.target.value })}
                       />
                     </div>
@@ -724,79 +647,50 @@ export default function MembersPage() {
             <div className="mem-section-line" />
           </div>
 
-          {/* LOADING */}
+          {/* LIST */}
           {loading ? (
-            <div className="mem-center">
-              <div className="mem-spinner" />
-              <p className="mem-empty-text">جاري التحميل...</p>
-            </div>
-          ) : members.length === 0 ? (
-            <div className="mem-center">
-              <p style={{ fontSize: 36, marginBottom: 12 }}>👥</p>
-              <p className="mem-empty-text">لا يوجد أعضاء مسجلون بعد</p>
-            </div>
+            <div className="mem-center"><div className="mem-spinner" /></div>
           ) : (
-            <>
-              <div className="mem-cards">
-                {members.map((member, index) => {
-                  const badgeStyle = getRoleBadgeStyle(member.role)
-                  const icon = getRoleIcon(member.role)
-                  return (
-                    <div className="mem-card" key={member.id}>
-
-                      {/* SERIAL */}
-                      <div className="mem-serial-col">
-                        <div className="mem-serial">{index + 1}</div>
-                      </div>
-
-                      {/* CONTENT — اسم، منصب، هاتف أسفل بعض بمحاذاة اليمين */}
-                      <div className="mem-card-content">
-                        <div className="mem-name">{member.full_name}</div>
-                        <span
-                          className="mem-role-badge"
-                          style={{ background: badgeStyle.background, color: badgeStyle.color, borderColor: badgeStyle.borderColor }}
-                        >
-                          {icon}{member.role}
-                        </span>
-                        {member.phone
-                          ? <span className="mem-phone">{member.phone}</span>
-                          : <span className="mem-no-phone">—</span>
-                        }
-                      </div>
-
-                      {/* ACTIONS */}
-                      {isAdmin && (
-                        <div className="mem-actions-col">
-                          <button className="mem-edit-btn" onClick={() => handleEdit(member)} title="تعديل">✎</button>
-                          <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)} title="حذف">✕</button>
-                        </div>
-                      )}
-
+            <div className="mem-cards">
+              {members.map((member, index) => {
+                const badgeStyle = getRoleBadgeStyle(member.role)
+                return (
+                  <div className="mem-card" key={member.id}>
+                    <div className="mem-serial-col"><div className="mem-serial">{index + 1}</div></div>
+                    <div className="mem-card-content">
+                      <div className="mem-name">{member.full_name}</div>
+                      <span className="mem-role-badge" style={{ background: badgeStyle.background, color: badgeStyle.color, borderColor: badgeStyle.borderColor }}>
+                        {getRoleIcon(member.role)}{member.role}
+                      </span>
+                      {member.phone && <span className="mem-phone">{member.phone}</span>}
                     </div>
-                  )
-                })}
-              </div>
-
-              {/* STAT */}
-              <div className="mem-stat">
-                <div>
-                  <div className="mem-stat-label">إجمالي الأعضاء الإداريين</div>
-                  <div className="mem-stat-desc">جمعية نهضة العكنة الخيرية</div>
-                </div>
-                <div>
-                  <div className="mem-stat-num">{members.length}</div>
-                  <div className="mem-stat-unit">عضو</div>
-                </div>
-              </div>
-            </>
+                    {isAdmin && (
+                      <div className="mem-actions-col">
+                        <button className="mem-edit-btn" onClick={() => handleEdit(member)}>✎</button>
+                        <button className="mem-del-btn" onClick={() => handleDelete(member.id, member.full_name)}>✕</button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           )}
 
-          <div className="mem-footer">
-            <span className="mem-footer-divider" />
-            جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
-            <span className="mem-footer-divider" />
-          </div>
+          {/* STAT */}
+          {!loading && members.length > 0 && (
+            <div className="mem-stat">
+              <div>
+                <div className="mem-stat-label">إجمالي الأعضاء</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>جمعية نهضة العكنة الخيرية</div>
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div className="mem-stat-num">{members.length}</div>
+                <div style={{ fontSize: 12, color: '#b8952a', fontWeight: 600 }}>عضو</div>
+              </div>
+            </div>
+          )}
 
+          <div className="mem-footer">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</div>
         </div>
       </div>
     </>
