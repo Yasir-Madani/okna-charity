@@ -439,7 +439,7 @@ export default function MembersPage() {
           flex-direction: column;
           justify-content: center;
           padding: 9px 14px;
-          gap: 3px;
+          gap: 4px; /* مسافة بين العناصر */
         }
 
         .mem-name {
@@ -468,16 +468,19 @@ export default function MembersPage() {
         }
 
         .mem-phone {
-          font-size: 11px;
+          font-size: 12px;
           color: #8a8a9a;
-          direction: ltr;
+          direction: rtl; /* اتجاه النص من اليمين ليناسب المحاذاة */
           font-weight: 600;
           letter-spacing: 0.03em;
+          margin-top: 2px;
+          text-align: right; /* محاذاة النص لليمين */
         }
 
         .mem-no-phone {
           font-size: 11px;
           color: #e8e4da;
+          text-align: right;
         }
 
         /* ── ACTIONS COLUMN ── */
@@ -746,7 +749,7 @@ export default function MembersPage() {
                         <div className="mem-serial">{index + 1}</div>
                       </div>
 
-                      {/* CONTENT — اسم، منصب، هاتف أسفل بعض */}
+                      {/* CONTENT — اسم، منصب، هاتف أسفل بعض بمحاذاة اليمين */}
                       <div className="mem-card-content">
                         <div className="mem-name">{member.full_name}</div>
                         <span
