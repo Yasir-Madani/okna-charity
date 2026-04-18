@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 type BankAccount = {
   id: number
@@ -9,22 +9,36 @@ type BankAccount = {
   accountName: string
 }
 
-const initialAccounts: BankAccount[] = [
-  { id: 1, accountNumber: '1010-00123456', bankName: 'بنك الجمهورية', accountName: 'جمعية نهضة العكنة الخيرية' },
-  { id: 2, accountNumber: '2020-00789012', bankName: 'مصرف الوحدة', accountName: 'جمعية نهضة العكنة الخيرية' },
-]
-
 export default function ContactPage() {
   const router = useRouter()
 
-  const [accounts, setAccounts] = useState<BankAccount[]>(initialAccounts)
-  const [nextId, setNextId] = useState(3)
+  const [accounts, setAccounts] = useState<BankAccount[]>([])
+  const [nextId, setNextId] = useState(1)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState({ accountNumber: '', bankName: '', accountName: '' })
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
+  const [hydrated, setHydrated] = useState(false)
 
-  const whatsappNumber = '218910000000'
+  useEffect(() => {
+    const savedAccounts = localStorage.getItem('bankAccounts')
+    const savedNextId = localStorage.getItem('bankAccountsNextId')
+    if (savedAccounts) setAccounts(JSON.parse(savedAccounts))
+    if (savedNextId) setNextId(JSON.parse(savedNextId))
+    setHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (!hydrated) return
+    localStorage.setItem('bankAccounts', JSON.stringify(accounts))
+  }, [accounts, hydrated])
+
+  useEffect(() => {
+    if (!hydrated) return
+    localStorage.setItem('bankAccountsNextId', JSON.stringify(nextId))
+  }, [nextId, hydrated])
+
+  const whatsappNumber = '249912213182'
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=السلام عليكم، أود التواصل مع جمعية العكنة الخيرية`
 
   const openAdd = () => {
@@ -99,7 +113,7 @@ export default function ContactPage() {
               </div>
               <div className="flex-1 text-right">
                 <p className="text-white text-[15px] font-bold">واتساب</p>
-                <p className="text-white/75 text-xs mt-0.5">تواصل سريع ومباشر — ابدأ محادثة الآن</p>
+                <p className="text-white/75 text-xs mt-0.5">تواصل سريع ومباشر — ابدأ محادثة الآن مع الجمعية</p>
               </div>
               <span className="text-white/50 text-lg">←</span>
             </div>
@@ -128,7 +142,9 @@ export default function ContactPage() {
             </div>
 
             {/* Account Rows */}
-            {accounts.length === 0 ? (
+            {!hydrated ? (
+              <div className="py-8 text-center text-sm text-gray-400">جاري التحميل...</div>
+            ) : accounts.length === 0 ? (
               <div className="py-8 text-center text-sm text-gray-400">لا توجد حسابات مضافة بعد</div>
             ) : (
               accounts.map((acc, i) => (
