@@ -109,6 +109,31 @@ export default function Dashboard() {
           >
             🏠 الرئيسية
           </button>
+
+
+
+
+          <button
+  onClick={() => { router.push('/dashboard/statistics/annual'); setMenuOpen(false) }}
+  className="w-full text-right py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer"
+>
+  📊 التقرير السنوي
+</button>
+
+<button
+  onClick={() => { router.push('/dashboard/subscriptions/unpaid-quick'); setMenuOpen(false) }}
+  className="w-full text-right py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer"
+>
+  ⚡ من لم يدفع — سريع
+</button>
+
+<button
+  onClick={() => { router.push('/dashboard/backup'); setMenuOpen(false) }}
+  className="w-full text-right py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer"
+>
+  💾 النسخة الاحتياطية
+</button>
+
           <button
             onClick={handleLogout}
             className="w-full text-right py-2.5 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer text-red-300"
