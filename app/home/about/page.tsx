@@ -70,7 +70,7 @@ export default function AboutPage() {
           <div className="bg-gradient-to-l from-blue-600 to-blue-700 px-5 py-4 flex items-center gap-3">
             <span className="text-3xl">🏛️</span>
             <div>
-              <h2 className="text-white font-bold text-lg">جمعية العكنة الخيرية</h2>
+              <h2 className="text-white font-bold text-lg">جمعية نهضة العكنة الخيرية</h2>
               <p className="text-blue-200 text-xs">نبذة تعريفية</p>
             </div>
           </div>
@@ -86,7 +86,7 @@ export default function AboutPage() {
                   value={editContent}
                   onChange={e => setEditContent(e.target.value)}
                   rows={12}
-                  className="w-full border border-black-200 rounded-xl p-3 text-sm text-gray-700 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full border border-black-200 rounded-xl p-3 text-sm text-black-700 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
                   placeholder="اكتب نبذة عن الجمعية هنا..."
                 />
                 <div className="flex gap-2 mt-3">

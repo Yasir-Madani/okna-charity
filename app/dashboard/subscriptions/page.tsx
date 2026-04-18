@@ -330,7 +330,7 @@ export default function SubscriptionsPage() {
     if (filterHouse !== 'الكل' && h.id !== filterHouse) return false
     if (searchName.trim() !== '' && !h.name.includes(searchName.trim())) return false
     return true
-  })
+  }).sort((a, b) => a.house_number - b.house_number)
 
   const paidCount = Object.keys(monthlyData).length
   const unpaidCount = houses.length - paidCount
@@ -389,7 +389,6 @@ export default function SubscriptionsPage() {
         {/* شريط التحكم */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 space-y-3">
 
-          {/* ✅ إصلاح 1: فلتر الشهر في سطر كامل */}
           <div className="w-full">
             <label className="text-xs text-gray-400 block mb-1">الشهر</label>
             <select
@@ -401,7 +400,6 @@ export default function SubscriptionsPage() {
             </select>
           </div>
 
-          {/* ✅ إصلاح 2: المبلغ الافتراضي في سطر كامل */}
           <div className="w-full">
             <label className="text-xs text-gray-400 block mb-1">
               المبلغ الافتراضي لـ {formatMonth(selectedMonth)}
@@ -511,11 +509,9 @@ export default function SubscriptionsPage() {
                   className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all
                     ${isPaid ? 'border-green-200' : overdue && !entry.checked ? 'border-red-200' : 'border-gray-200'}`}
                 >
-                  {/* ✅ إصلاح 3: رأس البطاقة في سطرين */}
                   <div className={`px-4 py-3 flex flex-col gap-2
                     ${isPaid ? 'bg-green-50' : overdue && !entry.checked ? 'bg-red-50' : 'bg-gray-50'}`}
                   >
-                    {/* السطر الأول: رقم المنزل + الاسم كاملاً + المحور */}
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-gray-400 flex-shrink-0">#{house.house_number}</span>
                       <span className="font-bold text-gray-800 text-sm">{house.name}</span>
@@ -524,10 +520,8 @@ export default function SubscriptionsPage() {
                       </span>
                     </div>
 
-                    {/* السطر الثاني: الأزرار */}
                     <div className="flex items-center gap-1.5 flex-wrap">
 
-                      {/* زر المدفوعات السابقة */}
                       {paidHistory && (
                         <button
                           onClick={() => togglePaid(house.id)}
@@ -538,7 +532,6 @@ export default function SubscriptionsPage() {
                         </button>
                       )}
 
-                      {/* زر المتأخرات */}
                       {overdue && (
                         <button
                           onClick={() => toggleOverdue(house.id)}
@@ -553,7 +546,6 @@ export default function SubscriptionsPage() {
                         </button>
                       )}
 
-                      {/* الحالة */}
                       {isPaid ? (
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">مدفوع ✓</span>
                       ) : isReadyToSave ? (
@@ -564,7 +556,6 @@ export default function SubscriptionsPage() {
                     </div>
                   </div>
 
-                  {/* accordion المدفوعات السابقة */}
                   {paidHistory && isPaidExpanded && (
                     <div className="px-4 py-2.5 border-t border-blue-100 bg-blue-50">
                       <div className="flex items-center justify-between mb-2">
@@ -584,7 +575,6 @@ export default function SubscriptionsPage() {
                     </div>
                   )}
 
-                  {/* accordion المتأخرات */}
                   {overdue && isOverdueExpanded && (
                     <div className={`px-4 py-2.5 border-t
                       ${isPaid ? 'bg-orange-50 border-orange-100' : 'bg-red-50 border-red-100'}`}
@@ -614,7 +604,6 @@ export default function SubscriptionsPage() {
                     </div>
                   )}
 
-                  {/* صف الإدخال */}
                   <div className="px-4 py-3 flex items-center gap-3">
                     <label className="flex items-center gap-2 cursor-pointer flex-shrink-0">
                       <div
