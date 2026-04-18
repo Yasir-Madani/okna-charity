@@ -79,6 +79,11 @@ export default function UnpaidQuickPage() {
   // تسجيل دفعة مباشرة من هنا
   const markAsPaid = async (house: House) => {
     if (!defaultAmount) { showToast('⚠️ لا يوجد مبلغ افتراضي لهذا الشهر — اذهب لصفحة الاشتراكات'); return }
+
+    // ✅ رسالة تأكيد قبل تنفيذ الدفع
+    const confirmed = window.confirm(`هل تريد تسجيل دفعة لـ ${house.name}؟\nالمبلغ: ${defaultAmount.toLocaleString()} جنيه`)
+    if (!confirmed) return
+
     setMarkingPaid(house.id)
     const { data: { user } } = await supabase.auth.getUser()
     const { error } = await supabase.from('subscriptions').upsert({
@@ -243,12 +248,13 @@ export default function UnpaidQuickPage() {
                       )}
                     </div>
                   </div>
+                  {/* ✅ تم تغيير النص وإضافة رسالة التأكيد */}
                   <button
                     onClick={() => markAsPaid(house)}
                     disabled={markingPaid === house.id || !defaultAmount}
                     className="bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors flex-shrink-0"
                   >
-                    {markingPaid === house.id ? '...' : '✓ دفع'}
+                    {markingPaid === house.id ? '...' : 'قم بعملية دفع'}
                   </button>
                 </div>
               ))}
