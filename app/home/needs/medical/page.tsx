@@ -65,14 +65,12 @@ export default function MedicalNeedsPage() {
     setShowForm(false)
   }
 
-  // *** الترتيب اليدوي بالأسهم ***
   const moveNeed = async (index: number, direction: 'up' | 'down') => {
     const newNeeds = [...needs]
     const swapIndex = direction === 'up' ? index - 1 : index + 1
     if (swapIndex < 0 || swapIndex >= newNeeds.length) return
 
     ;[newNeeds[index], newNeeds[swapIndex]] = [newNeeds[swapIndex], newNeeds[index]]
-    // إعادة ترقيم الـ number بعد التبديل
     const renumbered = newNeeds.map((item, i) => ({ ...item, number: i + 1 }))
     setNeeds(renumbered)
 
@@ -85,7 +83,6 @@ export default function MedicalNeedsPage() {
     setReordering(false)
   }
 
-  // إعادة ترقيم تلقائي بعد الحذف
   const reorderNumbers = async (items: MedicalNeed[]) => {
     const updates = items.map((item, i) => ({ id: item.id, number: i + 1 }))
     for (const u of updates) {
@@ -391,73 +388,41 @@ export default function MedicalNeedsPage() {
                 تنويه
               </span>
               <p className="text-red-900 text-[11px] font-medium m-0">
-                الروشتات الطبية متاحة عند الطلب عبر صفحة التواصل{' '}
-                {/*
-<a href="/home/contact" className="text-red-900 underline underline-offset-2">
-  صفحة التواصل
-</a>
-*/}
-
+                الروشتات الطبية متاحة عند الطلب عبر صفحة التواصل
               </p>
             </div>
 
-            {/* ── رؤوس الأعمدة ── */}
-            <div className={`grid gap-2 px-3 pb-1 ${isAdmin ? 'grid-cols-12' : 'grid-cols-12'}`}>
-              <div className="col-span-1 text-center">
-                <p className="text-xs font-bold text-gray-400">#</p>
-              </div>
-              <div className={isAdmin ? 'col-span-3' : 'col-span-3'}>
-                <p className="text-xs font-bold text-black">الصنف</p>
-              </div>
-              <div className={isAdmin ? 'col-span-4' : 'col-span-5'}>
-                <p className="text-xs font-bold text-black">الوصف</p>
-              </div>
-              <div className={isAdmin ? 'col-span-2 text-center' : 'col-span-3 text-center'}>
-                <p className="text-xs font-bold text-black">العدد</p>
-              </div>
-              {isAdmin && (
-                <div className="col-span-2 text-center">
-                  <p className="text-xs font-bold text-gray-400">ترتيب</p>
-                </div>
-              )}
-            </div>
-
-            {/* ── قائمة الحوجات ── */}
-            <div className="space-y-2">
+            {/* ── قائمة الحوجات — بطاقات عمودية ── */}
+            <div className="space-y-3">
               {needs.map((need, index) => (
                 <div
                   key={need.id}
-                  className="bg-white rounded-2xl border border-gray-100 px-3 py-3.5"
-                  style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
+                  className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                  style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
                 >
-                  <div className={`grid gap-2 items-center ${isAdmin ? 'grid-cols-12' : 'grid-cols-12'}`}>
-                    <div className="col-span-1 flex justify-center">
-                      <span className="w-6 h-6 rounded-full bg-teal-50 text-teal-700 text-xs font-bold flex items-center justify-center">
+                  {/* ── رأس البطاقة: رقم + اسم الصنف + أزرار الترتيب ── */}
+                  <div className="flex items-center justify-between px-4 py-3 bg-teal-50 border-b border-teal-100">
+                    <div className="flex items-center gap-2.5">
+                      {/* رقم */}
+                      <span className="w-7 h-7 rounded-full bg-teal-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
                         {need.number}
                       </span>
-                    </div>
-                    <div className={isAdmin ? 'col-span-3' : 'col-span-3'}>
-                      <p className="text-sm font-bold text-gray-800 leading-tight">{need.category}</p>
-                    </div>
-                    <div className={isAdmin ? 'col-span-4' : 'col-span-5'}>
-                      <p className="text-xs text-gray-900 leading-tight">{need.description}</p>
-                    </div>
-                    <div className={isAdmin ? 'col-span-2 text-center' : 'col-span-3 text-center'}>
-                      <span className="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-2 py-1 rounded-lg">
-                        {need.quantity}
-                      </span>
+                      {/* اسم الصنف */}
+                      <p className="text-sm font-bold text-teal-900 leading-tight">
+                        {need.category}
+                      </p>
                     </div>
 
-                    {/* *** أزرار الترتيب — عمود مستقل *** */}
+                    {/* أزرار الترتيب — أدمن فقط */}
                     {isAdmin && (
-                      <div className="col-span-2 flex items-center justify-center gap-1">
+                      <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => moveNeed(index, 'up')}
                           disabled={index === 0 || reordering}
                           className={`w-7 h-7 rounded-lg border text-xs flex items-center justify-center transition-colors cursor-pointer
                             ${index === 0
                               ? 'border-gray-100 text-gray-200 cursor-not-allowed'
-                              : 'border-gray-200 text-gray-500 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700'
+                              : 'border-teal-200 text-teal-600 hover:bg-teal-100'
                             }`}
                         >
                           ↑
@@ -468,7 +433,7 @@ export default function MedicalNeedsPage() {
                           className={`w-7 h-7 rounded-lg border text-xs flex items-center justify-center transition-colors cursor-pointer
                             ${index === needs.length - 1
                               ? 'border-gray-100 text-gray-200 cursor-not-allowed'
-                              : 'border-gray-200 text-gray-500 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700'
+                              : 'border-teal-200 text-teal-600 hover:bg-teal-100'
                             }`}
                         >
                           ↓
@@ -477,23 +442,50 @@ export default function MedicalNeedsPage() {
                     )}
                   </div>
 
-                  {/* أزرار التعديل والحذف */}
-                  {isAdmin && (
-                    <div className="flex gap-3 justify-end mt-2 pt-2 border-t border-gray-50">
-                      <button
-                        onClick={() => handleEdit(need)}
-                        className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
-                      >
-                        تعديل
-                      </button>
-                      <button
-                        onClick={() => handleDelete(need.id, need.category)}
-                        className="text-xs text-red-400 hover:text-red-600 cursor-pointer transition-colors"
-                      >
-                        حذف
-                      </button>
+                  {/* ── جسم البطاقة: الوصف + العدد ── */}
+                  <div className="px-4 py-3 space-y-2.5">
+
+                    {/* الوصف */}
+                    <div>
+                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                        الوصف
+                      </p>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        {need.description}
+                      </p>
                     </div>
-                  )}
+
+                    {/* فاصل */}
+                    <div className="border-t border-gray-50" />
+
+                    {/* العدد */}
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                        العدد المطلوب
+                      </p>
+                      <span className="bg-teal-50 text-teal-700 text-sm font-bold px-3 py-1 rounded-lg border border-teal-100">
+                        {need.quantity}
+                      </span>
+                    </div>
+
+                    {/* أزرار تعديل / حذف — أدمن فقط */}
+                    {isAdmin && (
+                      <div className="flex gap-3 justify-end pt-1 border-t border-gray-50">
+                        <button
+                          onClick={() => handleEdit(need)}
+                          className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors font-medium"
+                        >
+                          ✏️ تعديل
+                        </button>
+                        <button
+                          onClick={() => handleDelete(need.id, need.category)}
+                          className="text-xs text-red-400 hover:text-red-600 cursor-pointer transition-colors font-medium"
+                        >
+                          🗑 حذف
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
