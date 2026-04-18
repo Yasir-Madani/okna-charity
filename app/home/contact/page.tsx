@@ -184,7 +184,7 @@ export default function ContactPage() {
             </div>
             <div className="flex-1 text-right">
               <p className="text-sm font-bold text-gray-900">التبرع العيني</p>
-              <p className="text-xs text-gray-600 mt-1 leading-relaxed">يمكن تسليم التبرعات مباشرةً في مقر الجمعية خلال أوقات الدوام الرسمي</p>
+              <p className="text-xs text-gray-600 mt-1 leading-relaxed">يمكن تسليم التبرعات مباشرةً في مقر الجمعية بالقرية بالتواصل مع السيد / عبدالباسط محمد محمدأحمد الفكي - رقم الهاتف : 0126462333</p>
             </div>
           </div>
         </div>
