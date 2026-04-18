@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
 
@@ -24,9 +24,22 @@ export default function MedicalNeedsPage() {
   const [form, setForm] = useState({ category: '', description: '', quantity: '' })
   const [exporting, setExporting] = useState<'excel' | 'pdf' | null>(null)
   const [reordering, setReordering] = useState(false)
+  const [savedScrollY, setSavedScrollY] = useState(0)
+  const [highlightId, setHighlightId] = useState<string | null>(null)
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const router = useRouter()
 
   useEffect(() => { fetchData() }, [])
+
+  // بعد تحميل البيانات: تمرير للبطاقة المحفوظة إن وجدت
+  useEffect(() => {
+    if (!loading && highlightId && cardRefs.current[highlightId]) {
+      setTimeout(() => {
+        cardRefs.current[highlightId]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        setTimeout(() => setHighlightId(null), 2000)
+      }, 100)
+    }
+  }, [loading, highlightId])
 
   const fetchData = async () => {
     setLoading(true)
@@ -59,10 +72,32 @@ export default function MedicalNeedsPage() {
     setTogglingVisibility(false)
   }
 
-  const resetForm = () => {
+  // فتح نموذج الإضافة
+  const openAddForm = () => {
+    setSavedScrollY(window.scrollY)
     setForm({ category: '', description: '', quantity: '' })
     setEditing(null)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // فتح نموذج التعديل
+  const handleEdit = (need: MedicalNeed) => {
+    setSavedScrollY(window.scrollY)
+    setForm({ category: need.category, description: need.description, quantity: need.quantity })
+    setEditing(need)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // إلغاء: إغلاق النموذج والعودة للموضع السابق
+  const handleCancel = () => {
     setShowForm(false)
+    setEditing(null)
+    setForm({ category: '', description: '', quantity: '' })
+    setTimeout(() => {
+      window.scrollTo({ top: savedScrollY, behavior: 'smooth' })
+    }, 50)
   }
 
   const moveNeed = async (index: number, direction: 'up' | 'down') => {
@@ -95,30 +130,32 @@ export default function MedicalNeedsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
+    let savedId: string | null = null
+
     if (editing) {
       await supabase.from('medical_needs').update({
         category: form.category.trim(),
         description: form.description.trim(),
         quantity: form.quantity.trim(),
       }).eq('id', editing.id)
+      savedId = editing.id
     } else {
       const nextNumber = needs.length + 1
-      await supabase.from('medical_needs').insert({
+      const { data: inserted } = await supabase.from('medical_needs').insert({
         number: nextNumber,
         category: form.category.trim(),
         description: form.description.trim(),
         quantity: form.quantity.trim(),
         created_by: user.id,
-      })
+      }).select().single()
+      if (inserted) savedId = inserted.id
     }
-    resetForm()
-    fetchData()
-  }
 
-  const handleEdit = (need: MedicalNeed) => {
-    setForm({ category: need.category, description: need.description, quantity: need.quantity })
-    setEditing(need)
-    setShowForm(true)
+    setShowForm(false)
+    setEditing(null)
+    setForm({ category: '', description: '', quantity: '' })
+    if (savedId) setHighlightId(savedId)
+    await fetchData()
   }
 
   const handleDelete = async (id: string, name: string) => {
@@ -223,6 +260,100 @@ export default function MedicalNeedsPage() {
         rel="stylesheet"
       />
 
+      {/* ══════════════════════════════════════════
+          شاشة النموذج الكاملة (إضافة / تعديل)
+      ══════════════════════════════════════════ */}
+      {showForm && (
+        <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto" dir="rtl">
+          {/* هيدر النموذج */}
+          <div className="bg-teal-700 text-white sticky top-0 z-10">
+            <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
+              >
+                إلغاء
+              </button>
+              <h1 className="text-base font-semibold tracking-wide">
+                {editing ? 'تعديل الحوجة الطبية' : 'إضافة حوجة طبية'}
+              </h1>
+              <div className="w-16" />
+            </div>
+          </div>
+
+          {/* محتوى النموذج */}
+          <div className="max-w-lg mx-auto px-4 py-6">
+            {/* بطاقة معلومات الدواء المحدد عند التعديل */}
+            {editing && (
+              <div className="bg-teal-50 border border-teal-200 rounded-2xl px-4 py-3 mb-5 flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-teal-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  {editing.number}
+                </span>
+                <div>
+                  <p className="text-xs text-teal-600 font-medium">تعديل الدواء</p>
+                  <p className="text-sm font-bold text-teal-900">{editing.category}</p>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-4">
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">الصنف *</label>
+                  <input
+                    required
+                    placeholder="مثال: دواء، جهاز، مستلزم..."
+                    value={form.category}
+                    onChange={e => setForm({ ...form, category: e.target.value })}
+                    className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">الوصف *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="وصف تفصيلي للحوجة"
+                    value={form.description}
+                    onChange={e => setForm({ ...form, description: e.target.value })}
+                    className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 block mb-1.5">العدد *</label>
+                  <input
+                    required
+                    placeholder='مثال: 10 أو "غير محدد"'
+                    value={form.quantity}
+                    onChange={e => setForm({ ...form, quantity: e.target.value })}
+                    className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-teal-700 text-white py-3.5 rounded-2xl text-sm font-bold cursor-pointer hover:bg-teal-800 transition-colors shadow-sm"
+              >
+                ✓ حفظ التغييرات
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="w-full bg-white border border-gray-200 text-gray-500 py-3 rounded-2xl text-sm cursor-pointer hover:bg-gray-50 transition-colors"
+              >
+                إلغاء والعودة
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ── Header ── */}
       <div className="bg-teal-700 text-white sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
@@ -233,7 +364,6 @@ export default function MedicalNeedsPage() {
             رجوع
           </button>
           <h1 className="text-base font-semibold tracking-wide">الحوجات الطبية</h1>
-          {/* أزرار التصدير */}
           <div className="flex items-center gap-1.5">
             <button
               onClick={exportExcel}
@@ -306,67 +436,11 @@ export default function MedicalNeedsPage() {
         {/* ── زر إضافة ── */}
         {isAdmin && (
           <button
-            onClick={() => { resetForm(); setShowForm(!showForm) }}
+            onClick={openAddForm}
             className="w-full bg-teal-700 hover:bg-teal-800 text-white rounded-xl py-3 text-sm font-semibold mb-4 transition-colors cursor-pointer"
           >
-            {showForm && !editing ? '✕ إغلاق النموذج' : '+ إضافة حوجة طبية'}
+            + إضافة حوجة طبية
           </button>
-        )}
-
-        {/* ── نموذج الإضافة/التعديل ── */}
-        {showForm && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4 shadow-sm">
-            <h3 className="text-sm font-bold text-gray-700 mb-4">
-              {editing ? '✏️ تعديل الحوجة الطبية' : '➕ إضافة حوجة طبية جديدة'}
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div>
-                <label className="text-xs text-gray-500 block mb-1">الصنف *</label>
-                <input
-                  required
-                  placeholder="مثال: دواء، جهاز، مستلزم..."
-                  value={form.category}
-                  onChange={e => setForm({ ...form, category: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 block mb-1">الوصف *</label>
-                <input
-                  required
-                  placeholder="وصف تفصيلي للحوجة"
-                  value={form.description}
-                  onChange={e => setForm({ ...form, description: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 block mb-1">العدد *</label>
-                <input
-                  required
-                  placeholder='مثال: 10 أو "غير محدد"'
-                  value={form.quantity}
-                  onChange={e => setForm({ ...form, quantity: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                />
-              </div>
-              <div className="flex gap-2 pt-1">
-                <button
-                  type="submit"
-                  className="flex-1 bg-teal-700 text-white py-2.5 rounded-xl text-sm font-semibold cursor-pointer hover:bg-teal-800 transition-colors"
-                >
-                  حفظ
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-xl text-sm cursor-pointer hover:bg-gray-200 transition-colors"
-                >
-                  إلغاء
-                </button>
-              </div>
-            </form>
-          </div>
         )}
 
         {/* ── Loading ── */}
@@ -392,28 +466,30 @@ export default function MedicalNeedsPage() {
               </p>
             </div>
 
-            {/* ── قائمة الحوجات — بطاقات عمودية ── */}
+            {/* ── قائمة الحوجات ── */}
             <div className="space-y-3">
               {needs.map((need, index) => (
                 <div
                   key={need.id}
-                  className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
-                  style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+                  ref={el => { cardRefs.current[need.id] = el }}
+                  className="bg-white rounded-2xl border overflow-hidden transition-all duration-500"
+                  style={{
+                    boxShadow: highlightId === need.id
+                      ? '0 0 0 2px #0f766e, 0 4px 16px rgba(15,118,110,0.2)'
+                      : '0 1px 4px rgba(0,0,0,0.06)',
+                    borderColor: highlightId === need.id ? '#0f766e' : '#f3f4f6',
+                  }}
                 >
-                  {/* ── رأس البطاقة: رقم + اسم الصنف + أزرار الترتيب ── */}
+                  {/* رأس البطاقة */}
                   <div className="flex items-center justify-between px-4 py-3 bg-teal-50 border-b border-teal-100">
                     <div className="flex items-center gap-2.5">
-                      {/* رقم */}
                       <span className="w-7 h-7 rounded-full bg-teal-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
                         {need.number}
                       </span>
-                      {/* اسم الصنف */}
                       <p className="text-sm font-bold text-teal-900 leading-tight">
                         {need.category}
                       </p>
                     </div>
-
-                    {/* أزرار الترتيب — أدمن فقط */}
                     {isAdmin && (
                       <div className="flex items-center gap-1 shrink-0">
                         <button
@@ -424,9 +500,7 @@ export default function MedicalNeedsPage() {
                               ? 'border-gray-100 text-gray-200 cursor-not-allowed'
                               : 'border-teal-200 text-teal-600 hover:bg-teal-100'
                             }`}
-                        >
-                          ↑
-                        </button>
+                        >↑</button>
                         <button
                           onClick={() => moveNeed(index, 'down')}
                           disabled={index === needs.length - 1 || reordering}
@@ -435,40 +509,22 @@ export default function MedicalNeedsPage() {
                               ? 'border-gray-100 text-gray-200 cursor-not-allowed'
                               : 'border-teal-200 text-teal-600 hover:bg-teal-100'
                             }`}
-                        >
-                          ↓
-                        </button>
+                        >↓</button>
                       </div>
                     )}
                   </div>
 
-                  {/* ── جسم البطاقة: الوصف + العدد ── */}
+                  {/* جسم البطاقة */}
                   <div className="px-4 py-3 space-y-2.5">
-
-                    {/* الوصف */}
                     <div>
-                      <p className="text-xs font-bold text-gray-800 mb-1">
-                        الوصف
-                      </p>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        {need.description}
-                      </p>
+                      <p className="text-xs font-bold text-gray-800 mb-1">الوصف</p>
+                      <p className="text-sm text-gray-700 leading-relaxed">{need.description}</p>
                     </div>
-
-                    {/* فاصل */}
                     <div className="border-t border-gray-100" />
-
-                    {/* العدد */}
                     <div>
-                      <p className="text-xs font-bold text-gray-800 mb-1">
-                        العدد المطلوب
-                      </p>
-                      <p className="text-sm font-bold text-gray-900">
-                        {need.quantity}
-                      </p>
+                      <p className="text-xs font-bold text-gray-800 mb-1">العدد المطلوب</p>
+                      <p className="text-sm font-bold text-gray-900">{need.quantity}</p>
                     </div>
-
-                    {/* أزرار تعديل / حذف — أدمن فقط */}
                     {isAdmin && (
                       <div className="flex gap-3 justify-end pt-1 border-t border-gray-50">
                         <button
@@ -490,7 +546,7 @@ export default function MedicalNeedsPage() {
               ))}
             </div>
 
-            {/* ── ملخص ── */}
+            {/* ملخص */}
             <div className="bg-teal-700 rounded-2xl px-4 py-3 mt-4 flex items-center justify-between">
               <p className="text-white/80 text-xs font-medium">إجمالي الحوجات الطبية</p>
               <span className="bg-white text-teal-700 text-sm font-extrabold px-3 py-1 rounded-full">
