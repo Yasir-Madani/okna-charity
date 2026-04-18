@@ -115,7 +115,7 @@ export default function ContactPage() {
           <div className="bg-white rounded-[18px] overflow-hidden shadow-sm border border-black/[0.06]">
             {/* Card Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-[#f9f9f7] border-b border-black/[0.06]">
-              <span className="text-[13px] font-semibold text-gray-500">الحسابات المتاحة</span>
+              <span className="text-[13px] font-semibold text-gray-900">الحسابات المتاحة</span>
               <button
                 onClick={openAdd}
                 className="flex items-center gap-1.5 bg-[#eaf6f1] text-[#0d7a60] text-xs font-bold px-3 py-1.5 rounded-[10px] hover:bg-[#d4ede5] transition-colors cursor-pointer"
@@ -140,7 +140,7 @@ export default function ContactPage() {
                   {/* Info */}
                   <div className="flex-1 text-right min-w-0">
                     <p className="text-[13px] font-bold text-gray-900 truncate">{acc.accountName}</p>
-                    <p className="text-[11px] text-gray-500 mt-0.5">{acc.bankName}</p>
+                    <p className="text-[11px] text-gray-900 mt-0.5">{acc.bankName}</p>
                     <p className="text-[12px] text-[#0d7a60] font-semibold mt-1 tracking-wide" dir="ltr" style={{ textAlign: 'right' }}>{acc.accountNumber}</p>
                   </div>
                   {/* Actions */}
