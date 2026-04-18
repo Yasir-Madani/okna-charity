@@ -447,7 +447,7 @@ export default function MedicalNeedsPage() {
 
                     {/* الوصف */}
                     <div>
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                      <p className="text-xs font-bold text-gray-800 mb-1">
                         الوصف
                       </p>
                       <p className="text-sm text-gray-700 leading-relaxed">
@@ -456,16 +456,16 @@ export default function MedicalNeedsPage() {
                     </div>
 
                     {/* فاصل */}
-                    <div className="border-t border-gray-50" />
+                    <div className="border-t border-gray-100" />
 
                     {/* العدد */}
-                    <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                    <div>
+                      <p className="text-xs font-bold text-gray-800 mb-1">
                         العدد المطلوب
                       </p>
-                      <span className="bg-teal-50 text-teal-700 text-sm font-bold px-3 py-1 rounded-lg border border-teal-100">
+                      <p className="text-sm font-bold text-gray-900">
                         {need.quantity}
-                      </span>
+                      </p>
                     </div>
 
                     {/* أزرار تعديل / حذف — أدمن فقط */}
