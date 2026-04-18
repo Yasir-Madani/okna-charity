@@ -190,7 +190,7 @@ export default function MembersPage() {
 
         .mem-back-btn {
           background: transparent;
-          border: 1px solid rgba(184,149,42,0.3);
+          border: 1px solid rgba(229, 210, 154, 0.3);
           color: #ffffff;
           padding: 6px 14px;
           border-radius: 6px;
