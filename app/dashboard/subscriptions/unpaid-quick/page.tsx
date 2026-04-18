@@ -105,12 +105,14 @@ export default function UnpaidQuickPage() {
   const sectors = useMemo(() => ['الكل', ...Array.from(new Set(allHouses.map(h => h.sector)))], [allHouses])
 
   const unpaidHouses = useMemo(() =>
-    allHouses.filter(h => {
-      if (paidIds.has(h.id)) return false
-      if (filterSector !== 'الكل' && h.sector !== filterSector) return false
-      if (search.trim() && !h.name.includes(search.trim()) && !String(h.house_number).includes(search.trim())) return false
-      return true
-    }),
+    allHouses
+      .filter(h => {
+        if (paidIds.has(h.id)) return false
+        if (filterSector !== 'الكل' && h.sector !== filterSector) return false
+        if (search.trim() && !h.name.includes(search.trim()) && !String(h.house_number).includes(search.trim())) return false
+        return true
+      })
+      .sort((a, b) => a.house_number - b.house_number),
     [allHouses, paidIds, filterSector, search]
   )
 
