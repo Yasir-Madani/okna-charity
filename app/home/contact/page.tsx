@@ -122,7 +122,7 @@ export default function ContactPage() {
               </div>
               <div className="flex-1 text-right">
                 <p className="text-white text-[15px] font-bold">واتساب</p>
-                <p className="text-white/75 text-xs mt-0.5">تواصل سريع ومباشر — ابدأ محادثة الآن مع الجمعية</p>
+                <p className="text-white/75 text-xs mt-0.5"> ابدأ محادثة الآن مع الجمعية</p>
               </div>
               <span className="text-white/50 text-lg">←</span>
             </div>
@@ -138,7 +138,7 @@ export default function ContactPage() {
   style={{ fontSize: '11px', color: '#8b0000' }} 
   className="font-bold"
 >
-  فضلاً أرسل صورة الإشعار والتعليق عبر أيقونة الواتساب أدناه
+ يرسل الإشعار مع التعليق عبر واتساب أدناه
 </span>
 
           </div>
@@ -272,7 +272,7 @@ export default function ContactPage() {
       </div>
 
       <footer className="text-center pb-6">
-        <p className="text-xs text-gray-400">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
+        <p className="text-xs text-black-500">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </footer>
 
       {/* Add / Edit Modal */}

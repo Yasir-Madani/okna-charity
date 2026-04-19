@@ -85,11 +85,11 @@ export default function AssetsPage() {
       <div className="bg-orange-700 text-white sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
           <button
-              onClick={() => router.push('/home')}
-              className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
-            >
-              رجوع
-            </button>
+            onClick={() => router.push('/home')}
+            className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
+          >
+            رجوع
+          </button>
           <h1 className="text-base font-semibold tracking-wide">ممتلكات الجمعية</h1>
           <div className="w-12" />
         </div>
@@ -200,7 +200,6 @@ export default function AssetsPage() {
                 key={asset.id}
                 className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3"
               >
-                {/* Name & Notes */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 truncate">{asset.name}</p>
                   {asset.notes && (
@@ -208,17 +207,14 @@ export default function AssetsPage() {
                   )}
                 </div>
 
-                {/* Divider */}
                 <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
 
-                {/* Quantity */}
                 <div className="text-center flex-shrink-0 min-w-[40px]">
                   <p className="text-lg font-bold text-orange-700 leading-tight">
                     {asset.quantity.toLocaleString('ar-EG')}
                   </p>
                 </div>
 
-                {/* Admin Actions */}
                 {isAdmin && (
                   <>
                     <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
@@ -240,28 +236,6 @@ export default function AssetsPage() {
                 )}
               </div>
             ))}
-          </div>
-        )}
-
-        {/* ── Summary — محاذي لعمود العدد ── */}
-        {assets.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-900">إجمالي الممتلكات</p>
-              <p className="text-xs text-gray-900 mt-0.5">{assets.length} صنف مسجل</p>
-            </div>
-            <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-            <div className="text-center flex-shrink-0 min-w-[40px]">
-              <p className="text-2xl font-bold text-orange-700 leading-tight">
-                {assets.reduce((sum, a) => sum + a.quantity, 0).toLocaleString('ar-EG')}
-              </p>
-            </div>
-            {isAdmin && (
-              <>
-                <div className="w-px h-8 bg-transparent flex-shrink-0" />
-                <div className="flex-shrink-0 w-[72px]" />
-              </>
-            )}
           </div>
         )}
 
