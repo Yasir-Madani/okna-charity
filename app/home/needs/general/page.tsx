@@ -28,7 +28,10 @@ export default function GeneralNeedsPage() {
       .single()
     if (visData) setIsVisible(visData.is_visible)
 
-    const { data } = await supabase.from('general_stats').select('*').order('name')
+    const { data } = await supabase
+      .from('general_stats')
+      .select('*')
+      .order('sort_order', { ascending: true })
     if (data) setStats(data)
     setLoading(false)
   }
@@ -68,17 +71,22 @@ export default function GeneralNeedsPage() {
       return
     }
 
-    const payload = {
-      name: form.name.trim(),
-      quantity: Number(form.quantity),
-      notes: form.notes || null,
-      created_by: user.id
-    }
-
     if (editing) {
-      await supabase.from('general_stats').update(payload).eq('id', editing.id)
+      await supabase.from('general_stats').update({
+        name: form.name.trim(),
+        quantity: Number(form.quantity),
+        notes: form.notes || null,
+      }).eq('id', editing.id)
     } else {
-      await supabase.from('general_stats').insert(payload)
+      // العنصر الجديد يأخذ آخر رقم ترتيب + 1
+      const maxOrder = stats.length > 0 ? Math.max(...stats.map(s => s.sort_order ?? 0)) : 0
+      await supabase.from('general_stats').insert({
+        name: form.name.trim(),
+        quantity: Number(form.quantity),
+        notes: form.notes || null,
+        created_by: user.id,
+        sort_order: maxOrder + 1,
+      })
     }
 
     resetForm()
@@ -96,6 +104,25 @@ export default function GeneralNeedsPage() {
     if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return
     await supabase.from('general_stats').delete().eq('id', id)
     fetchData()
+  }
+
+  const handleMove = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= stats.length) return
+
+    const current = stats[index]
+    const target = stats[targetIndex]
+
+    // تبديل sort_order بين الصفين
+    await supabase.from('general_stats').update({ sort_order: target.sort_order }).eq('id', current.id)
+    await supabase.from('general_stats').update({ sort_order: current.sort_order }).eq('id', target.id)
+
+    // تحديث فوري في الـ state بدون انتظار fetchData
+    const newStats = [...stats]
+    newStats[index] = { ...current, sort_order: target.sort_order }
+    newStats[targetIndex] = { ...target, sort_order: current.sort_order }
+    newStats.sort((a, b) => a.sort_order - b.sort_order)
+    setStats(newStats)
   }
 
   return (
@@ -258,12 +285,12 @@ export default function GeneralNeedsPage() {
               {isAdmin && (
                 <>
                   <div className="w-px flex-shrink-0" />
-                  <div className="flex-shrink-0 w-[72px]" />
+                  <div className="flex-shrink-0 w-[110px]" />
                 </>
               )}
             </div>
 
-            {stats.map(stat => (
+            {stats.map((stat, index) => (
               <div
                 key={stat.id}
                 className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3"
@@ -283,7 +310,24 @@ export default function GeneralNeedsPage() {
                 {isAdmin && (
                   <>
                     <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-                    <div className="flex items-center gap-3 flex-shrink-0 w-[72px] justify-start">
+                    <div className="flex items-center gap-2 flex-shrink-0 w-[110px] justify-start">
+                      {/* أزرار الترتيب */}
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          onClick={() => handleMove(index, 'up')}
+                          disabled={index === 0}
+                          className="text-gray-400 hover:text-rose-500 disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer leading-none transition-colors text-base"
+                        >
+                          ▲
+                        </button>
+                        <button
+                          onClick={() => handleMove(index, 'down')}
+                          disabled={index === stats.length - 1}
+                          className="text-gray-400 hover:text-rose-500 disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer leading-none transition-colors text-base"
+                        >
+                          ▼
+                        </button>
+                      </div>
                       <button
                         onClick={() => handleEdit(stat)}
                         className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
@@ -304,28 +348,7 @@ export default function GeneralNeedsPage() {
           </div>
         )}
 
-        {/* Summary - مخفي مؤقتاً
-{stats.length > 0 && (
-  <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center gap-3">
-    <div className="flex-1 min-w-0">
-      <p className="text-xs text-gray-500">إجمالي الحوجات</p>
-      <p className="text-xs text-gray-500 mt-0.5">{stats.length} صنف مسجل</p>
-    </div>
-    <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-    <div className="text-center flex-shrink-0 min-w-[40px]">
-      <p className="text-2xl font-bold text-rose-600 leading-tight">
-        {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar-EG')}
-      </p>
-    </div>
-    {isAdmin && (
-      <>
-        <div className="w-px h-8 bg-transparent flex-shrink-0" />
-        <div className="flex-shrink-0 w-[72px]" />
-      </>
-    )}
-  </div>
-)}
-*/}        <p className="text-center text-black-500 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
+        <p className="text-center text-black-500 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </div>
     </div>
   )
