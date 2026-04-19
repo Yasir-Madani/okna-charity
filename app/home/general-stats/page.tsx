@@ -111,6 +111,13 @@ export default function GeneralStatsPage() {
           >
             ← رجوع
           </button>
+
+
+               <div className="ov-header-title" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '13px', whiteSpace: 'nowrap', marginTop: '15px' }}>
+              تنويه: البيانات قيد الحصر والإدخال
+            </div>
+
+            
           <h1 className="text-base font-semibold tracking-wide">إحصائيات عامة</h1>
           <div className="w-12" />
         </div>
