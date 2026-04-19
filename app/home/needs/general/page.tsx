@@ -208,7 +208,7 @@ export default function GeneralNeedsPage() {
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-500 block mb-1">ملاحظات</label>
+                <label className="text-xs text-black-500 block mb-1">ملاحظات</label>
                 <input
                   value={form.notes}
                   onChange={e => setForm({ ...form, notes: e.target.value })}
@@ -249,11 +249,11 @@ export default function GeneralNeedsPage() {
             {/* ── شريط العنوان ── */}
             <div className="flex items-center gap-3 px-4 py-1">
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-gray-400">الصنف</p>
+                <p className="text-xs font-semibold text-black-500">الصنف</p>
               </div>
               <div className="w-px flex-shrink-0" />
               <div className="text-center flex-shrink-0 min-w-[40px]">
-                <p className="text-xs font-semibold text-gray-400">العدد</p>
+                <p className="text-xs font-semibold text-balck-500">العدد</p>
               </div>
               {isAdmin && (
                 <>
@@ -308,11 +308,11 @@ export default function GeneralNeedsPage() {
         {stats.length > 0 && (
           <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-400">إجمالي الحوجات</p>
-              <p className="text-xs text-gray-300 mt-0.5">{stats.length} صنف مسجل</p>
+              <p className="text-xs text-black-500">إجمالي الحوجات</p>
+              <p className="text-xs text-black-500 mt-0.5">{stats.length} صنف مسجل</p>
             </div>
             <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-            <div className="text-center flex-shrink-0 min-w-[40px]">
+            <div className="text-center flex-shrink-0 min-w-[20px]">
               <p className="text-2xl font-bold text-rose-600 leading-tight">
                 {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar-EG')}
               </p>

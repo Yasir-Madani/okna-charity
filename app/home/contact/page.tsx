@@ -138,7 +138,7 @@ export default function ContactPage() {
   style={{ fontSize: '11px', color: '#8b0000' }} 
   className="font-bold"
 >
-  أرسل صورة الإشعار والتعليق عبر أيقونة الواتساب أدناه
+  فضلاً أرسل صورة الإشعار والتعليق عبر أيقونة الواتساب أدناه
 </span>
 
           </div>
