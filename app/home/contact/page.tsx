@@ -1,72 +1,81 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { supabase } from '../../lib/supabase'
 
 type BankAccount = {
   id: number
-  accountNumber: string
-  bankName: string
-  accountName: string
+  account_number: string
+  bank_name: string
+  account_name: string
+  notice_number: string | null
 }
 
 export default function ContactPage() {
   const router = useRouter()
 
   const [accounts, setAccounts] = useState<BankAccount[]>([])
-  const [nextId, setNextId] = useState(1)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [form, setForm] = useState({ accountNumber: '', bankName: '', accountName: '' })
+  const [form, setForm] = useState({ account_number: '', bank_name: '', account_name: '', notice_number: '' })
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
-  const [hydrated, setHydrated] = useState(false)
-
-  useEffect(() => {
-    const savedAccounts = localStorage.getItem('bankAccounts')
-    const savedNextId = localStorage.getItem('bankAccountsNextId')
-    if (savedAccounts) setAccounts(JSON.parse(savedAccounts))
-    if (savedNextId) setNextId(JSON.parse(savedNextId))
-    setHydrated(true)
-  }, [])
-
-  useEffect(() => {
-    if (!hydrated) return
-    localStorage.setItem('bankAccounts', JSON.stringify(accounts))
-  }, [accounts, hydrated])
-
-  useEffect(() => {
-    if (!hydrated) return
-    localStorage.setItem('bankAccountsNextId', JSON.stringify(nextId))
-  }, [nextId, hydrated])
+  const [saving, setSaving] = useState(false)
 
   const whatsappNumber = '249912213182'
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=السلام عليكم، أود التواصل مع جمعية العكنة الخيرية`
 
+  useEffect(() => { fetchData() }, [])
+
+  const fetchData = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    setIsAdmin(!!user)
+    const { data } = await supabase.from('bank_accounts').select('*').order('id')
+    if (data) setAccounts(data)
+    setLoading(false)
+  }
+
   const openAdd = () => {
     setEditingId(null)
-    setForm({ accountNumber: '', bankName: '', accountName: '' })
+    setForm({ account_number: '', bank_name: '', account_name: '', notice_number: '' })
     setModalOpen(true)
   }
 
   const openEdit = (acc: BankAccount) => {
     setEditingId(acc.id)
-    setForm({ accountNumber: acc.accountNumber, bankName: acc.bankName, accountName: acc.accountName })
+    setForm({
+      account_number: acc.account_number,
+      bank_name: acc.bank_name,
+      account_name: acc.account_name,
+      notice_number: acc.notice_number || ''
+    })
     setModalOpen(true)
   }
 
-  const saveAccount = () => {
-    if (!form.accountNumber.trim() || !form.bankName.trim() || !form.accountName.trim()) return
-    if (editingId !== null) {
-      setAccounts(prev => prev.map(a => a.id === editingId ? { ...a, ...form } : a))
-    } else {
-      setAccounts(prev => [...prev, { id: nextId, ...form }])
-      setNextId(n => n + 1)
+  const saveAccount = async () => {
+    if (!form.account_number.trim() || !form.bank_name.trim() || !form.account_name.trim()) return
+    setSaving(true)
+    const payload = {
+      account_number: form.account_number.trim(),
+      bank_name: form.bank_name.trim(),
+      account_name: form.account_name.trim(),
+      notice_number: form.notice_number.trim() || null,
     }
+    if (editingId !== null) {
+      await supabase.from('bank_accounts').update(payload).eq('id', editingId)
+    } else {
+      await supabase.from('bank_accounts').insert(payload)
+    }
+    setSaving(false)
     setModalOpen(false)
+    fetchData()
   }
 
-  const deleteAccount = (id: number) => {
-    setAccounts(prev => prev.filter(a => a.id !== id))
+  const deleteAccount = async (id: number) => {
+    await supabase.from('bank_accounts').delete().eq('id', id)
     setDeleteConfirmId(null)
+    fetchData()
   }
 
   return (
@@ -130,55 +139,103 @@ export default function ContactPage() {
             {/* Card Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-[#f9f9f7] border-b border-black/[0.06]">
               <span className="text-[13px] font-semibold text-gray-900">الحسابات المتاحة</span>
-              <button
-                onClick={openAdd}
-                className="flex items-center gap-1.5 bg-[#eaf6f1] text-[#0d7a60] text-xs font-bold px-3 py-1.5 rounded-[10px] hover:bg-[#d4ede5] transition-colors cursor-pointer"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="w-3.5 h-3.5">
-                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-                إضافة حساب
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={openAdd}
+                  className="flex items-center gap-1.5 bg-[#eaf6f1] text-[#0d7a60] text-xs font-bold px-3 py-1.5 rounded-[10px] hover:bg-[#d4ede5] transition-colors cursor-pointer"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="w-3.5 h-3.5">
+                    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  إضافة حساب
+                </button>
+              )}
             </div>
 
-            {/* Account Rows */}
-            {!hydrated ? (
+            {/* Account Cards */}
+            {loading ? (
               <div className="py-8 text-center text-sm text-gray-400">جاري التحميل...</div>
             ) : accounts.length === 0 ? (
               <div className="py-8 text-center text-sm text-gray-400">لا توجد حسابات مضافة بعد</div>
             ) : (
               accounts.map((acc, i) => (
-                <div key={acc.id} className={`flex items-start gap-3 px-4 py-3.5 ${i < accounts.length - 1 ? 'border-b border-black/[0.06]' : ''} hover:bg-[#fafaf8] transition-colors`}>
-                  {/* Sequence badge */}
-                  <div className="w-7 h-7 bg-[#eaf6f1] text-[#0d7a60] rounded-[8px] flex items-center justify-center text-[12px] font-bold shrink-0 mt-0.5">
-                    {i + 1}
-                  </div>
-                  {/* Info */}
-                  <div className="flex-1 text-right min-w-0">
-                    <p className="text-[13px] font-bold text-gray-900 truncate">{acc.accountName}</p>
-                    <p className="text-[11px] text-gray-900 mt-0.5">{acc.bankName}</p>
-                    <p className="text-[12px] text-[#0d7a60] font-semibold mt-1 tracking-wide" dir="ltr" style={{ textAlign: 'right' }}>{acc.accountNumber}</p>
-                  </div>
-                  {/* Actions */}
-                  <div className="flex gap-1.5 shrink-0 mt-0.5">
-                    <button
-                      onClick={() => openEdit(acc)}
-                      className="w-8 h-8 bg-[#eaf6f1] rounded-[9px] flex items-center justify-center hover:bg-[#d4ede5] transition-colors cursor-pointer"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="#0d7a60" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setDeleteConfirmId(acc.id)}
-                      className="w-8 h-8 bg-[#fdecea] rounded-[9px] flex items-center justify-center hover:bg-[#fcd5d2] transition-colors cursor-pointer"
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="#d63031" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                        <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                        <path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
-                      </svg>
-                    </button>
+                <div key={acc.id} className={`px-4 py-4 ${i < accounts.length - 1 ? 'border-b border-black/[0.06]' : ''}`}>
+                  <div className="flex items-start gap-3">
+                    {/* Sequence badge */}
+                    <div className="w-7 h-7 bg-[#eaf6f1] text-[#0d7a60] rounded-[8px] flex items-center justify-center text-[12px] font-bold shrink-0 mt-0.5">
+                      {i + 1}
+                    </div>
+
+                    {/* Info - label : value format */}
+                    <div className="flex-1 min-w-0">
+                      {/* Each row: label and value aligned */}
+                      <table className="w-full text-right" style={{ borderCollapse: 'collapse' }}>
+                        <tbody>
+                          <tr>
+                            <td className="text-[12px] text-gray-500 font-semibold pb-1 whitespace-nowrap" style={{ width: '1%' }}>الاسم</td>
+                            <td className="text-[12px] text-gray-400 pb-1 px-1">:</td>
+                            <td className="text-[13px] font-bold text-gray-900 pb-1">{acc.account_name}</td>
+                          </tr>
+                          <tr>
+                            <td className="text-[12px] text-gray-500 font-semibold pb-1 whitespace-nowrap">البنك</td>
+                            <td className="text-[12px] text-gray-400 pb-1 px-1">:</td>
+                            <td className="text-[12px] text-gray-700 pb-1">{acc.bank_name}</td>
+                          </tr>
+                          <tr>
+                            <td className="text-[12px] text-gray-500 font-semibold pb-1 whitespace-nowrap">رقم الحساب</td>
+                            <td className="text-[12px] text-gray-400 pb-1 px-1">:</td>
+                            <td className="text-[12px] font-semibold text-[#0d7a60] pb-1 tracking-wide" dir="ltr" style={{ textAlign: 'right' }}>{acc.account_number}</td>
+                          </tr>
+                          {acc.notice_number && (
+                            <tr>
+                              <td className="text-[12px] text-gray-500 font-semibold whitespace-nowrap">رقم الإشعار</td>
+                              <td className="text-[12px] text-gray-400 px-1">:</td>
+                              <td className="text-[12px] font-semibold text-gray-800">
+                                <div className="flex items-center gap-2">
+                                  <span dir="ltr">{acc.notice_number}</span>
+                                  <a
+                                    href={`https://wa.me/${acc.notice_number.replace(/\D/g, '')}?text=السلام عليكم`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center bg-[#25d366] rounded-[7px] p-1.5 hover:bg-[#1fb855] transition-colors shrink-0"
+                                    title="فتح محادثة واتساب"
+                                  >
+                                    <svg viewBox="0 0 24 24" fill="white" className="w-3.5 h-3.5">
+                                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                                      <path d="M11.99 2C6.469 2 2 6.468 2 12c0 1.99.517 3.857 1.426 5.479L2.05 22l4.637-1.358A9.945 9.945 0 0 0 11.99 22c5.522 0 9.99-4.468 9.99-9.99C21.98 6.468 17.512 2 11.99 2z" />
+                                    </svg>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Admin Actions */}
+                    {isAdmin && (
+                      <div className="flex gap-1.5 shrink-0 mt-0.5">
+                        <button
+                          onClick={() => openEdit(acc)}
+                          className="w-8 h-8 bg-[#eaf6f1] rounded-[9px] flex items-center justify-center hover:bg-[#d4ede5] transition-colors cursor-pointer"
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="#0d7a60" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(acc.id)}
+                          className="w-8 h-8 bg-[#fdecea] rounded-[9px] flex items-center justify-center hover:bg-[#fcd5d2] transition-colors cursor-pointer"
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="#d63031" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                            <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -226,28 +283,40 @@ export default function ContactPage() {
               {editingId !== null ? 'تعديل الحساب' : 'إضافة حساب بنكي'}
             </h2>
 
+            <label className="block text-[12px] font-semibold text-gray-500 mb-1">الاسم</label>
+            <input
+              className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm mb-3 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
+              style={{ fontFamily: "'Cairo', sans-serif" }}
+              placeholder="الاسم المسجل للحساب"
+              value={form.account_name}
+              onChange={e => setForm(f => ({ ...f, account_name: e.target.value }))}
+            />
+
+            <label className="block text-[12px] font-semibold text-gray-500 mb-1">البنك</label>
+            <input
+              className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm mb-3 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
+              style={{ fontFamily: "'Cairo', sans-serif" }}
+              placeholder="مثال: بنك الخرطوم"
+              value={form.bank_name}
+              onChange={e => setForm(f => ({ ...f, bank_name: e.target.value }))}
+            />
+
             <label className="block text-[12px] font-semibold text-gray-500 mb-1">رقم الحساب</label>
             <input
-              className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm font-cairo mb-3 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
+              className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm mb-3 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
+              style={{ fontFamily: "'Cairo', sans-serif" }}
               placeholder="أدخل رقم الحساب"
-              value={form.accountNumber}
-              onChange={e => setForm(f => ({ ...f, accountNumber: e.target.value }))}
+              value={form.account_number}
+              onChange={e => setForm(f => ({ ...f, account_number: e.target.value }))}
             />
 
-            <label className="block text-[12px] font-semibold text-gray-500 mb-1">اسم البنك</label>
+            <label className="block text-[12px] font-semibold text-gray-500 mb-1">رقم الإشعار <span className="text-gray-400 font-normal">(اختياري)</span></label>
             <input
-              className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm font-cairo mb-3 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
-              placeholder="مثال: بنك الجمهورية"
-              value={form.bankName}
-              onChange={e => setForm(f => ({ ...f, bankName: e.target.value }))}
-            />
-
-            <label className="block text-[12px] font-semibold text-gray-500 mb-1">اسم الحساب</label>
-            <input
-              className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm font-cairo mb-5 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
-              placeholder="الاسم المسجل للحساب"
-              value={form.accountName}
-              onChange={e => setForm(f => ({ ...f, accountName: e.target.value }))}
+              className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm mb-5 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
+              style={{ fontFamily: "'Cairo', sans-serif" }}
+              placeholder="رقم واتساب للإشعار"
+              value={form.notice_number}
+              onChange={e => setForm(f => ({ ...f, notice_number: e.target.value }))}
             />
 
             <div className="flex gap-2.5">
@@ -259,10 +328,11 @@ export default function ContactPage() {
               </button>
               <button
                 onClick={saveAccount}
-                className="flex-1 text-white text-sm font-bold py-3 rounded-[13px] cursor-pointer transition-colors"
+                disabled={saving}
+                className="flex-1 text-white text-sm font-bold py-3 rounded-[13px] cursor-pointer transition-colors disabled:opacity-60"
                 style={{ background: '#0d7a60' }}
               >
-                حفظ
+                {saving ? 'جاري الحفظ...' : 'حفظ'}
               </button>
             </div>
           </div>
