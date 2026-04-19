@@ -279,7 +279,7 @@ export default function PublicDashboard() {
         ) : (
           <>
             {/* ── Section: General Stats ── */}
-            <SectionLabel>إحصاءات عامة-تنويه البيانات قيد الحصر والإدخال</SectionLabel>
+            <SectionLabel>إحصاءات عامة:  تنويه البيانات قيد الحصر والإدخال</SectionLabel>
             <div style={gridStyle(3)}>
               <StatCard value={stats.totalIndividuals} label="إجمالي الأفراد" accent="#185FA5" />
               <StatCard value={stats.totalHouses} label="إجمالي المنازل" accent="#3B6D11" />
