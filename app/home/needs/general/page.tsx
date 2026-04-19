@@ -304,29 +304,28 @@ export default function GeneralNeedsPage() {
           </div>
         )}
 
-        {/* Summary */}
-        {stats.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4">
-            <p className="text-xs text-gray-500">إجمالي الحوجات</p>
-            <p className="text-xs text-gray-500 mt-0.5">{stats.length} صنف مسجل</p>
-            {/*
-            <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-            <div className="text-center flex-shrink-0 min-w-[40px]">
-              <p className="text-2xl font-bold text-rose-600 leading-tight">
-                {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar-EG')}
-              </p>
-            </div>
-            */}
-            {isAdmin && (
-              <>
-                <div className="w-px h-8 bg-transparent flex-shrink-0" />
-                <div className="flex-shrink-0 w-[72px]" />
-              </>
-            )}
-          </div>
-        )}
-
-        <p className="text-center text-gray-300 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
+        {/* Summary - مخفي مؤقتاً
+{stats.length > 0 && (
+  <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center gap-3">
+    <div className="flex-1 min-w-0">
+      <p className="text-xs text-gray-500">إجمالي الحوجات</p>
+      <p className="text-xs text-gray-500 mt-0.5">{stats.length} صنف مسجل</p>
+    </div>
+    <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
+    <div className="text-center flex-shrink-0 min-w-[40px]">
+      <p className="text-2xl font-bold text-rose-600 leading-tight">
+        {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar-EG')}
+      </p>
+    </div>
+    {isAdmin && (
+      <>
+        <div className="w-px h-8 bg-transparent flex-shrink-0" />
+        <div className="flex-shrink-0 w-[72px]" />
+      </>
+    )}
+  </div>
+)}
+*/}        <p className="text-center text-gray-300 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </div>
     </div>
   )
