@@ -106,11 +106,11 @@ export default function GeneralNeedsPage() {
       <div className="bg-rose-600 text-white sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
           <button
-              onClick={() => router.push('/home/needs')}
-              className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
-            >
-              رجوع
-            </button>
+            onClick={() => router.push('/home/needs')}
+            className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
+          >
+            رجوع
+          </button>
           <h1 className="text-base font-semibold tracking-wide">الحوجات العامة</h1>
           <div className="w-12" />
         </div>
@@ -208,7 +208,7 @@ export default function GeneralNeedsPage() {
                 />
               </div>
               <div>
-                <label className="text-xs text-black-500 block mb-1">ملاحظات</label>
+                <label className="text-xs text-gray-500 block mb-1">ملاحظات</label>
                 <input
                   value={form.notes}
                   onChange={e => setForm({ ...form, notes: e.target.value })}
@@ -246,14 +246,14 @@ export default function GeneralNeedsPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {/* ── شريط العنوان ── */}
+            {/* شريط العنوان */}
             <div className="flex items-center gap-3 px-4 py-1">
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-black-500">الصنف</p>
+                <p className="text-xs font-semibold text-gray-500">الصنف</p>
               </div>
               <div className="w-px flex-shrink-0" />
               <div className="text-center flex-shrink-0 min-w-[40px]">
-                <p className="text-xs font-semibold text-balck-500">العدد</p>
+                <p className="text-xs font-semibold text-gray-500">العدد</p>
               </div>
               {isAdmin && (
                 <>
@@ -306,14 +306,12 @@ export default function GeneralNeedsPage() {
 
         {/* Summary */}
         {stats.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-black-500">إجمالي الحوجات</p>
-              <p className="text-xs text-black-500 mt-0.5">{stats.length} صنف مسجل</p>
-            </div>
+          <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4">
+            <p className="text-xs text-gray-500">إجمالي الحوجات</p>
+            <p className="text-xs text-gray-500 mt-0.5">{stats.length} صنف مسجل</p>
             {/*
             <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-            <div className="text-center flex-shrink-0 min-w-[20px]">
+            <div className="text-center flex-shrink-0 min-w-[40px]">
               <p className="text-2xl font-bold text-rose-600 leading-tight">
                 {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar-EG')}
               </p>
@@ -328,7 +326,7 @@ export default function GeneralNeedsPage() {
           </div>
         )}
 
-        <p className="text-center text-black-300 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
+        <p className="text-center text-gray-300 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </div>
     </div>
   )
