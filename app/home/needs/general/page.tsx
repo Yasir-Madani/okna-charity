@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
 
@@ -13,22 +13,9 @@ export default function GeneralNeedsPage() {
   const [editing, setEditing] = useState<any>(null)
   const [form, setForm] = useState({ name: '', quantity: '', notes: '' })
   const [duplicateError, setDuplicateError] = useState('')
-  const [reordering, setReordering] = useState(false)
-  const [savedScrollY, setSavedScrollY] = useState(0)
-  const [highlightId, setHighlightId] = useState<string | null>(null)
-  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({})
   const router = useRouter()
 
   useEffect(() => { fetchData() }, [])
-
-  useEffect(() => {
-    if (!loading && highlightId && cardRefs.current[highlightId]) {
-      setTimeout(() => {
-        cardRefs.current[highlightId]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        setTimeout(() => setHighlightId(null), 2000)
-      }, 100)
-    }
-  }, [loading, highlightId])
 
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -41,10 +28,7 @@ export default function GeneralNeedsPage() {
       .single()
     if (visData) setIsVisible(visData.is_visible)
 
-    const { data } = await supabase
-      .from('general_stats')
-      .select('*')
-      .order('number', { ascending: true })
+    const { data } = await supabase.from('general_stats').select('*').order('name')
     if (data) setStats(data)
     setLoading(false)
   }
@@ -60,56 +44,11 @@ export default function GeneralNeedsPage() {
     setTogglingVisibility(false)
   }
 
-  const moveStat = async (index: number, direction: 'up' | 'down') => {
-    const newStats = [...stats]
-    const swapIndex = direction === 'up' ? index - 1 : index + 1
-    if (swapIndex < 0 || swapIndex >= newStats.length) return
-
-    ;[newStats[index], newStats[swapIndex]] = [newStats[swapIndex], newStats[index]]
-    const renumbered = newStats.map((item, i) => ({ ...item, number: i + 1 }))
-    setStats(renumbered)
-
-    setReordering(true)
-    await Promise.all(
-      renumbered.map(n =>
-        supabase.from('general_stats').update({ number: n.number }).eq('id', n.id)
-      )
-    )
-    setReordering(false)
-  }
-
-  const reorderNumbers = async (items: any[]) => {
-    for (let i = 0; i < items.length; i++) {
-      await supabase.from('general_stats').update({ number: i + 1 }).eq('id', items[i].id)
-    }
-  }
-
-  const openAddForm = () => {
-    setSavedScrollY(window.scrollY)
+  const resetForm = () => {
     setForm({ name: '', quantity: '', notes: '' })
     setEditing(null)
-    setShowForm(true)
-    setDuplicateError('')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const handleEdit = (stat: any) => {
-    setSavedScrollY(window.scrollY)
-    setForm({ name: stat.name, quantity: stat.quantity.toString(), notes: stat.notes || '' })
-    setEditing(stat)
-    setShowForm(true)
-    setDuplicateError('')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const handleCancel = () => {
     setShowForm(false)
-    setEditing(null)
-    setForm({ name: '', quantity: '', notes: '' })
     setDuplicateError('')
-    setTimeout(() => {
-      window.scrollTo({ top: savedScrollY, behavior: 'smooth' })
-    }, 50)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,8 +68,6 @@ export default function GeneralNeedsPage() {
       return
     }
 
-    let savedId: string | null = null
-
     const payload = {
       name: form.name.trim(),
       quantity: Number(form.quantity),
@@ -140,117 +77,30 @@ export default function GeneralNeedsPage() {
 
     if (editing) {
       await supabase.from('general_stats').update(payload).eq('id', editing.id)
-      savedId = editing.id
     } else {
-      const nextNumber = stats.length + 1
-      const { data: inserted } = await supabase
-        .from('general_stats')
-        .insert({ ...payload, number: nextNumber })
-        .select()
-        .single()
-      if (inserted) savedId = inserted.id
+      await supabase.from('general_stats').insert(payload)
     }
 
-    setShowForm(false)
-    setEditing(null)
-    setForm({ name: '', quantity: '', notes: '' })
+    resetForm()
+    fetchData()
+  }
+
+  const handleEdit = (stat: any) => {
+    setForm({ name: stat.name, quantity: stat.quantity.toString(), notes: stat.notes || '' })
+    setEditing(stat)
+    setShowForm(true)
     setDuplicateError('')
-    if (savedId) setHighlightId(savedId)
-    await fetchData()
   }
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return
     await supabase.from('general_stats').delete().eq('id', id)
-    const remaining = stats.filter(s => s.id !== id)
-    await reorderNumbers(remaining)
     fetchData()
   }
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl" style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-      {/* ══ شاشة النموذج الكاملة ══ */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto" dir="rtl">
-          <div className="bg-rose-600 text-white sticky top-0 z-10">
-            <div className="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="bg-white/15 border border-white/20 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-white/25 transition-all cursor-pointer"
-              >
-                إلغاء
-              </button>
-              <h1 className="text-base font-semibold tracking-wide">
-                {editing ? 'تعديل الحوجة' : 'إضافة حوجة'}
-              </h1>
-              <div className="w-16" />
-            </div>
-          </div>
-
-          <div className="max-w-lg mx-auto px-4 py-6">
-            {editing && (
-              <div className="bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3 mb-5 flex items-center gap-3">
-                <div>
-                  <p className="text-xs text-rose-500 font-medium">تعديل الحوجة</p>
-                  <p className="text-sm font-bold text-rose-900">{editing.name}</p>
-                </div>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1.5">اسم الحوجة *</label>
-                  <input
-                    required
-                    value={form.name}
-                    onChange={e => { setForm({ ...form, name: e.target.value }); setDuplicateError('') }}
-                    className={`w-full border rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`}
-                  />
-                  {duplicateError && <p className="text-red-500 text-xs mt-1">⚠️ {duplicateError}</p>}
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1.5">العدد *</label>
-                  <input
-                    required
-                    type="number"
-                    min="0"
-                    value={form.quantity}
-                    onChange={e => setForm({ ...form, quantity: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1.5">ملاحظات</label>
-                  <textarea
-                    rows={3}
-                    value={form.notes}
-                    onChange={e => setForm({ ...form, notes: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl p-3 text-right text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 resize-none"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-rose-600 text-white py-3.5 rounded-2xl text-sm font-bold cursor-pointer hover:bg-rose-700 transition-colors shadow-sm"
-              >
-                ✓ حفظ التغييرات
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="w-full bg-white border border-gray-200 text-gray-500 py-3 rounded-2xl text-sm cursor-pointer hover:bg-gray-50 transition-colors"
-              >
-                إلغاء والعودة
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Header */}
       <div className="bg-rose-600 text-white sticky top-0 z-10">
@@ -294,7 +144,7 @@ export default function GeneralNeedsPage() {
           </div>
         )}
 
-        {/* التحكم بالرؤية */}
+        {/* التحكم بالرؤية — للأدمن فقط */}
         {isAdmin && (
           <div className="mb-4 flex items-center justify-between bg-white border border-gray-100 rounded-xl px-4 py-3">
             <div>
@@ -317,14 +167,71 @@ export default function GeneralNeedsPage() {
           </div>
         )}
 
-        {/* زر إضافة */}
+        {/* Add Button */}
         {isAdmin && (
           <button
-            onClick={openAddForm}
+            onClick={() => { resetForm(); setShowForm(!showForm) }}
             className="w-full bg-rose-600 hover:bg-rose-700 text-white rounded-xl py-3 text-sm font-semibold mb-4 transition-colors cursor-pointer"
           >
             + إضافة حوجة
           </button>
+        )}
+
+        {/* Form */}
+        {showForm && (
+          <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4 shadow-sm">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              {editing ? 'تعديل الحوجة' : 'إضافة حوجة جديدة'}
+            </h3>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">اسم الحوجة *</label>
+                <input
+                  required
+                  value={form.name}
+                  onChange={e => { setForm({ ...form, name: e.target.value }); setDuplicateError('') }}
+                  className={`w-full border rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 ${duplicateError ? 'border-red-400' : 'border-gray-200'}`}
+                />
+                {duplicateError && (
+                  <p className="text-red-500 text-xs mt-1">⚠️ {duplicateError}</p>
+                )}
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">العدد *</label>
+                <input
+                  required
+                  type="number"
+                  min="0"
+                  value={form.quantity}
+                  onChange={e => setForm({ ...form, quantity: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">ملاحظات</label>
+                <input
+                  value={form.notes}
+                  onChange={e => setForm({ ...form, notes: e.target.value })}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+                />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 bg-rose-600 text-white py-2.5 rounded-lg text-sm font-semibold cursor-pointer hover:bg-rose-700 transition-colors"
+                >
+                  حفظ
+                </button>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-lg text-sm cursor-pointer hover:bg-gray-200 transition-colors"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
+          </div>
         )}
 
         {/* Loading */}
@@ -339,87 +246,86 @@ export default function GeneralNeedsPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {stats.map((stat, index) => (
+            {/* شريط العنوان */}
+            <div className="flex items-center gap-3 px-4 py-1">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-500">الصنف</p>
+              </div>
+              <div className="w-px flex-shrink-0" />
+              <div className="text-center flex-shrink-0 min-w-[40px]">
+                <p className="text-xs font-semibold text-gray-500">العدد</p>
+              </div>
+              {isAdmin && (
+                <>
+                  <div className="w-px flex-shrink-0" />
+                  <div className="flex-shrink-0 w-[72px]" />
+                </>
+              )}
+            </div>
+
+            {stats.map(stat => (
               <div
                 key={stat.id}
-                ref={el => { cardRefs.current[stat.id] = el }}
-                className="bg-white rounded-xl border overflow-hidden transition-all duration-500"
-                style={{
-                  boxShadow: highlightId === stat.id
-                    ? '0 0 0 2px #e11d48, 0 4px 16px rgba(225,29,72,0.15)'
-                    : '0 1px 3px rgba(0,0,0,0.05)',
-                  borderColor: highlightId === stat.id ? '#e11d48' : '#f3f4f6',
-                }}
+                className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3"
               >
-                <div className="px-4 py-3 flex items-center gap-3">
-                  {/* الاسم والملاحظات */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-800">{stat.name}</p>
-                    {stat.notes && (
-                      <p className="text-xs text-gray-400 mt-0.5">{stat.notes}</p>
-                    )}
-                  </div>
-
-                  {/* العدد */}
-                  <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-                  <div className="text-center flex-shrink-0 min-w-[40px]">
-                    <p className="text-lg font-bold text-rose-600 leading-tight">
-                      {stat.quantity.toLocaleString('ar-EG')}
-                    </p>
-                  </div>
-
-                  {/* أزرار الترتيب + تعديل/حذف — أدمن فقط */}
-                  {isAdmin && (
-                    <>
-                      <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-                      {/* ترتيب */}
-                      <div className="flex flex-col gap-0.5 flex-shrink-0">
-                        <button
-                          onClick={() => moveStat(index, 'up')}
-                          disabled={index === 0 || reordering}
-                          className={`w-6 h-6 rounded border text-[10px] flex items-center justify-center transition-colors cursor-pointer
-                            ${index === 0
-                              ? 'border-gray-100 text-gray-200 cursor-not-allowed'
-                              : 'border-rose-200 text-rose-400 hover:bg-rose-50'
-                            }`}
-                        >↑</button>
-                        <button
-                          onClick={() => moveStat(index, 'down')}
-                          disabled={index === stats.length - 1 || reordering}
-                          className={`w-6 h-6 rounded border text-[10px] flex items-center justify-center transition-colors cursor-pointer
-                            ${index === stats.length - 1
-                              ? 'border-gray-100 text-gray-200 cursor-not-allowed'
-                              : 'border-rose-200 text-rose-400 hover:bg-rose-50'
-                            }`}
-                        >↓</button>
-                      </div>
-                      <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
-                      {/* تعديل / حذف */}
-                      <div className="flex flex-col gap-1 flex-shrink-0">
-                        <button
-                          onClick={() => handleEdit(stat)}
-                          className="text-[11px] text-blue-500 hover:text-blue-700 cursor-pointer transition-colors font-medium leading-tight"
-                        >
-                          تعديل
-                        </button>
-                        <button
-                          onClick={() => handleDelete(stat.id, stat.name)}
-                          className="text-[11px] text-red-400 hover:text-red-600 cursor-pointer transition-colors font-medium leading-tight"
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-800 truncate">{stat.name}</p>
+                  {stat.notes && (
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{stat.notes}</p>
                   )}
                 </div>
+                <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
+                <div className="text-center flex-shrink-0 min-w-[40px]">
+                  <p className="text-lg font-bold text-rose-600 leading-tight">
+                    {stat.quantity.toLocaleString('ar-EG')}
+                  </p>
+                </div>
+                {isAdmin && (
+                  <>
+                    <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
+                    <div className="flex items-center gap-3 flex-shrink-0 w-[72px] justify-start">
+                      <button
+                        onClick={() => handleEdit(stat)}
+                        className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        onClick={() => handleDelete(stat.id, stat.name)}
+                        className="text-xs text-red-400 hover:text-red-600 cursor-pointer transition-colors"
+                      >
+                        حذف
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
         )}
 
-        <p className="text-center text-gray-300 text-xs mt-6 pb-4">
-          جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
-        </p>
+        {/* Summary - مخفي مؤقتاً
+{stats.length > 0 && (
+  <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 mt-4 flex items-center gap-3">
+    <div className="flex-1 min-w-0">
+      <p className="text-xs text-gray-500">إجمالي الحوجات</p>
+      <p className="text-xs text-gray-500 mt-0.5">{stats.length} صنف مسجل</p>
+    </div>
+    <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
+    <div className="text-center flex-shrink-0 min-w-[40px]">
+      <p className="text-2xl font-bold text-rose-600 leading-tight">
+        {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar-EG')}
+      </p>
+    </div>
+    {isAdmin && (
+      <>
+        <div className="w-px h-8 bg-transparent flex-shrink-0" />
+        <div className="flex-shrink-0 w-[72px]" />
+      </>
+    )}
+  </div>
+)}
+*/}        <p className="text-center text-black-500 text-xs mt-6">جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية</p>
       </div>
     </div>
   )
