@@ -102,9 +102,9 @@ export default function AboutPage() {
               </div>
             ) : (
               <div>
-                <p className="text-black-700 leading-loose text-sm whitespace-pre-wrap">
-                  {content || 'لم يتم إضافة محتوى بعد.'}
-                </p>
+                <p className="text-gray-700 leading-loose text-sm whitespace-pre-wrap text-justify">
+  {content || 'لم يتم إضافة محتوى بعد.'}
+</p>
                 {isAdmin && (
                   <button onClick={() => setEditing(true)}
                     className="mt-4 w-full border border-blue-200 text-blue-600 py-2.5 rounded-xl text-sm font-bold cursor-pointer hover:bg-blue-50 transition-all">
