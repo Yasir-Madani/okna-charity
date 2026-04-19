@@ -311,12 +311,14 @@ export default function GeneralNeedsPage() {
               <p className="text-xs text-black-500">إجمالي الحوجات</p>
               <p className="text-xs text-black-500 mt-0.5">{stats.length} صنف مسجل</p>
             </div>
+            {/*
             <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
             <div className="text-center flex-shrink-0 min-w-[20px]">
               <p className="text-2xl font-bold text-rose-600 leading-tight">
                 {stats.reduce((sum, s) => sum + s.quantity, 0).toLocaleString('ar-EG')}
               </p>
             </div>
+            */}
             {isAdmin && (
               <>
                 <div className="w-px h-8 bg-transparent flex-shrink-0" />
