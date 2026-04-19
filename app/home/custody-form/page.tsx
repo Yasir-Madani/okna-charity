@@ -34,55 +34,6 @@ interface CustodyForm {
   items: CustodyItem[]
 }
 
-// ─── SQL to create tables (show to admin) ─────────────────────────────────────
-const SQL_SCHEMA = `
--- جدول نماذج الاستلام
-CREATE TABLE custody_forms (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  form_number TEXT UNIQUE NOT NULL,
-  recipient_name TEXT NOT NULL,
-  recipient_address TEXT,
-  usage_purpose TEXT,
-  usage_location TEXT,
-  phone_number TEXT,
-  receipt_date DATE NOT NULL,
-  expected_return_date DATE,
-  actual_return_date DATE,
-  security_deposit NUMERIC DEFAULT 50000,
-  status TEXT DEFAULT 'active' CHECK (status IN ('active','returned','overdue')),
-  recipient_signature_receipt TEXT,
-  recipient_signature_return TEXT,
-  officer_signature_receipt TEXT,
-  officer_signature_return TEXT,
-  created_by UUID REFERENCES auth.users(id),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- جدول تفاصيل العهدة
-CREATE TABLE custody_items (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  form_id UUID REFERENCES custody_forms(id) ON DELETE CASCADE,
-  item_number INTEGER NOT NULL,
-  item_name TEXT NOT NULL,
-  quantity INTEGER,
-  condition_at_receipt TEXT,
-  condition_at_return TEXT
-);
-
--- Row Level Security
-ALTER TABLE custody_forms ENABLE ROW LEVEL SECURITY;
-ALTER TABLE custody_items ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Public read" ON custody_forms FOR SELECT USING (true);
-CREATE POLICY "Auth insert" ON custody_forms FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
-CREATE POLICY "Auth update" ON custody_forms FOR UPDATE USING (auth.uid() IS NOT NULL);
-CREATE POLICY "Auth delete" ON custody_forms FOR DELETE USING (auth.uid() IS NOT NULL);
-
-CREATE POLICY "Public read items" ON custody_items FOR SELECT USING (true);
-CREATE POLICY "Auth insert items" ON custody_items FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
-CREATE POLICY "Auth update items" ON custody_items FOR UPDATE USING (auth.uid() IS NOT NULL);
-CREATE POLICY "Auth delete items" ON custody_items FOR DELETE USING (auth.uid() IS NOT NULL);
-`
 
 interface FormItem {
   item_number: number
@@ -153,7 +104,6 @@ export default function CustodyFormPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState<FormState>(emptyForm())
   const [saving, setSaving] = useState(false)
-  const [showSchema, setShowSchema] = useState(false)
   const [selectedForm, setSelectedForm] = useState<CustodyForm | null>(null)
   const [activeTab, setActiveTab] = useState<'list' | 'new'>('list')
 
@@ -331,22 +281,6 @@ export default function CustodyFormPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-4">
 
-        {/* Schema notice for admin */}
-        {isAdmin && (
-          <div className="mb-3">
-            <button
-              onClick={() => setShowSchema(!showSchema)}
-              className="text-xs text-gray-400 underline cursor-pointer"
-            >
-              {showSchema ? 'إخفاء' : 'عرض'} SQL لإنشاء الجداول في Supabase
-            </button>
-            {showSchema && (
-              <pre className="mt-2 bg-gray-800 text-green-400 text-xs p-4 rounded-xl overflow-x-auto leading-relaxed">
-                {SQL_SCHEMA}
-              </pre>
-            )}
-          </div>
-        )}
 
         {/* Tabs */}
         <div className="flex gap-2 mb-4">
