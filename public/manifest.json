@@ -1,6 +1,7 @@
 {
   "name": "جمعية نهضة العكنة الخيرية",
   "short_name": "جمعية العكنة",
+  "description": "",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
