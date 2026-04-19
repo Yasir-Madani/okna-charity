@@ -102,7 +102,7 @@ export default function AboutPage() {
               </div>
             ) : (
               <div>
-                <p className="text-gray-700 leading-loose text-sm whitespace-pre-wrap">
+                <p className="text-black-700 leading-loose text-sm whitespace-pre-wrap">
                   {content || 'لم يتم إضافة محتوى بعد.'}
                 </p>
                 {isAdmin && (
