@@ -275,10 +275,11 @@ export default function PublicDashboard() {
             <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>جاري تحميل البيانات...</p>
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
+          
         ) : (
           <>
             {/* ── Section: General Stats ── */}
-            <SectionLabel>إحصاءات عامة</SectionLabel>
+            <SectionLabel>إحصاءات عامة-تنويه البيانات قيد الحصر والإدخال</SectionLabel>
             <div style={gridStyle(3)}>
               <StatCard value={stats.totalIndividuals} label="إجمالي الأفراد" accent="#185FA5" />
               <StatCard value={stats.totalHouses} label="إجمالي المنازل" accent="#3B6D11" />

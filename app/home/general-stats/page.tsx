@@ -112,9 +112,7 @@ export default function GeneralStatsPage() {
             ← رجوع
           </button>
 
-          <p className="text-[10px] text-red-800 font-medium mb-2 pr-1">
-    ⚠️ تنبيه: البيانات لا تزال قيد الحصر والإدخال
-  </p>
+         
           <h1 className="text-base font-semibold tracking-wide">إحصائيات عامة</h1>
           <div className="w-12" />
         </div>
