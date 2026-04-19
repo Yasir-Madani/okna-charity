@@ -556,7 +556,7 @@ export default function MedicalNeedsPage() {
           </>
         )}
 
-        <p className="text-center text-gray-300 text-xs mt-6 pb-4">
+        <p className="text-center text-black-500 text-xs mt-6 pb-4">
           جميع الحقوق محفوظة © جمعية نهضة العكنة الخيرية
         </p>
       </div>
