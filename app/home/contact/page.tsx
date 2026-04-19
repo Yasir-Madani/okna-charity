@@ -133,12 +133,12 @@ export default function ContactPage() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="w-[3px] h-5 rounded-full bg-[#0d7a60]" />
-            <span className="text-sm font-bold text-gray-900">حسابات التحويل البنكي</span>
+            <span className="text-sm font-bold text-gray-900">حسابات التحويل البنكي : </span>
             <span 
   style={{ fontSize: '11px', color: '#8b0000' }} 
   className="font-bold"
 >
-  "أرسل صورة الإشعار والتعليق عبر أيقونة الواتساب أدناه"
+  أرسل صورة الإشعار والتعليق عبر أيقونة الواتساب أدناه
 </span>
 
           </div>
