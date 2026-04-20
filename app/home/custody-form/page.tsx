@@ -105,25 +105,25 @@ const arabicNum = (n: number) => n.toLocaleString('ar-EG')
 export default function CustodyFormPage() {
   const router = useRouter()
 
-  const [isAdmin, setIsAdmin]         = useState(false)
-  const [loading, setLoading]         = useState(true)
-  const [activeTab, setActiveTab]     = useState<'request' | 'list' | 'new'>('request')
+  const [isAdmin, setIsAdmin]           = useState(false)
+  const [loading, setLoading]           = useState(true)
+  const [activeTab, setActiveTab]       = useState<'request' | 'list' | 'new'>('request')
 
   // request tab
-  const [reqForm, setReqForm]         = useState({ requester_name: '', phone_number: '', address: '' })
-  const [reqSaving, setReqSaving]     = useState(false)
-  const [reqDone, setReqDone]         = useState(false)
-  const [requests, setRequests]       = useState<CustodyRequest[]>([])
+  const [reqForm, setReqForm]           = useState({ requester_name: '', phone_number: '', address: '' })
+  const [reqSaving, setReqSaving]       = useState(false)
+  const [reqDone, setReqDone]           = useState(false)
+  const [requests, setRequests]         = useState<CustodyRequest[]>([])
 
   // forms list
-  const [forms, setForms]             = useState<CustodyForm[]>([])
+  const [forms, setForms]               = useState<CustodyForm[]>([])
   const [selectedForm, setSelectedForm] = useState<CustodyForm | null>(null)
 
   // new/edit form
-  const [showForm, setShowForm]       = useState(false)
-  const [editingId, setEditingId]     = useState<string | null>(null)
-  const [formData, setFormData]       = useState<FormState>(emptyForm())
-  const [saving, setSaving]           = useState(false)
+  const [showForm, setShowForm]         = useState(false)
+  const [editingId, setEditingId]       = useState<string | null>(null)
+  const [formData, setFormData]         = useState<FormState>(emptyForm())
+  const [saving, setSaving]             = useState(false)
 
   useEffect(() => { fetchData() }, [])
 
@@ -137,25 +137,25 @@ export default function CustodyFormPage() {
         .select('*')
         .order('created_at', { ascending: false })
       if (reqData) setRequests(reqData as CustodyRequest[])
-    }
 
-    const { data: formsData } = await supabase
-      .from('custody_forms')
-      .select('*')
-      .order('created_at', { ascending: false })
+      const { data: formsData } = await supabase
+        .from('custody_forms')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-    if (formsData) {
-      const formsWithItems = await Promise.all(
-        formsData.map(async (f) => {
-          const { data: items } = await supabase
-            .from('custody_items')
-            .select('*')
-            .eq('form_id', f.id)
-            .order('item_number')
-          return { ...f, items: items || [] }
-        })
-      )
-      setForms(formsWithItems as CustodyForm[])
+      if (formsData) {
+        const formsWithItems = await Promise.all(
+          formsData.map(async (f) => {
+            const { data: items } = await supabase
+              .from('custody_items')
+              .select('*')
+              .eq('form_id', f.id)
+              .order('item_number')
+            return { ...f, items: items || [] }
+          })
+        )
+        setForms(formsWithItems as CustodyForm[])
+      }
     }
     setLoading(false)
   }
@@ -309,45 +309,57 @@ export default function CustodyFormPage() {
           >
             رجوع
           </button>
-          <h1 className="text-base font-semibold tracking-wide">نموذج استلام عهدة</h1>
+          <h1 className="text-base font-semibold tracking-wide">استعارة ممتلكات الجمعية</h1>
           <div className="w-14" />
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4">
 
-        {/* Tabs */}
+        {/* ── Tabs ─────────────────────────────────────────────────────────── */}
         <div className="flex gap-2 mb-4">
+
+          {/* تقديم طلب — للجميع دائماً */}
           <button
             onClick={() => { setActiveTab('request'); setSelectedForm(null); resetForm() }}
             className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
-              activeTab === 'request' ? 'bg-[#0f2a5e] text-white' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
+              activeTab === 'request'
+                ? 'bg-[#0f2a5e] text-white'
+                : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
             }`}
           >
             📩 تقديم طلب
           </button>
-          <button
-            onClick={() => { setActiveTab('list'); setSelectedForm(null); resetForm() }}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
-              activeTab === 'list' ? 'bg-[#0f2a5e] text-white' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            📋 النماذج ({forms.length})
-          </button>
+
+          {/* النماذج ونموذج جديد — للأدمن فقط */}
           {isAdmin && (
-            <button
-              onClick={() => { resetForm(); setShowForm(true); setActiveTab('new') }}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
-                activeTab === 'new' ? 'bg-[#0f2a5e] text-white' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              + نموذج جديد
-            </button>
+            <>
+              <button
+                onClick={() => { setActiveTab('list'); setSelectedForm(null); resetForm() }}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
+                  activeTab === 'list'
+                    ? 'bg-[#0f2a5e] text-white'
+                    : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                📋 النماذج ({forms.length})
+              </button>
+              <button
+                onClick={() => { resetForm(); setShowForm(true); setActiveTab('new') }}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
+                  activeTab === 'new'
+                    ? 'bg-[#0f2a5e] text-white'
+                    : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                + نموذج جديد
+              </button>
+            </>
           )}
         </div>
 
         {/* ══════════════════════════════════════
-            TAB 1 — تقديم طلب
+            TAB 1 — تقديم طلب (الجميع)
             ══════════════════════════════════════ */}
         {activeTab === 'request' && (
           <div className="space-y-4">
@@ -444,7 +456,7 @@ export default function CustodyFormPage() {
               </div>
             )}
 
-            {/* قائمة الطلبات — للأدمن فقط */}
+            {/* قائمة الطلبات الواردة — للأدمن فقط */}
             {isAdmin && (
               <div className="bg-white rounded-2xl border border-gray-100 p-4">
                 <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">
@@ -485,9 +497,9 @@ export default function CustodyFormPage() {
         )}
 
         {/* ══════════════════════════════════════
-            TAB 2 — النماذج المحفوظة
+            TAB 2 — النماذج المحفوظة (أدمن)
             ══════════════════════════════════════ */}
-        {activeTab === 'list' && !selectedForm && (
+        {activeTab === 'list' && isAdmin && !selectedForm && (
           <div>
             {loading ? (
               <div className="flex justify-center py-16">
@@ -497,14 +509,12 @@ export default function CustodyFormPage() {
               <div className="text-center py-16">
                 <p className="text-4xl mb-3">📄</p>
                 <p className="text-gray-400 text-sm">لا توجد نماذج محفوظة بعد</p>
-                {isAdmin && (
-                  <button
-                    onClick={() => { setActiveTab('new'); setShowForm(true) }}
-                    className="mt-4 bg-[#0f2a5e] text-white px-6 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
-                  >
-                    إضافة أول نموذج
-                  </button>
-                )}
+                <button
+                  onClick={() => { setActiveTab('new'); setShowForm(true) }}
+                  className="mt-4 bg-[#0f2a5e] text-white px-6 py-2.5 rounded-xl text-sm font-semibold cursor-pointer"
+                >
+                  إضافة أول نموذج
+                </button>
               </div>
             ) : (
               <div className="space-y-3">
@@ -544,7 +554,7 @@ export default function CustodyFormPage() {
         )}
 
         {/* Detail view */}
-        {activeTab === 'list' && selectedForm && (
+        {activeTab === 'list' && isAdmin && selectedForm && (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <button onClick={() => setSelectedForm(null)} className="text-xs text-[#0f2a5e] underline cursor-pointer">
@@ -631,10 +641,10 @@ export default function CustodyFormPage() {
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  ['اسم المستلم عند الاستلام',      selectedForm.recipient_signature_receipt],
-                  ['اسم المستلم عند الإرجاع',        selectedForm.recipient_signature_return],
-                  ['مسؤول الجمعية عند التسليم',     selectedForm.officer_signature_receipt],
-                  ['مسؤول الجمعية عند الإرجاع',     selectedForm.officer_signature_return],
+                  ['اسم المستلم عند الاستلام',   selectedForm.recipient_signature_receipt],
+                  ['اسم المستلم عند الإرجاع',     selectedForm.recipient_signature_return],
+                  ['مسؤول الجمعية عند التسليم',  selectedForm.officer_signature_receipt],
+                  ['مسؤول الجمعية عند الإرجاع',  selectedForm.officer_signature_return],
                 ].map(([label, val]) => (
                   <div key={label} className="bg-gray-50 rounded-lg p-3">
                     <p className="text-xs text-gray-400">{label}</p>
@@ -644,22 +654,20 @@ export default function CustodyFormPage() {
               </div>
             </div>
 
-            {isAdmin && (
-              <div className="flex gap-3 pb-2">
-                <button
-                  onClick={() => handleEdit(selectedForm)}
-                  className="flex-1 bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-semibold cursor-pointer hover:bg-[#1a3d7a] transition-colors"
-                >
-                  تعديل النموذج
-                </button>
-                <button
-                  onClick={() => handleDelete(selectedForm.id)}
-                  className="bg-red-50 text-red-500 px-5 py-3 rounded-xl text-sm font-semibold cursor-pointer hover:bg-red-100 transition-colors"
-                >
-                  حذف
-                </button>
-              </div>
-            )}
+            <div className="flex gap-3 pb-2">
+              <button
+                onClick={() => handleEdit(selectedForm)}
+                className="flex-1 bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-semibold cursor-pointer hover:bg-[#1a3d7a] transition-colors"
+              >
+                تعديل النموذج
+              </button>
+              <button
+                onClick={() => handleDelete(selectedForm.id)}
+                className="bg-red-50 text-red-500 px-5 py-3 rounded-xl text-sm font-semibold cursor-pointer hover:bg-red-100 transition-colors"
+              >
+                حذف
+              </button>
+            </div>
           </div>
         )}
 
