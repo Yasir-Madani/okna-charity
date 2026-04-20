@@ -367,7 +367,7 @@ export default function CustodyFormPage() {
             onClick={() => { setActiveTab('request'); setSelectedForm(null); resetForm(); setShowRequestContent(false) }}
             className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${activeTab === 'request' ? 'bg-[#0f2a5e] text-white' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'}`}
           >
-            👇 تقديم طلب
+           طلب تقديم  👇
           </button>
           {isAdmin && (
             <>
