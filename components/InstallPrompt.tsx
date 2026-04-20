@@ -74,7 +74,7 @@ export default function InstallPrompt() {
       setTimeout(() => {
         setShow(true)
         trackEvent('ios_shown') // ظهر للمستخدم iOS
-      }, 1500)
+      }, 3000)
       return
     }
 
@@ -84,7 +84,7 @@ export default function InstallPrompt() {
       setTimeout(() => {
         setShow(true)
         trackEvent('prompt_shown') // ظهرت رسالة التثبيت
-      }, 1500)
+      }, 3000)
     }
 
     window.addEventListener('beforeinstallprompt', handler)
