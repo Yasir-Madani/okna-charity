@@ -160,7 +160,7 @@ export default function HomePage() {
         <div className="px-4 pb-3">
           <button
             onClick={() => router.push('/home/custody-form')}
-            className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 relative overflow-hidden"
+            className="w-full bg-blue-50/50 border border-gray-100 rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 relative overflow-hidden"
             style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
           >
             <span className="absolute top-0 right-0 w-1 h-full rounded-r-2xl bg-orange-400" />
