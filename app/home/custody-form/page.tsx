@@ -294,7 +294,7 @@ export default function CustodyFormPage() {
               <span className="w-6 h-6 rounded-full bg-[#0f2a5e] text-white text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
                 {step.n}
               </span>
-              <p className="text-xs text-gray-600 leading-relaxed">{step.text}</p>
+              <p className="text-xs text-black-600 leading-relaxed">{step.text}</p>
             </div>
           ))}
         </div>
@@ -315,19 +315,19 @@ export default function CustodyFormPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
           <p className="text-sm font-bold text-gray-700 pb-2 border-b border-gray-100">بيانات مقدّم الطلب</p>
           <div>
-            <label className="text-xs text-gray-500 block mb-1">الاسم الكامل *</label>
+            <label className="text-xs text-black-600 block mb-1">الاسم الكامل *</label>
             <input value={reqForm.requester_name} onChange={e => setReqForm({ ...reqForm, requester_name: e.target.value })}
               placeholder="أدخل اسمك الكامل"
               className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30" />
           </div>
           <div>
-            <label className="text-xs text-gray-500 block mb-1">رقم الهاتف *</label>
+            <label className="text-xs text-black-600 block mb-1">رقم الهاتف *</label>
             <input value={reqForm.phone_number} onChange={e => setReqForm({ ...reqForm, phone_number: e.target.value })}
-              placeholder="05XXXXXXXX" type="tel"
+              placeholder="09XXXXXXXX" type="tel"
               className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30" />
           </div>
           <div>
-            <label className="text-xs text-gray-500 block mb-1">عنوان السكن *</label>
+            <label className="text-xs text-black-600 block mb-1">عنوان السكن *</label>
             <input value={reqForm.address} onChange={e => setReqForm({ ...reqForm, address: e.target.value })}
               placeholder="الحي / المنطقة"
               className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30" />
