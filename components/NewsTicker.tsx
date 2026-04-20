@@ -59,7 +59,7 @@ export default function NewsTicker() {
         style={containerStyle}
       >
         <div className="flex-shrink-0 bg-red-600 text-white text-[13px] font-bold px-4 h-full flex items-center whitespace-nowrap">
-          📰 أخبار
+          أخبار الجمعية
         </div>
         <div className="flex-1 h-full flex items-center px-6">
           <div className="h-2 w-48 rounded-full bg-white opacity-10 animate-pulse" />
