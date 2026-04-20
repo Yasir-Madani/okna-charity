@@ -115,6 +115,9 @@ export default function CustodyFormPage() {
   const [reqDone, setReqDone]           = useState(false)
   const [requests, setRequests]         = useState<CustodyRequest[]>([])
 
+  // ← NEW: controls whether the request form is expanded (for admin it starts collapsed)
+  const [reqFormOpen, setReqFormOpen]   = useState(false)
+
   // forms list
   const [forms, setForms]               = useState<CustodyForm[]>([])
   const [selectedForm, setSelectedForm] = useState<CustodyForm | null>(null)
@@ -132,6 +135,9 @@ export default function CustodyFormPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       setIsAdmin(true)
+      // Admin: form starts collapsed so requests are visible immediately
+      setReqFormOpen(false)
+
       const { data: reqData } = await supabase
         .from('custody_requests')
         .select('*')
@@ -156,6 +162,9 @@ export default function CustodyFormPage() {
         )
         setForms(formsWithItems as CustodyForm[])
       }
+    } else {
+      // Visitor: form starts open so they can fill it directly
+      setReqFormOpen(true)
     }
     setLoading(false)
   }
@@ -171,7 +180,9 @@ export default function CustodyFormPage() {
     })
     setReqSaving(false)
     setReqDone(true)
+    setReqFormOpen(false)
     setReqForm({ requester_name: '', phone_number: '', address: '' })
+    if (isAdmin) fetchData()
   }
 
   const handleDeleteRequest = async (id: string) => {
@@ -398,65 +409,90 @@ export default function CustodyFormPage() {
               </div>
             </div>
 
-            {/* نموذج الطلب */}
+            {/* ── نموذج الطلب ── */}
             {reqDone ? (
               <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
                 <p className="text-3xl mb-3">✅</p>
-                <p className="text-sm font-bold text-green-700">تم إرسال طلبك بنجاح</p>
+                <p className="text-sm font-bold text-green-700">تم إرسال الطلب بنجاح</p>
                 <p className="text-xs text-green-600 mt-1 leading-relaxed">
                   سيتواصل معك أحد المشرفين قريباً على الرقم الذي أدخلته
                 </p>
                 <button
-                  onClick={() => setReqDone(false)}
+                  onClick={() => { setReqDone(false); setReqFormOpen(true) }}
                   className="mt-4 text-xs text-green-700 underline cursor-pointer"
                 >
                   تقديم طلب آخر
                 </button>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
-                <p className="text-sm font-bold text-gray-700 pb-2 border-b border-gray-100">
-                  بيانات مقدّم الطلب
-                </p>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">الاسم الكامل *</label>
-                  <input
-                    value={reqForm.requester_name}
-                    onChange={e => setReqForm({ ...reqForm, requester_name: e.target.value })}
-                    placeholder="أدخل اسمك الكامل"
-                    className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">رقم الهاتف *</label>
-                  <input
-                    value={reqForm.phone_number}
-                    onChange={e => setReqForm({ ...reqForm, phone_number: e.target.value })}
-                    placeholder="05XXXXXXXX"
-                    type="tel"
-                    className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1">عنوان السكن *</label>
-                  <input
-                    value={reqForm.address}
-                    onChange={e => setReqForm({ ...reqForm, address: e.target.value })}
-                    placeholder="الحي / المنطقة"
-                    className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
-                  />
-                </div>
-                <button
-                  onClick={handleReqSubmit}
-                  disabled={reqSaving || !reqForm.requester_name.trim() || !reqForm.phone_number.trim() || !reqForm.address.trim()}
-                  className="w-full bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-[#1a3d7a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
-                >
-                  {reqSaving ? '...جاري الإرسال' : 'إرسال الطلب'}
-                </button>
-              </div>
+              <>
+                {/* زر فتح النموذج — يظهر دائماً عند الإغلاق */}
+                {!reqFormOpen && (
+                  <button
+                    onClick={() => setReqFormOpen(true)}
+                    className="w-full bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-[#1a3d7a] transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span>📩</span>
+                    <span>تقديم طلب استعارة</span>
+                  </button>
+                )}
+
+                {/* نموذج الطلب — مفتوح أو مغلق */}
+                {reqFormOpen && (
+                  <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                      <p className="text-sm font-bold text-gray-700">بيانات مقدّم الطلب</p>
+                      {/* زر الإغلاق — للأدمن فقط */}
+                      {isAdmin && (
+                        <button
+                          onClick={() => setReqFormOpen(false)}
+                          className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer transition-colors"
+                        >
+                          ✕ إغلاق
+                        </button>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">الاسم الكامل *</label>
+                      <input
+                        value={reqForm.requester_name}
+                        onChange={e => setReqForm({ ...reqForm, requester_name: e.target.value })}
+                        placeholder="أدخل اسمك الكامل"
+                        className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">رقم الهاتف *</label>
+                      <input
+                        value={reqForm.phone_number}
+                        onChange={e => setReqForm({ ...reqForm, phone_number: e.target.value })}
+                        placeholder="05XXXXXXXX"
+                        type="tel"
+                        className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 block mb-1">عنوان السكن *</label>
+                      <input
+                        value={reqForm.address}
+                        onChange={e => setReqForm({ ...reqForm, address: e.target.value })}
+                        placeholder="الحي / المنطقة"
+                        className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+                      />
+                    </div>
+                    <button
+                      onClick={handleReqSubmit}
+                      disabled={reqSaving || !reqForm.requester_name.trim() || !reqForm.phone_number.trim() || !reqForm.address.trim()}
+                      className="w-full bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-[#1a3d7a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+                    >
+                      {reqSaving ? '...جاري الإرسال' : 'إرسال الطلب'}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
-            {/* قائمة الطلبات الواردة — للأدمن فقط */}
+            {/* ── قائمة الطلبات الواردة — للأدمن فقط ── */}
             {isAdmin && (
               <div className="bg-white rounded-2xl border border-gray-100 p-4">
                 <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">
