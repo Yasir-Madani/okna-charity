@@ -34,6 +34,13 @@ interface CustodyForm {
   items: CustodyItem[]
 }
 
+interface CustodyRequest {
+  id: string
+  requester_name: string
+  phone_number: string
+  address: string
+  created_at: string
+}
 
 interface FormItem {
   item_number: number
@@ -87,9 +94,9 @@ const emptyForm = (): FormState => ({
 })
 
 const statusLabel = (s: string) => ({
-  active:   { label: 'نشط', color: 'bg-blue-50 text-blue-700' },
+  active:   { label: 'نشط',   color: 'bg-blue-50 text-blue-700'   },
   returned: { label: 'مُرجع', color: 'bg-green-50 text-green-700' },
-  overdue:  { label: 'متأخر', color: 'bg-red-50 text-red-700' },
+  overdue:  { label: 'متأخر', color: 'bg-red-50 text-red-700'     },
 }[s] ?? { label: s, color: 'bg-gray-50 text-gray-600' })
 
 const arabicNum = (n: number) => n.toLocaleString('ar-EG')
@@ -97,21 +104,40 @@ const arabicNum = (n: number) => n.toLocaleString('ar-EG')
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function CustodyFormPage() {
   const router = useRouter()
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [forms, setForms] = useState<CustodyForm[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [formData, setFormData] = useState<FormState>(emptyForm())
-  const [saving, setSaving] = useState(false)
+
+  const [isAdmin, setIsAdmin]         = useState(false)
+  const [loading, setLoading]         = useState(true)
+  const [activeTab, setActiveTab]     = useState<'request' | 'list' | 'new'>('request')
+
+  // request tab
+  const [reqForm, setReqForm]         = useState({ requester_name: '', phone_number: '', address: '' })
+  const [reqSaving, setReqSaving]     = useState(false)
+  const [reqDone, setReqDone]         = useState(false)
+  const [requests, setRequests]       = useState<CustodyRequest[]>([])
+
+  // forms list
+  const [forms, setForms]             = useState<CustodyForm[]>([])
   const [selectedForm, setSelectedForm] = useState<CustodyForm | null>(null)
-  const [activeTab, setActiveTab] = useState<'list' | 'new'>('list')
+
+  // new/edit form
+  const [showForm, setShowForm]       = useState(false)
+  const [editingId, setEditingId]     = useState<string | null>(null)
+  const [formData, setFormData]       = useState<FormState>(emptyForm())
+  const [saving, setSaving]           = useState(false)
 
   useEffect(() => { fetchData() }, [])
 
+  // ─── Fetch ─────────────────────────────────────────────────────────────────
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    if (user) setIsAdmin(true)
+    if (user) {
+      setIsAdmin(true)
+      const { data: reqData } = await supabase
+        .from('custody_requests')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (reqData) setRequests(reqData as CustodyRequest[])
+    }
 
     const { data: formsData } = await supabase
       .from('custody_forms')
@@ -134,6 +160,27 @@ export default function CustodyFormPage() {
     setLoading(false)
   }
 
+  // ─── Submit visitor request ────────────────────────────────────────────────
+  const handleReqSubmit = async () => {
+    if (!reqForm.requester_name.trim() || !reqForm.phone_number.trim() || !reqForm.address.trim()) return
+    setReqSaving(true)
+    await supabase.from('custody_requests').insert({
+      requester_name: reqForm.requester_name.trim(),
+      phone_number:   reqForm.phone_number.trim(),
+      address:        reqForm.address.trim(),
+    })
+    setReqSaving(false)
+    setReqDone(true)
+    setReqForm({ requester_name: '', phone_number: '', address: '' })
+  }
+
+  const handleDeleteRequest = async (id: string) => {
+    if (!confirm('حذف هذا الطلب؟')) return
+    await supabase.from('custody_requests').delete().eq('id', id)
+    setRequests(prev => prev.filter(r => r.id !== id))
+  }
+
+  // ─── Form CRUD ─────────────────────────────────────────────────────────────
   const generateFormNumber = () => {
     const now = new Date()
     return `EHD-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-4)}`
@@ -150,34 +197,28 @@ export default function CustodyFormPage() {
       const existing = form.items.find(it => it.item_number === i + 1)
       return existing
         ? {
-            item_number: existing.item_number,
-            item_name: existing.item_name,
-            quantity: existing.quantity,
+            item_number:          existing.item_number,
+            item_name:            existing.item_name,
+            quantity:             existing.quantity,
             condition_at_receipt: existing.condition_at_receipt,
-            condition_at_return: existing.condition_at_return,
+            condition_at_return:  existing.condition_at_return,
           }
-        : {
-            item_number: i + 1,
-            item_name: '',
-            quantity: null,
-            condition_at_receipt: '',
-            condition_at_return: '',
-          }
+        : { item_number: i + 1, item_name: '', quantity: null, condition_at_receipt: '', condition_at_return: '' }
     })
     setFormData({
-      recipient_name: form.recipient_name,
-      recipient_address: form.recipient_address || '',
-      usage_purpose: form.usage_purpose || '',
-      usage_location: form.usage_location || '',
-      phone_number: form.phone_number || '',
-      receipt_date: form.receipt_date,
-      expected_return_date: form.expected_return_date || '',
-      actual_return_date: form.actual_return_date || '',
-      security_deposit: form.security_deposit,
+      recipient_name:              form.recipient_name,
+      recipient_address:           form.recipient_address || '',
+      usage_purpose:               form.usage_purpose || '',
+      usage_location:              form.usage_location || '',
+      phone_number:                form.phone_number || '',
+      receipt_date:                form.receipt_date,
+      expected_return_date:        form.expected_return_date || '',
+      actual_return_date:          form.actual_return_date || '',
+      security_deposit:            form.security_deposit,
       recipient_signature_receipt: form.recipient_signature_receipt || '',
-      recipient_signature_return: form.recipient_signature_return || '',
-      officer_signature_receipt: form.officer_signature_receipt || '',
-      officer_signature_return: form.officer_signature_return || '',
+      recipient_signature_return:  form.recipient_signature_return || '',
+      officer_signature_receipt:   form.officer_signature_receipt || '',
+      officer_signature_return:    form.officer_signature_return || '',
       items,
     })
     setEditingId(form.id)
@@ -191,19 +232,19 @@ export default function CustodyFormPage() {
     setSaving(true)
 
     const payload = {
-      recipient_name: formData.recipient_name.trim(),
-      recipient_address: formData.recipient_address.trim() || null,
-      usage_purpose: formData.usage_purpose.trim() || null,
-      usage_location: formData.usage_location.trim() || null,
-      phone_number: formData.phone_number.trim() || null,
-      receipt_date: formData.receipt_date,
-      expected_return_date: formData.expected_return_date || null,
-      actual_return_date: formData.actual_return_date || null,
-      security_deposit: formData.security_deposit,
+      recipient_name:              formData.recipient_name.trim(),
+      recipient_address:           formData.recipient_address.trim() || null,
+      usage_purpose:               formData.usage_purpose.trim() || null,
+      usage_location:              formData.usage_location.trim() || null,
+      phone_number:                formData.phone_number.trim() || null,
+      receipt_date:                formData.receipt_date,
+      expected_return_date:        formData.expected_return_date || null,
+      actual_return_date:          formData.actual_return_date || null,
+      security_deposit:            formData.security_deposit,
       recipient_signature_receipt: formData.recipient_signature_receipt.trim() || null,
-      recipient_signature_return: formData.recipient_signature_return.trim() || null,
-      officer_signature_receipt: formData.officer_signature_receipt.trim() || null,
-      officer_signature_return: formData.officer_signature_return.trim() || null,
+      recipient_signature_return:  formData.recipient_signature_return.trim() || null,
+      officer_signature_receipt:   formData.officer_signature_receipt.trim() || null,
+      officer_signature_return:    formData.officer_signature_return.trim() || null,
       status: formData.actual_return_date ? 'returned' : 'active',
     }
 
@@ -225,16 +266,14 @@ export default function CustodyFormPage() {
       const itemsToInsert = formData.items
         .filter(it => it.item_name.trim())
         .map(it => ({
-          form_id: formId,
-          item_number: it.item_number,
-          item_name: it.item_name.trim(),
-          quantity: it.quantity,
+          form_id:              formId,
+          item_number:          it.item_number,
+          item_name:            it.item_name.trim(),
+          quantity:             it.quantity,
           condition_at_receipt: it.condition_at_receipt.trim() || null,
-          condition_at_return: it.condition_at_return.trim() || null,
+          condition_at_return:  it.condition_at_return.trim() || null,
         }))
-      if (itemsToInsert.length) {
-        await supabase.from('custody_items').insert(itemsToInsert)
-      }
+      if (itemsToInsert.length) await supabase.from('custody_items').insert(itemsToInsert)
     }
 
     setSaving(false)
@@ -258,11 +297,7 @@ export default function CustodyFormPage() {
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <div
-      className="min-h-screen bg-gray-50"
-      dir="rtl"
-      style={{ fontFamily: "'Cairo', sans-serif" }}
-    >
+    <div className="min-h-screen bg-gray-50" dir="rtl" style={{ fontFamily: "'Cairo', sans-serif" }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
       {/* Header */}
@@ -281,29 +316,177 @@ export default function CustodyFormPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-4">
 
-
         {/* Tabs */}
         <div className="flex gap-2 mb-4">
-          {['list', 'new'].map(tab => (
+          <button
+            onClick={() => { setActiveTab('request'); setSelectedForm(null); resetForm() }}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
+              activeTab === 'request' ? 'bg-[#0f2a5e] text-white' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            📩 تقديم طلب
+          </button>
+          <button
+            onClick={() => { setActiveTab('list'); setSelectedForm(null); resetForm() }}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
+              activeTab === 'list' ? 'bg-[#0f2a5e] text-white' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            📋 النماذج ({forms.length})
+          </button>
+          {isAdmin && (
             <button
-              key={tab}
-              onClick={() => {
-                setActiveTab(tab as 'list' | 'new')
-                if (tab === 'list') { resetForm(); setSelectedForm(null) }
-                else { resetForm(); setShowForm(true) }
-              }}
+              onClick={() => { resetForm(); setShowForm(true); setActiveTab('new') }}
               className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
-                activeTab === tab
-                  ? 'bg-[#0f2a5e] text-white'
-                  : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
+                activeTab === 'new' ? 'bg-[#0f2a5e] text-white' : 'bg-white border border-gray-100 text-gray-600 hover:bg-gray-50'
               }`}
             >
-              {tab === 'list' ? `📋 النماذج المحفوظة (${forms.length})` : '+ نموذج جديد'}
+              + نموذج جديد
             </button>
-          ))}
+          )}
         </div>
 
-        {/* ─── LIST TAB ─────────────────────────────── */}
+        {/* ══════════════════════════════════════
+            TAB 1 — تقديم طلب
+            ══════════════════════════════════════ */}
+        {activeTab === 'request' && (
+          <div className="space-y-4">
+
+            {/* بطاقة الشرح */}
+            <div className="bg-[#0f2a5e] rounded-2xl p-5 text-white">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">📦</span>
+                <p className="text-sm font-bold">استعارة ممتلكات الجمعية</p>
+              </div>
+              <p className="text-xs leading-relaxed opacity-90">
+                حرصاً من جمعية نهضة العكنة الخيرية على تنظيم استخدام ممتلكاتها والمحافظة عليها،
+                فقد تم إعداد نموذج رسمي لإثبات استلام العهدة وتحديد المسؤوليات المترتبة على المستلم
+                عند إرجاعها. يمكنك تقديم طلبك أدناه، وسيقوم المشرفون بمراجعته واستكمال النموذج
+                الرسمي عند الاستلام.
+              </p>
+            </div>
+
+            {/* خطوات */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-4">
+              <p className="text-xs font-bold text-gray-700 mb-3">خطوات الاستعارة</p>
+              <div className="space-y-2.5">
+                {[
+                  { n: '١', text: 'قدّم طلبك بالنموذج أدناه' },
+                  { n: '٢', text: 'يتواصل معك المشرف لتحديد موعد الاستلام' },
+                  { n: '٣', text: 'يُملأ النموذج الرسمي ويُدفع مبلغ الأمانة (٥٠،٠٠٠ جنيه)' },
+                  { n: '٤', text: 'تُسترد الأمانة كاملة عند الإرجاع في موعده وبحالة سليمة' },
+                ].map(step => (
+                  <div key={step.n} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-[#0f2a5e] text-white text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                      {step.n}
+                    </span>
+                    <p className="text-xs text-gray-600 leading-relaxed">{step.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* نموذج الطلب */}
+            {reqDone ? (
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
+                <p className="text-3xl mb-3">✅</p>
+                <p className="text-sm font-bold text-green-700">تم إرسال طلبك بنجاح</p>
+                <p className="text-xs text-green-600 mt-1 leading-relaxed">
+                  سيتواصل معك أحد المشرفين قريباً على الرقم الذي أدخلته
+                </p>
+                <button
+                  onClick={() => setReqDone(false)}
+                  className="mt-4 text-xs text-green-700 underline cursor-pointer"
+                >
+                  تقديم طلب آخر
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
+                <p className="text-sm font-bold text-gray-700 pb-2 border-b border-gray-100">
+                  بيانات مقدّم الطلب
+                </p>
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1">الاسم الكامل *</label>
+                  <input
+                    value={reqForm.requester_name}
+                    onChange={e => setReqForm({ ...reqForm, requester_name: e.target.value })}
+                    placeholder="أدخل اسمك الكامل"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1">رقم الهاتف *</label>
+                  <input
+                    value={reqForm.phone_number}
+                    onChange={e => setReqForm({ ...reqForm, phone_number: e.target.value })}
+                    placeholder="05XXXXXXXX"
+                    type="tel"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1">عنوان السكن *</label>
+                  <input
+                    value={reqForm.address}
+                    onChange={e => setReqForm({ ...reqForm, address: e.target.value })}
+                    placeholder="الحي / المنطقة"
+                    className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+                  />
+                </div>
+                <button
+                  onClick={handleReqSubmit}
+                  disabled={reqSaving || !reqForm.requester_name.trim() || !reqForm.phone_number.trim() || !reqForm.address.trim()}
+                  className="w-full bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-[#1a3d7a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+                >
+                  {reqSaving ? '...جاري الإرسال' : 'إرسال الطلب'}
+                </button>
+              </div>
+            )}
+
+            {/* قائمة الطلبات — للأدمن فقط */}
+            {isAdmin && (
+              <div className="bg-white rounded-2xl border border-gray-100 p-4">
+                <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">
+                  📥 طلبات الزوار ({arabicNum(requests.length)})
+                </p>
+                {requests.length === 0 ? (
+                  <p className="text-xs text-gray-400 text-center py-4">لا توجد طلبات بعد</p>
+                ) : (
+                  <div className="space-y-2">
+                    {requests.map((req, i) => (
+                      <div key={req.id} className="bg-gray-50 rounded-xl p-3 flex items-start gap-3">
+                        <span className="w-6 h-6 rounded-lg bg-[#0f2a5e]/10 text-[#0f2a5e] text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                          {arabicNum(i + 1)}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-gray-800">{req.requester_name}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">📞 {req.phone_number}</p>
+                          <p className="text-xs text-gray-500">📍 {req.address}</p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(req.created_at).toLocaleDateString('ar-EG', {
+                              day: 'numeric', month: 'long', year: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteRequest(req.id)}
+                          className="text-red-400 hover:text-red-600 text-xs cursor-pointer transition-colors flex-shrink-0 mt-1"
+                        >
+                          حذف
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════
+            TAB 2 — النماذج المحفوظة
+            ══════════════════════════════════════ */}
         {activeTab === 'list' && !selectedForm && (
           <div>
             {loading ? (
@@ -360,14 +543,11 @@ export default function CustodyFormPage() {
           </div>
         )}
 
-        {/* ─── DETAIL VIEW ──────────────────────────── */}
+        {/* Detail view */}
         {activeTab === 'list' && selectedForm && (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSelectedForm(null)}
-                className="text-xs text-[#0f2a5e] underline cursor-pointer"
-              >
+              <button onClick={() => setSelectedForm(null)} className="text-xs text-[#0f2a5e] underline cursor-pointer">
                 ← العودة للقائمة
               </button>
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusLabel(selectedForm.status).color}`}>
@@ -375,21 +555,19 @@ export default function CustodyFormPage() {
               </span>
             </div>
 
-            {/* Form number header */}
             <div className="bg-[#0f2a5e] text-white rounded-xl p-4 text-center">
               <p className="text-xs opacity-70">جمعية نهضة العكنة الخيرية</p>
               <p className="text-base font-bold mt-1">نموذج استلام عهدة</p>
               <p className="text-xs opacity-70 mt-0.5">{selectedForm.form_number}</p>
             </div>
 
-            {/* Section 1 */}
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">أولاً: بيانات الجهة المستلمة</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 {[
                   ['الاسم', selectedForm.recipient_name],
                   ['العنوان', selectedForm.recipient_address],
-                  ['الغرض من الاستخدام', selectedForm.usage_purpose],
+                  ['الغرض', selectedForm.usage_purpose],
                   ['مكان الاستخدام', selectedForm.usage_location],
                   ['رقم الهاتف', selectedForm.phone_number],
                 ].map(([label, val]) => (
@@ -401,9 +579,8 @@ export default function CustodyFormPage() {
               </div>
             </div>
 
-            {/* Section 2 — items */}
             <div className="bg-white rounded-xl border border-gray-100 p-4">
-              <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">ثانياً: تفاصيل العهدة المستلمة</p>
+              <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">ثانياً: تفاصيل العهدة</p>
               {selectedForm.items.length === 0 ? (
                 <p className="text-xs text-gray-400 text-center py-4">لا أصناف مسجلة</p>
               ) : (
@@ -412,14 +589,12 @@ export default function CustodyFormPage() {
                     <div key={item.id} className="bg-gray-50 rounded-lg p-3">
                       <div className="flex justify-between items-start">
                         <span className="text-xs font-bold text-[#0f2a5e]">#{arabicNum(item.item_number)}</span>
-                        {item.quantity != null && (
-                          <span className="text-xs text-gray-500">العدد: {arabicNum(item.quantity)}</span>
-                        )}
+                        {item.quantity != null && <span className="text-xs text-gray-500">العدد: {arabicNum(item.quantity)}</span>}
                       </div>
                       <p className="text-sm font-semibold text-gray-800 mt-1">{item.item_name}</p>
                       <div className="flex gap-4 mt-1.5 text-xs text-gray-500">
-                        {item.condition_at_receipt && <span>عند الاستلام: {item.condition_at_receipt}</span>}
-                        {item.condition_at_return && <span>عند الإرجاع: {item.condition_at_return}</span>}
+                        {item.condition_at_receipt && <span>استلام: {item.condition_at_receipt}</span>}
+                        {item.condition_at_return  && <span>إرجاع: {item.condition_at_return}</span>}
                       </div>
                     </div>
                   ))}
@@ -427,18 +602,17 @@ export default function CustodyFormPage() {
               )}
             </div>
 
-            {/* Section 3 — dates */}
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">التواريخ والأمانة</p>
-              <div className="grid grid-cols-3 gap-3 text-center text-sm mb-3">
+              <div className="grid grid-cols-3 gap-3 text-center mb-3">
                 {[
                   ['تاريخ الاستلام', selectedForm.receipt_date],
-                  ['تاريخ الإرجاع المتوقع', selectedForm.expected_return_date],
-                  ['تاريخ الإرجاع الفعلي', selectedForm.actual_return_date],
+                  ['الإرجاع المتوقع', selectedForm.expected_return_date],
+                  ['الإرجاع الفعلي', selectedForm.actual_return_date],
                 ].map(([label, val]) => (
                   <div key={label} className="bg-gray-50 rounded-lg p-2">
                     <p className="text-xs text-gray-400">{label}</p>
-                    <p className="font-bold text-gray-700 mt-0.5">{val || '—'}</p>
+                    <p className="text-xs font-bold text-gray-700 mt-0.5">{val || '—'}</p>
                   </div>
                 ))}
               </div>
@@ -450,18 +624,17 @@ export default function CustodyFormPage() {
               </div>
             </div>
 
-            {/* Section 4 — signatures */}
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">رابعاً: إقرار وتعهد المستلم</p>
               <p className="text-xs text-gray-500 leading-relaxed mb-4">
-                أقر أنا الموقع أدناه بأنني استلمت العهدة المذكورة أعلاه بحالتها الموضحة أعلاه، وأتعهد بالمحافظة عليها وعدم استعمالها فيما يخالف أغراض جمعية نهضة العكنة الخيرية، والالتزام بإعادتها في الموعد المحدد.
+                أقر أنا الموقع أدناه بأنني استلمت العهدة المذكورة أعلاه بحالتها الموضحة، وأتعهد بالمحافظة عليها وعدم استعمالها فيما يخالف أغراض جمعية نهضة العكنة الخيرية، والالتزام بإعادتها في الموعد المحدد.
               </p>
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
                 {[
-                  ['اسم المستلم عند الاستلام', selectedForm.recipient_signature_receipt],
-                  ['اسم المستلم عند الإرجاع', selectedForm.recipient_signature_return],
-                  ['اسم مسؤول الجمعية عند التسليم', selectedForm.officer_signature_receipt],
-                  ['اسم مسؤول الجمعية عند الإرجاع', selectedForm.officer_signature_return],
+                  ['اسم المستلم عند الاستلام',      selectedForm.recipient_signature_receipt],
+                  ['اسم المستلم عند الإرجاع',        selectedForm.recipient_signature_return],
+                  ['مسؤول الجمعية عند التسليم',     selectedForm.officer_signature_receipt],
+                  ['مسؤول الجمعية عند الإرجاع',     selectedForm.officer_signature_return],
                 ].map(([label, val]) => (
                   <div key={label} className="bg-gray-50 rounded-lg p-3">
                     <p className="text-xs text-gray-400">{label}</p>
@@ -471,9 +644,8 @@ export default function CustodyFormPage() {
               </div>
             </div>
 
-            {/* Admin actions */}
             {isAdmin && (
-              <div className="flex gap-3">
+              <div className="flex gap-3 pb-2">
                 <button
                   onClick={() => handleEdit(selectedForm)}
                   className="flex-1 bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-semibold cursor-pointer hover:bg-[#1a3d7a] transition-colors"
@@ -491,26 +663,27 @@ export default function CustodyFormPage() {
           </div>
         )}
 
-        {/* ─── NEW / EDIT FORM ──────────────────────── */}
-        {activeTab === 'new' && showForm && (
+        {/* ══════════════════════════════════════
+            TAB 3 — نموذج جديد / تعديل (أدمن)
+            ══════════════════════════════════════ */}
+        {activeTab === 'new' && showForm && isAdmin && (
           <div className="space-y-4">
 
-            {/* Section 1 */}
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <p className="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">أولاً: بيانات الجهة المستلمة</p>
               <div className="space-y-3">
                 {[
-                  { key: 'recipient_name', label: 'الاسم *', placeholder: 'اسم المستلم', required: true },
-                  { key: 'recipient_address', label: 'العنوان', placeholder: 'عنوان المستلم' },
-                  { key: 'usage_purpose', label: 'الغرض من الاستخدام', placeholder: 'مثال: حفل زفاف، مناسبة اجتماعية' },
-                  { key: 'usage_location', label: 'مكان الاستخدام', placeholder: 'موقع استخدام العهدة' },
-                  { key: 'phone_number', label: 'رقم الهاتف', placeholder: '05XXXXXXXX' },
+                  { key: 'recipient_name',    label: 'الاسم *',            placeholder: 'اسم المستلم',                     required: true },
+                  { key: 'recipient_address', label: 'العنوان',            placeholder: 'عنوان المستلم' },
+                  { key: 'usage_purpose',     label: 'الغرض من الاستخدام', placeholder: 'مثال: حفل زفاف، مناسبة اجتماعية' },
+                  { key: 'usage_location',    label: 'مكان الاستخدام',     placeholder: 'موقع استخدام العهدة' },
+                  { key: 'phone_number',      label: 'رقم الهاتف',         placeholder: '05XXXXXXXX' },
                 ].map(field => (
                   <div key={field.key}>
                     <label className="text-xs text-gray-500 block mb-1">{field.label}</label>
                     <input
                       required={field.required}
-                      value={(formData[field.key as keyof FormState] as string)}
+                      value={formData[field.key as keyof FormState] as string}
                       onChange={e => setFormData({ ...formData, [field.key]: e.target.value })}
                       placeholder={field.placeholder}
                       className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
@@ -520,7 +693,6 @@ export default function CustodyFormPage() {
               </div>
             </div>
 
-            {/* Section 2 — items */}
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <p className="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">ثانياً: تفاصيل العهدة المستلمة</p>
               <div className="space-y-3">
@@ -563,20 +735,19 @@ export default function CustodyFormPage() {
               </div>
             </div>
 
-            {/* Section 3 — dates */}
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <p className="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">التواريخ والأمانة</p>
               <div className="space-y-3">
                 {[
-                  { key: 'receipt_date', label: 'تاريخ الاستلام *', type: 'date' },
-                  { key: 'expected_return_date', label: 'تاريخ الإرجاع المتوقع', type: 'date' },
-                  { key: 'actual_return_date', label: 'تاريخ الإرجاع الفعلي', type: 'date' },
+                  { key: 'receipt_date',         label: 'تاريخ الاستلام *' },
+                  { key: 'expected_return_date', label: 'تاريخ الإرجاع المتوقع' },
+                  { key: 'actual_return_date',   label: 'تاريخ الإرجاع الفعلي' },
                 ].map(field => (
                   <div key={field.key}>
                     <label className="text-xs text-gray-500 block mb-1">{field.label}</label>
                     <input
-                      type={field.type}
-                      value={(formData[field.key as keyof FormState] as string)}
+                      type="date"
+                      value={formData[field.key as keyof FormState] as string}
                       onChange={e => setFormData({ ...formData, [field.key]: e.target.value })}
                       className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
                     />
@@ -592,37 +763,31 @@ export default function CustodyFormPage() {
                   />
                 </div>
               </div>
-
-              {/* Deposit clause */}
               <div className="bg-amber-50 rounded-lg p-3 mt-3">
                 <p className="text-xs text-amber-700 leading-relaxed">
-                  يلتزم المستلم بدفع مبلغ وقدره <strong>{(formData.security_deposit).toLocaleString('ar-EG')}</strong> جنيه كأمانة تُسترد كاملة عند إعادة العهدة في الموعد المحدد وبحالة سليمة.
+                  يلتزم المستلم بدفع <strong>{formData.security_deposit.toLocaleString('ar-EG')}</strong> جنيه كأمانة تُسترد عند الإرجاع السليم في الموعد المحدد.
                 </p>
               </div>
             </div>
 
-            {/* Section 4 — signatures */}
             <div className="bg-white rounded-xl border border-gray-100 p-4">
               <p className="text-sm font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100">رابعاً: أسماء الإقرار والتوقيع</p>
-
-              {/* Pledge text */}
               <div className="bg-blue-50/50 rounded-lg p-3 mb-4">
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  أقر أنا الموقع أدناه بأنني استلمت العهدة المذكورة أعلاه بحالتها الموضحة، وأتعهد بالمحافظة عليها وعدم استعمالها فيما يخالف أغراض جمعية نهضة العكنة الخيرية، والالتزام بإعادتها في الموعد المحدد، كما أقر بتحملي كامل المسؤولية في حالة الفقدان أو التلف.
+                  أقر أنا الموقع أدناه بأنني استلمت العهدة المذكورة أعلاه بحالتها الموضحة، وأتعهد بالمحافظة عليها وعدم استعمالها فيما يخالف أغراض جمعية نهضة العكنة الخيرية، والالتزام بإعادتها في الموعد المحدد.
                 </p>
               </div>
-
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { key: 'recipient_signature_receipt', label: 'اسم المستلم عند الاستلام' },
-                  { key: 'recipient_signature_return', label: 'اسم المستلم عند الإرجاع' },
-                  { key: 'officer_signature_receipt', label: 'اسم مسؤول الجمعية عند التسليم' },
-                  { key: 'officer_signature_return', label: 'اسم مسؤول الجمعية عند الإرجاع' },
+                  { key: 'recipient_signature_return',  label: 'اسم المستلم عند الإرجاع' },
+                  { key: 'officer_signature_receipt',   label: 'مسؤول الجمعية عند التسليم' },
+                  { key: 'officer_signature_return',    label: 'مسؤول الجمعية عند الإرجاع' },
                 ].map(field => (
                   <div key={field.key}>
                     <label className="text-xs text-gray-500 block mb-1">{field.label}</label>
                     <input
-                      value={(formData[field.key as keyof FormState] as string)}
+                      value={formData[field.key as keyof FormState] as string}
                       onChange={e => setFormData({ ...formData, [field.key]: e.target.value })}
                       placeholder="الاسم الكامل"
                       className="w-full border border-gray-200 rounded-lg p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
@@ -632,7 +797,6 @@ export default function CustodyFormPage() {
               </div>
             </div>
 
-            {/* Save / Cancel */}
             <div className="flex gap-3 pb-4">
               <button
                 onClick={handleSave}
