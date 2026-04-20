@@ -115,8 +115,8 @@ export default function CustodyFormPage() {
   const [reqDone, setReqDone]           = useState(false)
   const [requests, setRequests]         = useState<CustodyRequest[]>([])
 
-  // ← NEW: controls whether the request form is expanded (for admin it starts collapsed)
-  const [reqFormOpen, setReqFormOpen]   = useState(false)
+  // للأدمن: إظهار بطاقة الشرح + الخطوات + نموذج الطلب عند الضغط على الزر فقط
+  const [showRequestContent, setShowRequestContent] = useState(false)
 
   // forms list
   const [forms, setForms]               = useState<CustodyForm[]>([])
@@ -135,8 +135,6 @@ export default function CustodyFormPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       setIsAdmin(true)
-      // Admin: form starts collapsed so requests are visible immediately
-      setReqFormOpen(false)
 
       const { data: reqData } = await supabase
         .from('custody_requests')
@@ -162,9 +160,6 @@ export default function CustodyFormPage() {
         )
         setForms(formsWithItems as CustodyForm[])
       }
-    } else {
-      // Visitor: form starts open so they can fill it directly
-      setReqFormOpen(true)
     }
     setLoading(false)
   }
@@ -180,7 +175,6 @@ export default function CustodyFormPage() {
     })
     setReqSaving(false)
     setReqDone(true)
-    setReqFormOpen(false)
     setReqForm({ requester_name: '', phone_number: '', address: '' })
     if (isAdmin) fetchData()
   }
@@ -306,6 +300,103 @@ export default function CustodyFormPage() {
     setFormData({ ...formData, items: updated })
   }
 
+  // ─── المحتوى المخفي: بطاقة الشرح + الخطوات + نموذج الطلب ────────────────
+  const RequestContent = () => (
+    <>
+      {/* بطاقة الشرح */}
+      <div className="bg-[#0f2a5e] rounded-2xl p-5 text-white">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xl">📦</span>
+          <p className="text-sm font-bold">استعارة ممتلكات الجمعية</p>
+        </div>
+        <p className="text-xs leading-relaxed opacity-90">
+          حرصاً من جمعية نهضة العكنة الخيرية على تنظيم استخدام ممتلكاتها والمحافظة عليها،
+          فقد تم إعداد نموذج رسمي لإثبات استلام العهدة وتحديد المسؤوليات المترتبة على المستلم
+          عند إرجاعها. يمكنك تقديم طلبك أدناه، وسيقوم المشرفون بمراجعته واستكمال النموذج
+          الرسمي عند الاستلام.
+        </p>
+      </div>
+
+      {/* خطوات */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-4">
+        <p className="text-xs font-bold text-gray-700 mb-3">خطوات الاستعارة</p>
+        <div className="space-y-2.5">
+          {[
+            { n: '١', text: 'قدّم طلبك بالنموذج أدناه' },
+            { n: '٢', text: 'يتواصل معك المشرف لتحديد موعد الاستلام' },
+            { n: '٣', text: 'يُملأ النموذج الرسمي ويُدفع مبلغ الأمانة (٥٠،٠٠٠ جنيه)' },
+            { n: '٤', text: 'تُسترد الأمانة كاملة عند الإرجاع في موعده وبحالة سليمة' },
+          ].map(step => (
+            <div key={step.n} className="flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-[#0f2a5e] text-white text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                {step.n}
+              </span>
+              <p className="text-xs text-gray-600 leading-relaxed">{step.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* نموذج الطلب */}
+      {reqDone ? (
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
+          <p className="text-3xl mb-3">✅</p>
+          <p className="text-sm font-bold text-green-700">تم إرسال الطلب بنجاح</p>
+          <p className="text-xs text-green-600 mt-1 leading-relaxed">
+            سيتواصل معك أحد المشرفين قريباً على الرقم الذي أدخلته
+          </p>
+          <button
+            onClick={() => setReqDone(false)}
+            className="mt-4 text-xs text-green-700 underline cursor-pointer"
+          >
+            تقديم طلب آخر
+          </button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
+          <p className="text-sm font-bold text-gray-700 pb-2 border-b border-gray-100">
+            بيانات مقدّم الطلب
+          </p>
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">الاسم الكامل *</label>
+            <input
+              value={reqForm.requester_name}
+              onChange={e => setReqForm({ ...reqForm, requester_name: e.target.value })}
+              placeholder="أدخل اسمك الكامل"
+              className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">رقم الهاتف *</label>
+            <input
+              value={reqForm.phone_number}
+              onChange={e => setReqForm({ ...reqForm, phone_number: e.target.value })}
+              placeholder="05XXXXXXXX"
+              type="tel"
+              className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">عنوان السكن *</label>
+            <input
+              value={reqForm.address}
+              onChange={e => setReqForm({ ...reqForm, address: e.target.value })}
+              placeholder="الحي / المنطقة"
+              className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
+            />
+          </div>
+          <button
+            onClick={handleReqSubmit}
+            disabled={reqSaving || !reqForm.requester_name.trim() || !reqForm.phone_number.trim() || !reqForm.address.trim()}
+            className="w-full bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-[#1a3d7a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+          >
+            {reqSaving ? '...جاري الإرسال' : 'إرسال الطلب'}
+          </button>
+        </div>
+      )}
+    </>
+  )
+
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl" style={{ fontFamily: "'Cairo', sans-serif" }}>
@@ -329,10 +420,14 @@ export default function CustodyFormPage() {
 
         {/* ── Tabs ─────────────────────────────────────────────────────────── */}
         <div className="flex gap-2 mb-4">
-
-          {/* تقديم طلب — للجميع دائماً */}
           <button
-            onClick={() => { setActiveTab('request'); setSelectedForm(null); resetForm() }}
+            onClick={() => {
+              setActiveTab('request')
+              setSelectedForm(null)
+              resetForm()
+              // الزوار يرون المحتوى دائماً، الأدمن يعود للحالة المغلقة
+              if (isAdmin) setShowRequestContent(false)
+            }}
             className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${
               activeTab === 'request'
                 ? 'bg-[#0f2a5e] text-white'
@@ -342,7 +437,6 @@ export default function CustodyFormPage() {
             📩 تقديم طلب
           </button>
 
-          {/* النماذج ونموذج جديد — للأدمن فقط */}
           {isAdmin && (
             <>
               <button
@@ -370,164 +464,65 @@ export default function CustodyFormPage() {
         </div>
 
         {/* ══════════════════════════════════════
-            TAB 1 — تقديم طلب (الجميع)
+            TAB 1 — تقديم طلب
             ══════════════════════════════════════ */}
         {activeTab === 'request' && (
           <div className="space-y-4">
 
-            {/* بطاقة الشرح */}
-            <div className="bg-[#0f2a5e] rounded-2xl p-5 text-white">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">📦</span>
-                <p className="text-sm font-bold">استعارة ممتلكات الجمعية</p>
-              </div>
-              <p className="text-xs leading-relaxed opacity-90">
-                حرصاً من جمعية نهضة العكنة الخيرية على تنظيم استخدام ممتلكاتها والمحافظة عليها،
-                فقد تم إعداد نموذج رسمي لإثبات استلام العهدة وتحديد المسؤوليات المترتبة على المستلم
-                عند إرجاعها. يمكنك تقديم طلبك أدناه، وسيقوم المشرفون بمراجعته واستكمال النموذج
-                الرسمي عند الاستلام.
-              </p>
-            </div>
+            {/* ── للزوار: كل المحتوى يظهر مباشرة ── */}
+            {!isAdmin && <RequestContent />}
 
-            {/* خطوات */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-4">
-              <p className="text-xs font-bold text-gray-700 mb-3">خطوات الاستعارة</p>
-              <div className="space-y-2.5">
-                {[
-                  { n: '١', text: 'قدّم طلبك بالنموذج أدناه' },
-                  { n: '٢', text: 'يتواصل معك المشرف لتحديد موعد الاستلام' },
-                  { n: '٣', text: 'يُملأ النموذج الرسمي ويُدفع مبلغ الأمانة (٥٠،٠٠٠ جنيه)' },
-                  { n: '٤', text: 'تُسترد الأمانة كاملة عند الإرجاع في موعده وبحالة سليمة' },
-                ].map(step => (
-                  <div key={step.n} className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#0f2a5e] text-white text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
-                      {step.n}
-                    </span>
-                    <p className="text-xs text-gray-600 leading-relaxed">{step.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── نموذج الطلب ── */}
-            {reqDone ? (
-              <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
-                <p className="text-3xl mb-3">✅</p>
-                <p className="text-sm font-bold text-green-700">تم إرسال الطلب بنجاح</p>
-                <p className="text-xs text-green-600 mt-1 leading-relaxed">
-                  سيتواصل معك أحد المشرفين قريباً على الرقم الذي أدخلته
-                </p>
-                <button
-                  onClick={() => { setReqDone(false); setReqFormOpen(true) }}
-                  className="mt-4 text-xs text-green-700 underline cursor-pointer"
-                >
-                  تقديم طلب آخر
-                </button>
-              </div>
-            ) : (
-              <>
-                {/* زر فتح النموذج — يظهر دائماً عند الإغلاق */}
-                {!reqFormOpen && (
-                  <button
-                    onClick={() => setReqFormOpen(true)}
-                    className="w-full bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-[#1a3d7a] transition-colors flex items-center justify-center gap-2"
-                  >
-                    <span>📩</span>
-                    <span>تقديم طلب استعارة</span>
-                  </button>
-                )}
-
-                {/* نموذج الطلب — مفتوح أو مغلق */}
-                {reqFormOpen && (
-                  <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                      <p className="text-sm font-bold text-gray-700">بيانات مقدّم الطلب</p>
-                      {/* زر الإغلاق — للأدمن فقط */}
-                      {isAdmin && (
-                        <button
-                          onClick={() => setReqFormOpen(false)}
-                          className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer transition-colors"
-                        >
-                          ✕ إغلاق
-                        </button>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 block mb-1">الاسم الكامل *</label>
-                      <input
-                        value={reqForm.requester_name}
-                        onChange={e => setReqForm({ ...reqForm, requester_name: e.target.value })}
-                        placeholder="أدخل اسمك الكامل"
-                        className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 block mb-1">رقم الهاتف *</label>
-                      <input
-                        value={reqForm.phone_number}
-                        onChange={e => setReqForm({ ...reqForm, phone_number: e.target.value })}
-                        placeholder="05XXXXXXXX"
-                        type="tel"
-                        className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 block mb-1">عنوان السكن *</label>
-                      <input
-                        value={reqForm.address}
-                        onChange={e => setReqForm({ ...reqForm, address: e.target.value })}
-                        placeholder="الحي / المنطقة"
-                        className="w-full border border-gray-200 rounded-xl p-2.5 text-right text-sm focus:outline-none focus:ring-2 focus:ring-[#0f2a5e]/30"
-                      />
-                    </div>
-                    <button
-                      onClick={handleReqSubmit}
-                      disabled={reqSaving || !reqForm.requester_name.trim() || !reqForm.phone_number.trim() || !reqForm.address.trim()}
-                      className="w-full bg-[#0f2a5e] text-white py-3 rounded-xl text-sm font-bold cursor-pointer hover:bg-[#1a3d7a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
-                    >
-                      {reqSaving ? '...جاري الإرسال' : 'إرسال الطلب'}
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* ── قائمة الطلبات الواردة — للأدمن فقط ── */}
+            {/* ── للأدمن ── */}
             {isAdmin && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-4">
-                <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">
-                  📥 طلبات الزوار ({arabicNum(requests.length)})
-                </p>
-                {requests.length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">لا توجد طلبات بعد</p>
-                ) : (
-                  <div className="space-y-2">
-                    {requests.map((req, i) => (
-                      <div key={req.id} className="bg-gray-50 rounded-xl p-3 flex items-start gap-3">
-                        <span className="w-6 h-6 rounded-lg bg-[#0f2a5e]/10 text-[#0f2a5e] text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
-                          {arabicNum(i + 1)}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-gray-800">{req.requester_name}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">📞 {req.phone_number}</p>
-                          <p className="text-xs text-gray-500">📍 {req.address}</p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {new Date(req.created_at).toLocaleDateString('ar-EG', {
-                              day: 'numeric', month: 'long', year: 'numeric',
-                            })}
-                          </p>
+              <>
+                {/* زر تقديم طلب — يظهر دائماً */}
+                <button
+                  onClick={() => setShowRequestContent(prev => !prev)}
+                  className="w-full bg-[#0f2a5e] text-white py-3.5 rounded-xl text-sm font-bold cursor-pointer hover:bg-[#1a3d7a] transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>📩</span>
+                  <span>{showRequestContent ? 'إخفاء نموذج الطلب ▲' : 'تقديم طلب استعارة ▼'}</span>
+                </button>
+
+                {/* بطاقة الشرح + الخطوات + نموذج الطلب — تظهر فقط عند الضغط */}
+                {showRequestContent && <RequestContent />}
+
+                {/* طلبات الزوار — تظهر دائماً للأدمن بغض النظر عن الزر */}
+                <div className="bg-white rounded-2xl border border-gray-100 p-4">
+                  <p className="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-100">
+                    📥 طلبات الزوار ({arabicNum(requests.length)})
+                  </p>
+                  {requests.length === 0 ? (
+                    <p className="text-xs text-gray-400 text-center py-4">لا توجد طلبات بعد</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {requests.map((req, i) => (
+                        <div key={req.id} className="bg-gray-50 rounded-xl p-3 flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-lg bg-[#0f2a5e]/10 text-[#0f2a5e] text-xs flex items-center justify-center font-bold flex-shrink-0 mt-0.5">
+                            {arabicNum(i + 1)}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-gray-800">{req.requester_name}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">📞 {req.phone_number}</p>
+                            <p className="text-xs text-gray-500">📍 {req.address}</p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(req.created_at).toLocaleDateString('ar-EG', {
+                                day: 'numeric', month: 'long', year: 'numeric',
+                              })}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteRequest(req.id)}
+                            className="text-red-400 hover:text-red-600 text-xs cursor-pointer transition-colors flex-shrink-0 mt-1"
+                          >
+                            حذف
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleDeleteRequest(req.id)}
-                          className="text-red-400 hover:text-red-600 text-xs cursor-pointer transition-colors flex-shrink-0 mt-1"
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         )}
