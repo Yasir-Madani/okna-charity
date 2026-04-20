@@ -164,7 +164,7 @@ export default function CustodyFormPage() {
     await supabase.from('custody_requests').insert({
       requester_name: reqForm.requester_name.trim(),
       phone_number:   reqForm.phone_number.trim(),
-      address:        reqForm.address.trim(),
+      address:         reqForm.address.trim(),
     })
     setReqSaving(false)
     setReqDone(true)
@@ -266,7 +266,7 @@ export default function CustodyFormPage() {
   }
 
   // ── محتوى الشرح والخطوات والنموذج (مشترك بين الأدمن والزائر) ──
-  const RequestContent = () => (
+  const renderRequestContent = () => (
     <>
       <div className="bg-[#0f2a5e] rounded-2xl p-5 text-white">
         <div className="flex items-center gap-2 mb-3">
@@ -392,7 +392,7 @@ export default function CustodyFormPage() {
           <div className="space-y-4">
 
             {/* ── الزائر: المحتوى مباشرة بدون أي زر ── */}
-            {!isAdmin && <RequestContent />}
+            {!isAdmin && renderRequestContent()}
 
             {/* ── الأدمن: زر يتحكم في المحتوى + طلبات الزوار دائماً ── */}
             {isAdmin && (
@@ -406,7 +406,7 @@ export default function CustodyFormPage() {
                 </button>
 
                 {/* المحتوى يظهر عند الضغط فقط */}
-                {showRequestContent && <RequestContent />}
+                {showRequestContent && renderRequestContent()}
 
                 {/* طلبات الزوار — دائماً ظاهرة للأدمن */}
                 <div className="bg-white rounded-2xl border border-gray-100 p-4">
