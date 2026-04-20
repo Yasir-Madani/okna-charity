@@ -279,7 +279,8 @@ export default function PublicDashboard() {
         ) : (
           <>
             {/* ── Section: General Stats ── */}
-            <SectionLabel>إحصاءات عامة:  تنويه البيانات قيد الحصر والإدخال</SectionLabel>
+            {/* highlight prop يجعل النص أحمر غامق وأكبر */}
+            <SectionLabel highlight>إحصاءات عامة:  تنويه البيانات قيد الحصر والإدخال</SectionLabel>
             <div style={gridStyle(3)}>
               <StatCard value={stats.totalIndividuals} label="إجمالي الأفراد" accent="#185FA5" />
               <StatCard value={stats.totalHouses} label="إجمالي المنازل" accent="#3B6D11" />
@@ -332,11 +333,9 @@ export default function PublicDashboard() {
                   <p style={{ fontSize: 22, fontWeight: 800, color: '#111827', margin: 0 }}>
                     {count.toLocaleString('ar')}
                   </p>
-                  {/* ← نص المحور أسود */}
                   <p style={{ fontSize: 11, color: '#111827', margin: '3px 0 0', fontWeight: 600 }}>
                     محور {sector}
                   </p>
-                  {/* ← النسبة المئوية سوداء */}
                   <p style={{ fontSize: 10, color: '#111827', margin: '2px 0 0', fontWeight: 500 }}>
                     {stats.totalIndividuals > 0 ? Math.round((count / stats.totalIndividuals) * 100) : 0}٪
                   </p>
@@ -362,7 +361,6 @@ export default function PublicDashboard() {
                     display: 'flex', alignItems: 'center', gap: 10,
                     marginBottom: i < ageItems.length - 1 ? 10 : 0,
                   }}>
-                    {/* ← تسمية الفئة العمرية سوداء */}
                     <span style={{
                       fontSize: 12, color: '#111827',
                       fontWeight: 600,
@@ -384,7 +382,6 @@ export default function PublicDashboard() {
                         background: item.color,
                       }} />
                     </div>
-                    {/* ← النسبة المئوية سوداء */}
                     <span style={{
                       fontSize: 11, color: '#111827',
                       fontWeight: 600,
@@ -413,12 +410,18 @@ export default function PublicDashboard() {
 
 /* ────────── Sub-components ────────── */
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({
+  children,
+  highlight,
+}: {
+  children: React.ReactNode
+  highlight?: boolean
+}) {
   return (
     <p style={{
-      fontSize: 11,
-      fontWeight: 600,
-      color: '#111827',
+      fontSize: highlight ? 13 : 11,
+      fontWeight: highlight ? 800 : 600,
+      color: highlight ? '#B91C1C' : '#111827',
       letterSpacing: '0.06em',
       margin: '16px 0 8px 2px',
       textTransform: 'uppercase',
@@ -464,7 +467,6 @@ function StatCard({
       }}>
         {value.toLocaleString('ar')}
       </p>
-      {/* ← النص الوصفي أسود */}
       <p style={{
         fontSize: 11,
         color: '#111827',
