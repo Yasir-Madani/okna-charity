@@ -160,7 +160,7 @@ export default function HomePage() {
         <div className="px-4 pb-3">
           <button
             onClick={() => router.push('/home/custody-form')}
-            className="w-full bg-[#0f2a5e] border border-gray-100 rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 relative overflow-hidden"
+            className="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-all duration-150 relative overflow-hidden"
             style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
           >
             <span className="absolute top-0 right-0 w-1 h-full rounded-r-2xl bg-orange-400" />
@@ -168,7 +168,7 @@ export default function HomePage() {
               📰
             </div>
             <div className="flex-1 text-right pr-1">
-              <p className="text-sm font-bold text-white">نموذج استلام عهدة من الجمعية</p>
+              <p className="text-sm font-bold text-gray-800">لب استعارة ممتلكات الجمعية</p>
               
             </div>
             <span className="text-gray-300 text-sm">←</span>
