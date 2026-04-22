@@ -318,7 +318,7 @@ export default function OverviewPage() {
           border-radius: 12px;
           padding: 12px;
           margin-bottom: 20px;
-          align-items: center;     /* التوسيط العمودي */
+          justify-content: center; /* التوسيط الأفقي */
         }
 
         .ov-cover-notice p {
