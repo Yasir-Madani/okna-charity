@@ -145,7 +145,7 @@ export default function InstallStatsPage() {
           onClick={() => router.push('/home')}
           style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '8px 14px', fontSize: '13px', fontWeight: 700, color: '#374151', cursor: 'pointer', fontFamily: 'Cairo, sans-serif', whiteSpace: 'nowrap' }}
         >
-          ← رجوع
+          رجوع
         </button>
         <div>
           <h1 style={{ fontSize: isMobile ? '17px' : '20px', fontWeight: 800, color: '#111827', margin: 0 }}>إحصائيات برمجية</h1>
