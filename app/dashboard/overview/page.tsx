@@ -318,13 +318,12 @@ export default function OverviewPage() {
           border-radius: 12px;
           padding: 12px;
           margin-bottom: 20px;
-          text-align: center;      /* لضمان توسيط أسطر النص */
         }
 
         .ov-cover-notice p {
           font-size: 13px;
           color: #14b464;
-          text-align: right;
+          text-align: center;
         }
 
         .ov-cover-btn {
