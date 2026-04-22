@@ -54,6 +54,14 @@ export default function InstallStatsPage() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'installed' | 'dismissed' | 'prompt_shown' | 'ios_shown'>('all')
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     checkAuth()
@@ -88,7 +96,6 @@ export default function InstallStatsPage() {
   const dismissed  = logs.filter(l => l.event_type === 'dismissed')
   const convRate   = shown.length > 0 ? ((installed.length / shown.length) * 100).toFixed(1) : '0'
 
-  // unique devices that installed (by fingerprint)
   const uniqueInstalls = new Set(installed.map(l => l.fingerprint)).size
 
   const deviceGroups  = groupBy(installed, 'device_type')
@@ -129,36 +136,36 @@ export default function InstallStatsPage() {
   }[type] || { bg: '#f3f4f6', color: '#374151' })
 
   return (
-    <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", background: '#f5f7fa', minHeight: '100vh', padding: '20px 16px 40px' }}>
+    <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", background: '#f5f7fa', minHeight: '100vh', padding: isMobile ? '16px 12px 40px' : '20px 16px 40px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
         <button
           onClick={() => router.push('/home')}
-          style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '8px 14px', fontSize: '13px', fontWeight: 700, color: '#374151', cursor: 'pointer', fontFamily: 'Cairo, sans-serif' }}
+          style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '8px 14px', fontSize: '13px', fontWeight: 700, color: '#374151', cursor: 'pointer', fontFamily: 'Cairo, sans-serif', whiteSpace: 'nowrap' }}
         >
           ← رجوع
         </button>
         <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#111827', margin: 0 }}>إحصائيات برمجية</h1>
+          <h1 style={{ fontSize: isMobile ? '17px' : '20px', fontWeight: 800, color: '#111827', margin: 0 }}>إحصائيات برمجية</h1>
           <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>تتبع تثبيت التطبيق على الأجهزة</p>
         </div>
       </div>
 
       {/* ── Stat Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '20px' }}>
         {statCards.map((c) => (
           <div key={c.label} style={{ background: 'white', borderRadius: '16px', padding: '14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', textAlign: 'center' }}>
             <div style={{ fontSize: '22px', marginBottom: '4px' }}>{c.icon}</div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: c.color }}>{c.value}</div>
+            <div style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: 800, color: c.color }}>{c.value}</div>
             <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px', lineHeight: 1.3 }}>{c.label}</div>
           </div>
         ))}
       </div>
 
-      {/* ── Charts Row ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+      {/* ── Charts ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '12px', marginBottom: '20px' }}>
 
         {/* Devices */}
         <div style={{ background: 'white', borderRadius: '16px', padding: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
@@ -215,42 +222,80 @@ export default function InstallStatsPage() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-            <thead>
-              <tr style={{ background: '#f9fafb' }}>
-                {['الحدث', 'الجهاز', 'المتصفح', 'نظام التشغيل', 'معرف الجهاز', 'التاريخ والوقت'].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'right', color: '#6b7280', fontWeight: 700, borderBottom: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLogs.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>لا توجد سجلات</td>
-                </tr>
-              ) : filteredLogs.map((log) => {
-                const badge = eventBadge(log.event_type)
-                return (
-                  <tr key={log.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: badge.bg, color: badge.color, whiteSpace: 'nowrap' }}>
-                        {eventLabel(log.event_type)}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px', color: '#374151' }}>{log.device_type || '—'}</td>
-                    <td style={{ padding: '10px 12px', color: '#374151' }}>{log.browser || '—'}</td>
-                    <td style={{ padding: '10px 12px', color: '#374151' }}>{log.os || '—'}</td>
-                    <td style={{ padding: '10px 12px', color: '#9ca3af', fontFamily: 'monospace', fontSize: '11px' }}>{log.fingerprint?.slice(0, 12) || '—'}...</td>
-                    <td style={{ padding: '10px 12px', color: '#6b7280', whiteSpace: 'nowrap' }}>
+        {/* Mobile: Cards view */}
+        {isMobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {filteredLogs.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '13px', padding: '24px 0' }}>لا توجد سجلات</p>
+            ) : filteredLogs.map((log) => {
+              const badge = eventBadge(log.event_type)
+              return (
+                <div key={log.id} style={{ border: '1px solid #f3f4f6', borderRadius: '12px', padding: '12px 14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: badge.bg, color: badge.color }}>
+                      {eventLabel(log.event_type)}
+                    </span>
+                    <span style={{ fontSize: '11px', color: '#9ca3af' }}>
                       {new Date(log.installed_at).toLocaleString('ar-SA', { dateStyle: 'short', timeStyle: 'short' })}
-                    </td>
+                    </span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                      <span style={{ color: '#9ca3af' }}>الجهاز: </span>{log.device_type || '—'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                      <span style={{ color: '#9ca3af' }}>المتصفح: </span>{log.browser || '—'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                      <span style={{ color: '#9ca3af' }}>النظام: </span>{log.os || '—'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#9ca3af', fontFamily: 'monospace' }}>
+                      {log.fingerprint?.slice(0, 10) || '—'}...
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          /* Desktop: Table view */
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+              <thead>
+                <tr style={{ background: '#f9fafb' }}>
+                  {['الحدث', 'الجهاز', 'المتصفح', 'نظام التشغيل', 'معرف الجهاز', 'التاريخ والوقت'].map(h => (
+                    <th key={h} style={{ padding: '10px 12px', textAlign: 'right', color: '#6b7280', fontWeight: 700, borderBottom: '1px solid #e5e7eb', whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#9ca3af' }}>لا توجد سجلات</td>
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                ) : filteredLogs.map((log) => {
+                  const badge = eventBadge(log.event_type)
+                  return (
+                    <tr key={log.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '10px 12px' }}>
+                        <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, background: badge.bg, color: badge.color, whiteSpace: 'nowrap' }}>
+                          {eventLabel(log.event_type)}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px 12px', color: '#374151' }}>{log.device_type || '—'}</td>
+                      <td style={{ padding: '10px 12px', color: '#374151' }}>{log.browser || '—'}</td>
+                      <td style={{ padding: '10px 12px', color: '#374151' }}>{log.os || '—'}</td>
+                      <td style={{ padding: '10px 12px', color: '#9ca3af', fontFamily: 'monospace', fontSize: '11px' }}>{log.fingerprint?.slice(0, 12) || '—'}...</td>
+                      <td style={{ padding: '10px 12px', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                        {new Date(log.installed_at).toLocaleString('ar-SA', { dateStyle: 'short', timeStyle: 'short' })}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '12px', textAlign: 'left' }}>
           إجمالي السجلات: {filteredLogs.length}
