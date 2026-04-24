@@ -29,10 +29,18 @@ export default function ContactPage() {
   useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    setIsAdmin(!!user)
-    const { data } = await supabase.from('bank_accounts').select('*').order('id')
-    if (data) setAccounts(data)
+    // تشغيل الطلبين في نفس الوقت لتسريع عملية التحميل
+    const [userResponse, accountsResponse] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.from('bank_accounts').select('*').order('id')
+    ])
+
+    setIsAdmin(!!userResponse.data.user)
+    
+    if (accountsResponse.data) {
+      setAccounts(accountsResponse.data)
+    }
+    
     setLoading(false)
   }
 
@@ -135,12 +143,11 @@ export default function ContactPage() {
             <span className="w-[3px] h-5 rounded-full bg-[#0d7a60]" />
             <span className="text-sm font-bold text-gray-900">حسابات التحويل البنكي : </span>
             <span 
-  style={{ fontSize: '11px', color: '#8b0000' }} 
-  className="font-bold"
->
- يرسل الإشعار مع التعليق عبر واتساب أدناه
-</span>
-
+              style={{ fontSize: '11px', color: '#8b0000' }} 
+              className="font-bold"
+            >
+             يرسل الإشعار مع التعليق عبر واتساب أدناه
+            </span>
           </div>
           <div className="bg-white rounded-[18px] overflow-hidden shadow-sm border border-black/[0.06]">
             {/* Card Header */}
