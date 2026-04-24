@@ -24,12 +24,12 @@ export default function GeneralNeedsPage() {
     const { data: visData } = await supabase
       .from('page_visibility')
       .select('is_visible')
-      .eq('page_key', 'general_stats')
+      .eq('page_key', 'general_needs')
       .single()
     if (visData) setIsVisible(visData.is_visible)
 
     const { data } = await supabase
-      .from('general_stats')
+      .from('needs')
       .select('*')
       .order('sort_order', { ascending: true })
     if (data) setStats(data)
@@ -42,7 +42,7 @@ export default function GeneralNeedsPage() {
     await supabase
       .from('page_visibility')
       .update({ is_visible: newVal, updated_at: new Date().toISOString() })
-      .eq('page_key', 'general_stats')
+      .eq('page_key', 'general_needs')
     setIsVisible(newVal)
     setTogglingVisibility(false)
   }
@@ -60,27 +60,26 @@ export default function GeneralNeedsPage() {
     if (!user) return
 
     const { data: existing } = await supabase
-      .from('general_stats')
+      .from('needs')
       .select('id')
       .ilike('name', form.name.trim())
       .neq('id', editing?.id ?? '00000000-0000-0000-0000-000000000000')
       .single()
 
     if (existing) {
-      setDuplicateError(`"${form.name.trim()}" موجود مسبقاً في قائمة الإحصائيات`)
+      setDuplicateError(`"${form.name.trim()}" موجود مسبقاً في قائمة الحوجات`)
       return
     }
 
     if (editing) {
-      await supabase.from('general_stats').update({
+      await supabase.from('needs').update({
         name: form.name.trim(),
         quantity: Number(form.quantity),
         notes: form.notes || null,
       }).eq('id', editing.id)
     } else {
-      // العنصر الجديد يأخذ آخر رقم ترتيب + 1
       const maxOrder = stats.length > 0 ? Math.max(...stats.map(s => s.sort_order ?? 0)) : 0
-      await supabase.from('general_stats').insert({
+      await supabase.from('needs').insert({
         name: form.name.trim(),
         quantity: Number(form.quantity),
         notes: form.notes || null,
@@ -102,7 +101,7 @@ export default function GeneralNeedsPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`هل أنت متأكد من حذف "${name}"؟`)) return
-    await supabase.from('general_stats').delete().eq('id', id)
+    await supabase.from('needs').delete().eq('id', id)
     fetchData()
   }
 
@@ -113,11 +112,9 @@ export default function GeneralNeedsPage() {
     const current = stats[index]
     const target = stats[targetIndex]
 
-    // تبديل sort_order بين الصفين
-    await supabase.from('general_stats').update({ sort_order: target.sort_order }).eq('id', current.id)
-    await supabase.from('general_stats').update({ sort_order: current.sort_order }).eq('id', target.id)
+    await supabase.from('needs').update({ sort_order: target.sort_order }).eq('id', current.id)
+    await supabase.from('needs').update({ sort_order: current.sort_order }).eq('id', target.id)
 
-    // تحديث فوري في الـ state بدون انتظار fetchData
     const newStats = [...stats]
     newStats[index] = { ...current, sort_order: target.sort_order }
     newStats[targetIndex] = { ...target, sort_order: current.sort_order }
@@ -273,7 +270,6 @@ export default function GeneralNeedsPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {/* شريط العنوان */}
             <div className="flex items-center gap-3 px-4 py-1">
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-gray-500">الصنف</p>
@@ -311,7 +307,6 @@ export default function GeneralNeedsPage() {
                   <>
                     <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
                     <div className="flex items-center gap-2 flex-shrink-0 w-[110px] justify-start">
-                      {/* أزرار الترتيب */}
                       <div className="flex flex-col gap-0.5">
                         <button
                           onClick={() => handleMove(index, 'up')}
