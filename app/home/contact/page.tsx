@@ -29,7 +29,7 @@ export default function ContactPage() {
   useEffect(() => { fetchData() }, [])
 
   const fetchData = async () => {
-    // تشغيل الطلبين في نفس الوقت لتسريع عملية التحميل
+    setLoading(true)
     const [userResponse, accountsResponse] = await Promise.all([
       supabase.auth.getUser(),
       supabase.from('bank_accounts').select('*').order('id')
@@ -110,7 +110,7 @@ export default function ContactPage() {
 
       <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
 
-        {/* WhatsApp */}
+        {/* WhatsApp Section */}
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="w-[3px] h-5 rounded-full bg-[#0d7a60]" />
@@ -137,15 +137,12 @@ export default function ContactPage() {
           </button>
         </div>
 
-        {/* Bank Accounts */}
+        {/* Bank Accounts Section */}
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="w-[3px] h-5 rounded-full bg-[#0d7a60]" />
             <span className="text-sm font-bold text-gray-900">حسابات التحويل البنكي : </span>
-            <span 
-              style={{ fontSize: '11px', color: '#8b0000' }} 
-              className="font-bold"
-            >
+            <span style={{ fontSize: '11px', color: '#8b0000' }} className="font-bold">
              يرسل الإشعار مع التعليق عبر واتساب أدناه
             </span>
           </div>
@@ -166,23 +163,21 @@ export default function ContactPage() {
               )}
             </div>
 
-            {/* Account Cards */}
+            {/* Account List / Loader */}
             {loading ? (
-              <div className="py-8 text-center text-sm text-gray-400">جاري التحميل...</div>
+              <div className="flex justify-center py-12">
+                <div className="w-7 h-7 border-2 border-[#0d7a60] border-t-transparent rounded-full animate-spin" />
+              </div>
             ) : accounts.length === 0 ? (
               <div className="py-8 text-center text-sm text-gray-400">لا توجد حسابات مضافة بعد</div>
             ) : (
               accounts.map((acc, i) => (
                 <div key={acc.id} className={`px-4 py-4 ${i < accounts.length - 1 ? 'border-b border-black/[0.06]' : ''}`}>
                   <div className="flex items-start gap-3">
-                    {/* Sequence badge */}
                     <div className="w-7 h-7 bg-[#eaf6f1] text-[#0d7a60] rounded-[8px] flex items-center justify-center text-[12px] font-bold shrink-0 mt-0.5">
                       {i + 1}
                     </div>
-
-                    {/* Info - label : value format */}
                     <div className="flex-1 min-w-0">
-                      {/* Each row: label and value aligned */}
                       <table className="w-full text-right" style={{ borderCollapse: 'collapse' }}>
                         <tbody>
                           <tr>
@@ -212,7 +207,6 @@ export default function ContactPage() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center justify-center bg-[#25d366] rounded-[7px] p-1.5 hover:bg-[#1fb855] transition-colors shrink-0"
-                                    title="فتح محادثة واتساب"
                                   >
                                     <svg viewBox="0 0 24 24" fill="white" className="w-3.5 h-3.5">
                                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
@@ -227,7 +221,6 @@ export default function ContactPage() {
                       </table>
                     </div>
 
-                    {/* Admin Actions */}
                     {isAdmin && (
                       <div className="flex gap-1.5 shrink-0 mt-0.5">
                         <button
@@ -257,7 +250,7 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* In-kind Donation */}
+        {/* In-kind Donation Section */}
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="w-[3px] h-5 rounded-full bg-[#0d7a60]" />
@@ -284,15 +277,8 @@ export default function ContactPage() {
 
       {/* Add / Edit Modal */}
       {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/45 flex items-end z-50"
-          onClick={() => setModalOpen(false)}
-        >
-          <div
-            className="bg-white rounded-t-[22px] w-full px-5 pt-6 pb-8"
-            dir="rtl"
-            onClick={e => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 bg-black/45 flex items-end z-50" onClick={() => setModalOpen(false)}>
+          <div className="bg-white rounded-t-[22px] w-full px-5 pt-6 pb-8" dir="rtl" onClick={e => e.stopPropagation()}>
             <h2 className="text-[16px] font-bold text-gray-900 text-center mb-5">
               {editingId !== null ? 'تعديل الحساب' : 'إضافة حساب بنكي'}
             </h2>
@@ -300,7 +286,6 @@ export default function ContactPage() {
             <label className="block text-[12px] font-semibold text-gray-500 mb-1">الاسم</label>
             <input
               className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm mb-3 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
-              style={{ fontFamily: "'Cairo', sans-serif" }}
               placeholder="الاسم المسجل للحساب"
               value={form.account_name}
               onChange={e => setForm(f => ({ ...f, account_name: e.target.value }))}
@@ -309,7 +294,6 @@ export default function ContactPage() {
             <label className="block text-[12px] font-semibold text-gray-500 mb-1">البنك</label>
             <input
               className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm mb-3 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
-              style={{ fontFamily: "'Cairo', sans-serif" }}
               placeholder="مثال: بنك الخرطوم"
               value={form.bank_name}
               onChange={e => setForm(f => ({ ...f, bank_name: e.target.value }))}
@@ -318,7 +302,6 @@ export default function ContactPage() {
             <label className="block text-[12px] font-semibold text-gray-500 mb-1">رقم الحساب</label>
             <input
               className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm mb-3 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
-              style={{ fontFamily: "'Cairo', sans-serif" }}
               placeholder="أدخل رقم الحساب"
               value={form.account_number}
               onChange={e => setForm(f => ({ ...f, account_number: e.target.value }))}
@@ -327,7 +310,6 @@ export default function ContactPage() {
             <label className="block text-[12px] font-semibold text-gray-500 mb-1">رقم الإشعار <span className="text-gray-400 font-normal">(اختياري)</span></label>
             <input
               className="w-full border border-black/15 rounded-xl px-4 py-2.5 text-sm mb-5 outline-none focus:border-[#0d7a60] focus:ring-2 focus:ring-[#0d7a60]/10"
-              style={{ fontFamily: "'Cairo', sans-serif" }}
               placeholder="رقم واتساب للإشعار"
               value={form.notice_number}
               onChange={e => setForm(f => ({ ...f, notice_number: e.target.value }))}
@@ -336,16 +318,17 @@ export default function ContactPage() {
             <div className="flex gap-2.5">
               <button
                 onClick={() => setModalOpen(false)}
-                className="flex-none w-20 bg-[#f0efeb] text-gray-600 text-sm font-semibold py-3 rounded-[13px] cursor-pointer hover:bg-[#e4e2dc] transition-colors"
+                className="flex-none w-20 bg-[#f0efeb] text-gray-600 text-sm font-semibold py-3 rounded-[13px] cursor-pointer"
               >
                 إلغاء
               </button>
               <button
                 onClick={saveAccount}
                 disabled={saving}
-                className="flex-1 text-white text-sm font-bold py-3 rounded-[13px] cursor-pointer transition-colors disabled:opacity-60"
+                className="flex-1 text-white text-sm font-bold py-3 rounded-[13px] cursor-pointer transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
                 style={{ background: '#0d7a60' }}
               >
+                {saving && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
                 {saving ? 'جاري الحفظ...' : 'حفظ'}
               </button>
             </div>
@@ -355,38 +338,20 @@ export default function ContactPage() {
 
       {/* Delete Confirm Modal */}
       {deleteConfirmId !== null && (
-        <div
-          className="fixed inset-0 bg-black/45 flex items-end z-50"
-          onClick={() => setDeleteConfirmId(null)}
-        >
-          <div
-            className="bg-white rounded-t-[22px] w-full px-5 pt-6 pb-8"
-            dir="rtl"
-            onClick={e => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 bg-black/45 flex items-end z-50" onClick={() => setDeleteConfirmId(null)}>
+          <div className="bg-white rounded-t-[22px] w-full px-5 pt-6 pb-8" dir="rtl" onClick={e => e.stopPropagation()}>
             <div className="flex justify-center mb-4">
-              <div className="w-12 h-12 bg-[#fdecea] rounded-full flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#d63031" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+              <div className="w-12 h-12 bg-[#fdecea] rounded-full flex items-center justify-center text-[#d63031]">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-6 h-6">
                   <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                  <path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
                 </svg>
               </div>
             </div>
             <h2 className="text-[16px] font-bold text-gray-900 text-center mb-1">حذف الحساب</h2>
-            <p className="text-sm text-gray-500 text-center mb-6">هل أنت متأكد من حذف هذا الحساب؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            <p className="text-sm text-gray-500 text-center mb-6">هل أنت متأكد من حذف هذا الحساب؟ لا يمكن التراجع.</p>
             <div className="flex gap-2.5">
-              <button
-                onClick={() => setDeleteConfirmId(null)}
-                className="flex-none w-20 bg-[#f0efeb] text-gray-600 text-sm font-semibold py-3 rounded-[13px] cursor-pointer"
-              >
-                إلغاء
-              </button>
-              <button
-                onClick={() => deleteAccount(deleteConfirmId)}
-                className="flex-1 bg-[#d63031] text-white text-sm font-bold py-3 rounded-[13px] cursor-pointer"
-              >
-                تأكيد الحذف
-              </button>
+              <button onClick={() => setDeleteConfirmId(null)} className="flex-none w-20 bg-[#f0efeb] text-gray-600 text-sm font-semibold py-3 rounded-[13px] cursor-pointer">إلغاء</button>
+              <button onClick={() => deleteAccount(deleteConfirmId)} className="flex-1 bg-[#d63031] text-white text-sm font-bold py-3 rounded-[13px] cursor-pointer">تأكيد الحذف</button>
             </div>
           </div>
         </div>
