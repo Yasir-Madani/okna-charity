@@ -1,10 +1,19 @@
+import { createClient } from '@supabase/supabase-js';
+
 export async function GET() {
-  await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`, {
-    headers: {
-      apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
-    }
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const { error } = await supabase
+    .from('needs')
+    .select('id')
+    .limit(1);
+
+  return Response.json({ 
+    status: error ? 'error' : 'alive',
+    success: !error,
+    time: new Date().toISOString() 
   });
-  
-  return Response.json({ status: 'alive', time: new Date().toISOString() });
 }
