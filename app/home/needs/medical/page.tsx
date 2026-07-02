@@ -65,9 +65,12 @@ export default function MedicalNeedsPage() {
     setTogglingVisibility(true)
     const newVal = !isVisible
     await supabase
-      .from('page_visibility')
-      .update({ is_visible: newVal, updated_at: new Date().toISOString() })
-      .eq('page_key', 'medical_needs')
+  .from('page_visibility')
+  .upsert({ 
+    page_key: 'medical_needs', 
+    is_visible: newVal, 
+    updated_at: new Date().toISOString() 
+  })
     setIsVisible(newVal)
     setTogglingVisibility(false)
   }
