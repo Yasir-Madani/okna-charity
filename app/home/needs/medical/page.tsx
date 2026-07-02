@@ -64,30 +64,10 @@ export default function MedicalNeedsPage() {
   const toggleVisibility = async () => {
     setTogglingVisibility(true)
     const newVal = !isVisible
-    const { data: updatedRows, error: updateError } = await supabase
+    await supabase
       .from('page_visibility')
       .update({ is_visible: newVal, updated_at: new Date().toISOString() })
       .eq('page_key', 'medical_needs')
-      .select()
-
-    // إذا لم يتحدث أي صف (السطر غير موجود أصلاً في جدول page_visibility)
-    // أو حدث خطأ، نحاول إنشاء الصف عبر upsert بدلاً من فشل العملية بصمت
-    if (updateError || !updatedRows || updatedRows.length === 0) {
-      const { error: upsertError } = await supabase
-        .from('page_visibility')
-        .upsert(
-          { page_key: 'medical_needs', is_visible: newVal, updated_at: new Date().toISOString() },
-          { onConflict: 'page_key' }
-        )
-
-      if (upsertError) {
-        console.error('فشل تحديث حالة ظهور الصفحة:', upsertError)
-        alert('تعذر حفظ حالة الظهور، الرجاء المحاولة مرة أخرى')
-        setTogglingVisibility(false)
-        return
-      }
-    }
-
     setIsVisible(newVal)
     setTogglingVisibility(false)
   }
